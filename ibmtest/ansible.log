@@ -2300,3 +2300,55 @@ Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml:26:7
 }
 2026-03-17 13:59:10,634 p=42723 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
 2026-03-17 13:59:10,634 p=42723 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=6    changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=1   
+2026-03-17 14:45:17,837 p=43190 u=lanceshort n=ansible INFO| PLAY [IBM 11.7 Infrastructure and Prerequisite Check] ******************************************************************
+2026-03-17 14:45:17,843 p=43190 u=lanceshort n=ansible INFO| TASK [Gathering Facts] *************************************************************************************************
+2026-03-17 14:45:26,198 p=43190 u=lanceshort n=ansible WARNING| [WARNING]: Host 'rhel95_ocpv_ibmcloud' is using the discovered Python interpreter at '/usr/bin/python3.9', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-03-17 14:45:26,198 p=43190 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-17 14:45:26,204 p=43190 u=lanceshort n=ansible INFO| TASK [1. Verify Operating System is RHEL] ******************************************************************************
+2026-03-17 14:45:26,223 p=43190 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2026-03-17 14:45:26,226 p=43190 u=lanceshort n=ansible INFO| TASK [2. Ensure Required System Packages are Present] ******************************************************************
+2026-03-17 14:45:49,944 p=43190 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-17 14:45:49,952 p=43190 u=lanceshort n=ansible INFO| TASK [3. Check for Java 1.8 (32-bit/64-bit compatibility)] *************************************************************
+2026-03-17 14:45:54,308 p=43190 u=lanceshort n=ansible ERROR| [ERROR]: Task failed: Module failed: non-zero return code
+Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml:26:7
+
+24         state: present
+25
+26     - name: 3. Check for Java 1.8 (32-bit/64-bit compatibility)
+         ^ column 7
+
+
+2026-03-17 14:45:54,308 p=43190 u=lanceshort n=ansible INFO| fatal: [rhel95_ocpv_ibmcloud]: FAILED! => {"changed": true, "cmd": "java -version 2>&1 | grep '1.8'", "delta": "0:00:00.013794", "end": "2026-03-17 18:45:53.866162", "msg": "non-zero return code", "rc": 1, "start": "2026-03-17 18:45:53.852368", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+2026-03-17 14:45:54,309 p=43190 u=lanceshort n=ansible INFO| ...ignoring
+2026-03-17 14:45:54,315 p=43190 u=lanceshort n=ansible INFO| TASK [4. Report Java Status] *******************************************************************************************
+2026-03-17 14:45:54,330 p=43190 u=lanceshort n=ansible INFO| skipping: [rhel95_ocpv_ibmcloud]
+2026-03-17 14:45:54,334 p=43190 u=lanceshort n=ansible INFO| TASK [5. Verify Installation Directory Exists] *************************************************************************
+2026-03-17 14:45:58,491 p=43190 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-17 14:45:58,497 p=43190 u=lanceshort n=ansible INFO| TASK [6. Summary of Memory Facts] **************************************************************************************
+2026-03-17 14:45:58,518 p=43190 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "msg": "System has 1689 MB of RAM available for the install."
+}
+2026-03-17 14:45:58,521 p=43190 u=lanceshort n=ansible INFO| TASK [7. Hardware Capacity Gatekeeper] *********************************************************************************
+2026-03-17 14:45:58,534 p=43190 u=lanceshort n=ansible ERROR| [ERROR]: Task failed: Action failed: UNSUPPORTED HARDWARE: IBM 11.7 requires at least 4 Cores and 16GB RAM.
+Detected: 2 Cores and 1689 MB RAM.
+
+Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml:48:7
+
+46         msg: "System has {{ ansible_memtotal_mb }} MB of RAM available for the install."
+47
+48     - name: 7. Hardware Capacity Gatekeeper
+         ^ column 7
+
+
+2026-03-17 14:45:58,534 p=43190 u=lanceshort n=ansible INFO| fatal: [rhel95_ocpv_ibmcloud]: FAILED! => {
+    "assertion": "ansible_processor_vcpus >= 4",
+    "changed": false,
+    "evaluated_to": false,
+    "msg": "UNSUPPORTED HARDWARE: IBM 11.7 requires at least 4 Cores and 16GB RAM.\nDetected: 2 Cores and 1689 MB RAM.\n"
+}
+2026-03-17 14:45:58,535 p=43190 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
+2026-03-17 14:45:58,535 p=43190 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=6    changed=1    unreachable=0    failed=1    skipped=1    rescued=0    ignored=1   
