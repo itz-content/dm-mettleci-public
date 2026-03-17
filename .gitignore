@@ -1,0 +1,10 @@
+# Ignore any virtual environment folder
+**/venv/
+
+# Ignore sensitive IBM Cloud keys and connection info
+**/*.pem
+**/*.key
+**/hosts.ini
+
+# Mac system junk
+.DS_Store
