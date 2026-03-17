@@ -1,0 +1,46 @@
+---
+- name: IBM 11.7 Infrastructure and Prerequisite Check
+  hosts: techzone_servers
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: 1. Verify Operating System is RHEL
+      assert:
+        that:
+          - ansible_distribution == "RedHat"
+          - ansible_distribution_major_version == "9"
+        fail_msg: "This playbook requires RHEL 9. Found {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+
+    - name: 2. Ensure Required System Packages are Present
+      yum:
+        name:
+          - gtk2
+          - libffi
+          - libgcc
+          - libstdc++
+          - tar
+          - unzip
+        state: present
+
+    - name: 3. Check for Java 1.8 (32-bit/64-bit compatibility)
+      shell: "java -version 2>&1 | grep '1.8'"
+      register: java_check
+      ignore_errors: yes
+
+    - name: 4. Report Java Status
+      debug:
+        msg: "Java 1.8 found"
+      when: java_check.rc == 0
+
+    - name: 5. Verify Installation Directory Exists
+      file:
+        path: /opt/IBM/InfoSphere
+        state: directory
+        owner: itzuser
+        group: itzuser
+        mode: '0755'
+
+    - name: 6. Summary of Memory Facts
+      debug:
+        msg: "System has {{ ansible_memtotal_mb }} MB of RAM available for the install."
