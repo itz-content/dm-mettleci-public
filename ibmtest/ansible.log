@@ -2266,3 +2266,37 @@ Python 3.9.25
 }
 2026-03-17 13:50:09,687 p=42341 u=lanceshort n=ansible ERROR| [ERROR]: Empty playbook, nothing to do: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml
 
+2026-03-17 13:57:12,063 p=42723 u=lanceshort n=ansible INFO| PLAY [IBM 11.7 Infrastructure and Prerequisite Check] ******************************************************************
+2026-03-17 13:57:12,069 p=42723 u=lanceshort n=ansible INFO| TASK [Gathering Facts] *************************************************************************************************
+2026-03-17 13:57:22,598 p=42723 u=lanceshort n=ansible WARNING| [WARNING]: Host 'rhel95_ocpv_ibmcloud' is using the discovered Python interpreter at '/usr/bin/python3.9', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-03-17 13:57:22,598 p=42723 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-17 13:57:22,604 p=42723 u=lanceshort n=ansible INFO| TASK [1. Verify Operating System is RHEL] ******************************************************************************
+2026-03-17 13:57:22,625 p=42723 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2026-03-17 13:57:22,628 p=42723 u=lanceshort n=ansible INFO| TASK [2. Ensure Required System Packages are Present] ******************************************************************
+2026-03-17 13:59:01,895 p=42723 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-17 13:59:01,902 p=42723 u=lanceshort n=ansible INFO| TASK [3. Check for Java 1.8 (32-bit/64-bit compatibility)] *************************************************************
+2026-03-17 13:59:06,297 p=42723 u=lanceshort n=ansible ERROR| [ERROR]: Task failed: Module failed: non-zero return code
+Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml:26:7
+
+24         state: present
+25
+26     - name: 3. Check for Java 1.8 (32-bit/64-bit compatibility)
+         ^ column 7
+
+
+2026-03-17 13:59:06,298 p=42723 u=lanceshort n=ansible INFO| fatal: [rhel95_ocpv_ibmcloud]: FAILED! => {"changed": true, "cmd": "java -version 2>&1 | grep '1.8'", "delta": "0:00:00.012556", "end": "2026-03-17 17:59:05.719641", "msg": "non-zero return code", "rc": 1, "start": "2026-03-17 17:59:05.707085", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+2026-03-17 13:59:06,298 p=42723 u=lanceshort n=ansible INFO| ...ignoring
+2026-03-17 13:59:06,301 p=42723 u=lanceshort n=ansible INFO| TASK [4. Report Java Status] *******************************************************************************************
+2026-03-17 13:59:06,307 p=42723 u=lanceshort n=ansible INFO| skipping: [rhel95_ocpv_ibmcloud]
+2026-03-17 13:59:06,309 p=42723 u=lanceshort n=ansible INFO| TASK [5. Verify Installation Directory Exists] *************************************************************************
+2026-03-17 13:59:10,608 p=42723 u=lanceshort n=ansible INFO| changed: [rhel95_ocpv_ibmcloud]
+2026-03-17 13:59:10,614 p=42723 u=lanceshort n=ansible INFO| TASK [6. Summary of Memory Facts] **************************************************************************************
+2026-03-17 13:59:10,633 p=42723 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "msg": "System has 1689 MB of RAM available for the install."
+}
+2026-03-17 13:59:10,634 p=42723 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
+2026-03-17 13:59:10,634 p=42723 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=6    changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=1   

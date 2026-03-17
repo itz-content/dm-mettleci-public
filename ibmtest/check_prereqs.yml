@@ -44,3 +44,13 @@
     - name: 6. Summary of Memory Facts
       debug:
         msg: "System has {{ ansible_memtotal_mb }} MB of RAM available for the install."
+
+    - name: 7. Hardware Capacity Gatekeeper
+      assert:
+        that:
+          - ansible_processor_vcpus >= 4
+          - ansible_memtotal_mb >= 16000
+        fail_msg: |
+          UNSUPPORTED HARDWARE: IBM 11.7 requires at least 4 Cores and 16GB RAM.
+          Detected: {{ ansible_processor_vcpus }} Cores and {{ ansible_memtotal_mb }} MB RAM.
+        success_msg: "Hardware check passed. Ready for IBM 11.7 installation."
