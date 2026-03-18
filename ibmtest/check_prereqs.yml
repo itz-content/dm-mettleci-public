@@ -49,7 +49,7 @@
       assert:
         that:
           - ansible_processor_vcpus >= 4
-          - ansible_memtotal_mb >= 16000
+          - ansible_memtotal_mb >= 15000
         fail_msg: |
           UNSUPPORTED HARDWARE: IBM 11.7 requires at least 4 Cores and 16GB RAM.
           Detected: {{ ansible_processor_vcpus }} Cores and {{ ansible_memtotal_mb }} MB RAM.
