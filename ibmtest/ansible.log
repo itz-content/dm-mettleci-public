@@ -2404,3 +2404,42 @@ Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml:48:7
 }
 2026-03-18 10:44:40,274 p=48671 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
 2026-03-18 10:44:40,274 p=48671 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=6    changed=2    unreachable=0    failed=1    skipped=1    rescued=0    ignored=1   
+2026-03-18 11:31:10,234 p=49417 u=lanceshort n=ansible INFO| PLAY [IBM 11.7 Infrastructure and Prerequisite Check] ******************************************************************
+2026-03-18 11:31:10,239 p=49417 u=lanceshort n=ansible INFO| TASK [Gathering Facts] *************************************************************************************************
+2026-03-18 11:31:16,457 p=49417 u=lanceshort n=ansible WARNING| [WARNING]: Host 'rhel95_ocpv_ibmcloud' is using the discovered Python interpreter at '/usr/bin/python3.9', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-03-18 11:31:16,458 p=49417 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-18 11:31:16,463 p=49417 u=lanceshort n=ansible INFO| TASK [1. Verify Operating System is RHEL] ******************************************************************************
+2026-03-18 11:31:16,484 p=49417 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2026-03-18 11:31:16,487 p=49417 u=lanceshort n=ansible INFO| TASK [2. Ensure Required System Packages are Present] ******************************************************************
+2026-03-18 11:31:23,988 p=49417 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-18 11:31:23,996 p=49417 u=lanceshort n=ansible INFO| TASK [3. Check for Java 1.8 (32-bit/64-bit compatibility)] *************************************************************
+2026-03-18 11:31:27,301 p=49417 u=lanceshort n=ansible ERROR| [ERROR]: Task failed: Module failed: non-zero return code
+Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml:26:7
+
+24         state: present
+25
+26     - name: 3. Check for Java 1.8 (32-bit/64-bit compatibility)
+         ^ column 7
+
+
+2026-03-18 11:31:27,302 p=49417 u=lanceshort n=ansible INFO| fatal: [rhel95_ocpv_ibmcloud]: FAILED! => {"changed": true, "cmd": "java -version 2>&1 | grep '1.8'", "delta": "0:00:00.008005", "end": "2026-03-18 15:31:26.970714", "msg": "non-zero return code", "rc": 1, "start": "2026-03-18 15:31:26.962709", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+2026-03-18 11:31:27,302 p=49417 u=lanceshort n=ansible INFO| ...ignoring
+2026-03-18 11:31:27,308 p=49417 u=lanceshort n=ansible INFO| TASK [4. Report Java Status] *******************************************************************************************
+2026-03-18 11:31:27,324 p=49417 u=lanceshort n=ansible INFO| skipping: [rhel95_ocpv_ibmcloud]
+2026-03-18 11:31:27,328 p=49417 u=lanceshort n=ansible INFO| TASK [5. Verify Installation Directory Exists] *************************************************************************
+2026-03-18 11:31:30,504 p=49417 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-18 11:31:30,510 p=49417 u=lanceshort n=ansible INFO| TASK [6. Summary of Memory Facts] **************************************************************************************
+2026-03-18 11:31:30,532 p=49417 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "msg": "System has 15711 MB of RAM available for the install."
+}
+2026-03-18 11:31:30,535 p=49417 u=lanceshort n=ansible INFO| TASK [7. Hardware Capacity Gatekeeper] *********************************************************************************
+2026-03-18 11:31:30,548 p=49417 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "changed": false,
+    "msg": "Hardware check passed. Ready for IBM 11.7 installation."
+}
+2026-03-18 11:31:30,549 p=49417 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
+2026-03-18 11:31:30,549 p=49417 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=7    changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=1   

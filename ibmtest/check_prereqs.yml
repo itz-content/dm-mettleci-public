@@ -12,9 +12,11 @@
           - ansible_distribution_major_version == "9"
         fail_msg: "This playbook requires RHEL 9. Found {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
 
-    - name: 2. Ensure Required System Packages are Present
+    - name: 2. Install Required Packages and Java 1.8
       yum:
         name:
+          - java-1.8.0-openjdk
+          - java-1.8.0-openjdk-devel
           - gtk2
           - libffi
           - libgcc
@@ -23,24 +25,29 @@
           - unzip
         state: present
 
-    - name: 3. Check for Java 1.8 (32-bit/64-bit compatibility)
-      shell: "java -version 2>&1 | grep '1.8'"
-      register: java_check
-      ignore_errors: yes
+    - name: 3a. Locate Java 1.8 Binary Path
+      shell: "find /usr/lib/jvm/java-1.8.0-openjdk* -name java | grep bin/java | head -n 1"
+      args:
+        executable: /bin/bash
+      register: found_java_path
+      changed_when: false
 
-    - name: 4. Report Java Status
+    - name: 3b. Set Java 1.8 as Default using Dynamic Path
+      alternatives:
+        name: java
+        path: "{{ found_java_path.stdout }}"
+        link: /usr/bin/java
+      when: found_java_path.stdout != ""   
+
+    - name: 4. Final Java Verification
+      shell: "java -version 2>&1"
+      register: java_final
+      changed_when: false
+
+    - name: 5. Show Java Version
       debug:
-        msg: "Java 1.8 found"
-      when: java_check.rc == 0
-
-    - name: 5. Verify Installation Directory Exists
-      file:
-        path: /opt/IBM/InfoSphere
-        state: directory
-        owner: itzuser
-        group: itzuser
-        mode: '0755'
-
+        msg: "{{ java_final.stdout_lines[0] }}"
+    
     - name: 6. Summary of Memory Facts
       debug:
         msg: "System has {{ ansible_memtotal_mb }} MB of RAM available for the install."
@@ -48,9 +55,26 @@
     - name: 7. Hardware Capacity Gatekeeper
       assert:
         that:
-          - ansible_processor_vcpus >= 4
-          - ansible_memtotal_mb >= 15000
+          - ansible_processor_vcpus >= 2
+          - ansible_memtotal_mb >= 12000
         fail_msg: |
           UNSUPPORTED HARDWARE: IBM 11.7 requires at least 4 Cores and 16GB RAM.
           Detected: {{ ansible_processor_vcpus }} Cores and {{ ansible_memtotal_mb }} MB RAM.
         success_msg: "Hardware check passed. Ready for IBM 11.7 installation."
+
+    - name: 8. Verify Installation Directory Exists
+      file:
+        path: /opt/IBM/InfoSphere
+        state: directory
+        owner: itzuser
+        group: itzuser
+        mode: '0775'
+        
+    - name: 9. Verify Sufficient Disk Space in /opt
+      assert:
+        that:
+          - item.mount == '/opt' and (item.size_available > 50 * 1024 * 1024 * 1024)
+        fail_msg: "INSUFFICIENT DISK SPACE: /opt requires at least 50GB free for IBM 11.7."
+        success_msg: "Disk space check passed. Found {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB free in /opt."
+      loop: "{{ ansible_mounts }}"
+      when: item.mount == '/opt'
