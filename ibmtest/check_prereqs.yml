@@ -64,17 +64,19 @@
 
     - name: 8. Verify Installation Directory Exists
       file:
-        path: /opt/IBM/InfoSphere
+        path: /mnt/second/IBM/InfoSphere
         state: directory
         owner: itzuser
         group: itzuser
         mode: '0775'
-        
-    - name: 9. Verify Sufficient Disk Space in /opt
+        recurse: yes
+
+    - name: 9. Verify Sufficient Disk Space on Secondary Mount
       assert:
         that:
-          - item.mount == '/opt' and (item.size_available > 50 * 1024 * 1024 * 1024)
-        fail_msg: "INSUFFICIENT DISK SPACE: /opt requires at least 50GB free for IBM 11.7."
-        success_msg: "Disk space check passed. Found {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB free in /opt."
+          - item.mount == '/mnt/second' and (item.size_available > 60 * 1024 * 1024 * 1024)
+        fail_msg: "INSUFFICIENT SPACE: /mnt/second needs at least 60GB for the IBM binaries."
+        success_msg: "Secondary disk check passed. Found {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB free."
       loop: "{{ ansible_mounts }}"
-      when: item.mount == '/opt'
+      when: item.mount == '/mnt/second'  
+   
