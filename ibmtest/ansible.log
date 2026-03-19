@@ -2546,3 +2546,78 @@ Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml:26:7
 }
 2026-03-18 12:22:37,658 p=50456 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
 2026-03-18 12:22:37,658 p=50456 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=11   changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2026-03-19 16:38:17,373 p=75011 u=lanceshort n=ansible INFO| PLAY [IBM 11.7 Infrastructure and Prerequisite Check] ******************************************************************
+2026-03-19 16:38:17,379 p=75011 u=lanceshort n=ansible INFO| TASK [Gathering Facts] *************************************************************************************************
+2026-03-19 16:38:24,048 p=75011 u=lanceshort n=ansible WARNING| [WARNING]: Host 'rhel95_ocpv_ibmcloud' is using the discovered Python interpreter at '/usr/bin/python3.9', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-03-19 16:38:24,048 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:38:24,054 p=75011 u=lanceshort n=ansible INFO| TASK [1. Verify Operating System is RHEL] ******************************************************************************
+2026-03-19 16:38:24,075 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2026-03-19 16:38:24,078 p=75011 u=lanceshort n=ansible INFO| TASK [2. Install Required Packages and Java 1.8] ***********************************************************************
+2026-03-19 16:38:31,561 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:38:31,568 p=75011 u=lanceshort n=ansible INFO| TASK [3a. Locate Java 1.8 Binary Path] *********************************************************************************
+2026-03-19 16:38:34,914 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:38:34,921 p=75011 u=lanceshort n=ansible INFO| TASK [3b. Set Java 1.8 as Default using Dynamic Path] ******************************************************************
+2026-03-19 16:38:38,371 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:38:38,377 p=75011 u=lanceshort n=ansible INFO| TASK [4. Final Java Verification] **************************************************************************************
+2026-03-19 16:38:41,916 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:38:41,923 p=75011 u=lanceshort n=ansible INFO| TASK [5. Show Java Version] ********************************************************************************************
+2026-03-19 16:38:41,944 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "msg": "openjdk version \"1.8.0_482\""
+}
+2026-03-19 16:38:41,948 p=75011 u=lanceshort n=ansible INFO| TASK [6. Summary of Memory Facts] **************************************************************************************
+2026-03-19 16:38:41,959 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "msg": "System has 15711 MB of RAM available for the install."
+}
+2026-03-19 16:38:41,962 p=75011 u=lanceshort n=ansible INFO| TASK [7. Hardware Capacity Gatekeeper] *********************************************************************************
+2026-03-19 16:38:41,974 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "changed": false,
+    "msg": "Hardware check passed. Ready for IBM 11.7 installation."
+}
+2026-03-19 16:38:41,976 p=75011 u=lanceshort n=ansible INFO| TASK [8a. Ensure IBM Parent Directory Exists] **************************************************************************
+2026-03-19 16:38:45,456 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:38:45,462 p=75011 u=lanceshort n=ansible INFO| TASK [8b. Ensure InfoSphere Subdirectory Exists] ***********************************************************************
+2026-03-19 16:38:48,932 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:38:48,938 p=75011 u=lanceshort n=ansible INFO| TASK [8c. Create Home Parent Directory on Secondary Disk] **************************************************************
+2026-03-19 16:38:52,259 p=75011 u=lanceshort n=ansible INFO| changed: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:38:52,265 p=75011 u=lanceshort n=ansible INFO| TASK [8d. Create IBM Service Groups] ***********************************************************************************
+2026-03-19 16:38:55,757 p=75011 u=lanceshort n=ansible INFO| changed: [rhel95_ocpv_ibmcloud] => (item=dstage)
+2026-03-19 16:38:59,188 p=75011 u=lanceshort n=ansible INFO| changed: [rhel95_ocpv_ibmcloud] => (item=db2iadm1)
+2026-03-19 16:39:02,637 p=75011 u=lanceshort n=ansible INFO| changed: [rhel95_ocpv_ibmcloud] => (item=faspgrp)
+2026-03-19 16:39:02,647 p=75011 u=lanceshort n=ansible INFO| TASK [8e. Create IBM Service Users on Secondary Disk] ******************************************************************
+2026-03-19 16:39:06,225 p=75011 u=lanceshort n=ansible INFO| changed: [rhel95_ocpv_ibmcloud] => (item={'name': 'dsadm', 'group': 'dstage'})
+2026-03-19 16:39:10,181 p=75011 u=lanceshort n=ansible INFO| changed: [rhel95_ocpv_ibmcloud] => (item={'name': 'db2inst1', 'group': 'db2iadm1'})
+2026-03-19 16:39:10,190 p=75011 u=lanceshort n=ansible INFO| TASK [8f. Ensure itzuser is in the IBM groups] *************************************************************************
+2026-03-19 16:39:13,724 p=75011 u=lanceshort n=ansible INFO| changed: [rhel95_ocpv_ibmcloud]
+2026-03-19 16:39:13,730 p=75011 u=lanceshort n=ansible INFO| TASK [9. Verify Sufficient Disk Space on Secondary Mount] **************************************************************
+2026-03-19 16:39:13,748 p=75011 u=lanceshort n=ansible INFO| skipping: [rhel95_ocpv_ibmcloud] => (item={'mount': '/', 'device': '/dev/mapper/sysvg-lv_root', 'fstype': 'xfs', 'options': 'rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota', 'dump': 0, 'passno': 0, 'size_total': 39657144320, 'size_available': 32109228032, 'block_size': 4096, 'block_total': 9681920, 'block_available': 7839167, 'block_used': 1842753, 'inode_total': 19396608, 'inode_available': 19264419, 'inode_used': 132189, 'uuid': '390cd2b4-49e8-4160-868d-8221061b6ac1'}) 
+2026-03-19 16:39:13,749 p=75011 u=lanceshort n=ansible INFO| skipping: [rhel95_ocpv_ibmcloud] => (item={'mount': '/boot', 'device': '/dev/vda2', 'fstype': 'xfs', 'options': 'rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota', 'dump': 0, 'passno': 0, 'size_total': 1006632960, 'size_available': 254898176, 'block_size': 4096, 'block_total': 245760, 'block_available': 62231, 'block_used': 183529, 'inode_total': 498104, 'inode_available': 498064, 'inode_used': 40, 'uuid': '87aa96c7-ead1-492a-99d0-6af482e5ee80'}) 
+2026-03-19 16:39:13,751 p=75011 u=lanceshort n=ansible INFO| skipping: [rhel95_ocpv_ibmcloud] => (item={'mount': '/boot/efi', 'device': '/dev/vda1', 'fstype': 'vfat', 'options': 'rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=winnt,errors=remount-ro', 'dump': 0, 'passno': 0, 'size_total': 1071628288, 'size_available': 1063882752, 'block_size': 4096, 'block_total': 261628, 'block_available': 259737, 'block_used': 1891, 'inode_total': 0, 'inode_available': 0, 'inode_used': 0, 'uuid': '410D-63DD'}) 
+2026-03-19 16:39:13,766 p=75011 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => (item={'mount': '/mnt/second', 'device': '/dev/vdc1', 'fstype': 'xfs', 'options': 'rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota', 'dump': 0, 'passno': 0, 'size_total': 107306024960, 'size_available': 106524008448, 'block_size': 4096, 'block_total': 26197760, 'block_available': 26006838, 'block_used': 190922, 'inode_total': 52428288, 'inode_available': 52428283, 'inode_used': 5, 'uuid': 'fba60059-b3a3-4d04-baa2-7cbbabc8bfcc'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "block_available": 26006838,
+        "block_size": 4096,
+        "block_total": 26197760,
+        "block_used": 190922,
+        "device": "/dev/vdc1",
+        "dump": 0,
+        "fstype": "xfs",
+        "inode_available": 52428283,
+        "inode_total": 52428288,
+        "inode_used": 5,
+        "mount": "/mnt/second",
+        "options": "rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota",
+        "passno": 0,
+        "size_available": 106524008448,
+        "size_total": 107306024960,
+        "uuid": "fba60059-b3a3-4d04-baa2-7cbbabc8bfcc"
+    },
+    "msg": "Secondary disk check passed. Found 99.21 GB free."
+}
+2026-03-19 16:39:13,768 p=75011 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
+2026-03-19 16:39:13,768 p=75011 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=16   changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   

@@ -5,12 +5,13 @@
   gather_facts: no
 
   vars:
+    # Path relative to where you run the playbook on your Mac
     local_binary_path: "./IS_V11716"
     binary_name: "IS_V11716_Linux_x86_multi.tar.gz"
     remote_staging_path: "/mnt/second/IBM/InfoSphere"
 
   tasks:
-    - name: 1. Upload and Extract IBM Installer (This will take 10-20 mins)
+    - name: 1. Upload and Extract IBM Installer (This takes time!)
       unarchive:
         src: "{{ local_binary_path }}/{{ binary_name }}"
         dest: "{{ remote_staging_path }}"
@@ -20,7 +21,7 @@
         remote_src: no
       register: transfer_result
 
-    - name: 2. Fix Permissions on Extracted Files
+    - name: 2. Fix Permissions for itzuser
       file:
         path: "{{ remote_staging_path }}"
         owner: itzuser
@@ -28,12 +29,12 @@
         recurse: yes
         state: directory
 
-    - name: 3. Verify Installer 'setup' File Exists
+    - name: 3. Verify Installer 'setup' File Presence
       stat:
         path: "{{ remote_staging_path }}/is-suite/setup"
       register: setup_file
 
-    - name: 4. Report Success
+    - name: 4. Final Confirmation
       debug:
-        msg: "Installer is ready at {{ remote_staging_path }}/is-suite/setup"
+        msg: "Ready to install! Execute: {{ remote_staging_path }}/is-suite/setup"
       when: setup_file.stat.exists
