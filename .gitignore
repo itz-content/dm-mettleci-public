@@ -1,6 +1,9 @@
 # Ignore any virtual environment folder
 **/venv/
 
+#Ignore Software folder
+**/IS_V11716
+
 # Ignore sensitive IBM Cloud keys and connection info
 **/*.pem
 **/*.key
