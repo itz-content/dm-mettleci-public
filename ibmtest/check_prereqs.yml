@@ -62,7 +62,7 @@
           Detected: {{ ansible_processor_vcpus }} Cores and {{ ansible_memtotal_mb }} MB RAM.
         success_msg: "Hardware check passed. Ready for IBM 11.7 installation."
 
-    - name: 8. Verify Installation Directory Exists
+    - name: 8a. Verify Installation Directory Exists
       file:
         path: /mnt/second/IBM/InfoSphere
         state: directory
@@ -70,6 +70,33 @@
         group: itzuser
         mode: '0775'
         recurse: yes
+
+    - name: 8b. Create IBM Service Groups
+      group:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - dstage      # Primary group for DataStage Engine
+        - db2iadm1    # Primary group for DB2 Instance
+        - faspgrp     # Required for some 11.7 features
+
+    - name: 8c. Create IBM Service Users on Secondary Disk
+      user:
+        name: "{{ item.name }}"
+        group: "{{ item.group }}"
+        home: "/mnt/second/home/{{ item.name }}"
+        shell: /bin/bash
+        state: present
+        create_home: yes
+      loop:
+        - { name: 'dsadm', group: 'dstage' }
+        - { name: 'db2inst1', group: 'db2iadm1' }
+
+    - name: 8d. Ensure itzuser is in the IBM groups
+      user:
+        name: itzuser
+        groups: dstage,db2iadm1
+        append: yes 
 
     - name: 9. Verify Sufficient Disk Space on Secondary Mount
       assert:
