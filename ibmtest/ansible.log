@@ -2621,3 +2621,80 @@ Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_prereqs.yml:26:7
 }
 2026-03-19 16:39:13,768 p=75011 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
 2026-03-19 16:39:13,768 p=75011 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=16   changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2026-03-19 16:45:14,513 p=75265 u=lanceshort n=ansible INFO| PLAY [Transfer and Extract IBM 11.7.1.6 Binaries] **********************************************************************
+2026-03-19 16:45:14,519 p=75265 u=lanceshort n=ansible INFO| TASK [1. Upload and Extract IBM Installer (This takes time!)] **********************************************************
+2026-03-19 16:45:14,744 p=75265 u=lanceshort n=ansible ERROR| [ERROR]: Task failed: Failed to connect to the host via ssh: Connection closed by 67.18.131.28 port 10022
+Origin: /Users/lanceshort/AnsibleProjects/ibmtest/transfer_binaries.yml:14:7
+
+12
+13   tasks:
+14     - name: 1. Upload and Extract IBM Installer (This takes time!)
+         ^ column 7
+
+
+2026-03-19 16:45:14,744 p=75265 u=lanceshort n=ansible INFO| fatal: [rhel95_ocpv_ibmcloud]: UNREACHABLE! => {"changed": false, "msg": "Task failed: Failed to connect to the host via ssh: Connection closed by 67.18.131.28 port 10022", "unreachable": true}
+2026-03-19 16:45:14,745 p=75265 u=lanceshort n=ansible INFO| PLAY RECAP *************************************************************************************************************
+2026-03-19 16:45:14,745 p=75265 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=0    changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0   
+2026-03-19 17:33:10,730 p=75975 u=lanceshort n=ansible INFO| PLAY [Verify RHEL-to-Mac Connectivity] ****************************************************************************
+2026-03-19 17:33:10,736 p=75975 u=lanceshort n=ansible INFO| TASK [1. Test Web Server Reachability] ****************************************************************************
+2026-03-19 17:33:25,924 p=75975 u=lanceshort n=ansible WARNING| [WARNING]: Host 'rhel95_ocpv_ibmcloud' is using the discovered Python interpreter at '/usr/bin/python3.9', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-03-19 17:33:25,925 p=75975 u=lanceshort n=ansible ERROR| [ERROR]: Task failed: Module failed: Status code was -1 and not [200]: Request failed: <urlopen error timed out>
+Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_connectivity.yml:10:7
+
+ 8
+ 9   tasks:
+10     - name: 1. Test Web Server Reachability
+         ^ column 7
+
+
+2026-03-19 17:33:25,925 p=75975 u=lanceshort n=ansible INFO| fatal: [rhel95_ocpv_ibmcloud]: FAILED! => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python3.9"}, "changed": false, "elapsed": 10, "msg": "Status code was -1 and not [200]: Request failed: <urlopen error timed out>", "redirected": false, "status": -1, "url": "http://100.64.0.6:8080"}
+2026-03-19 17:33:25,926 p=75975 u=lanceshort n=ansible INFO| ...ignoring
+2026-03-19 17:33:25,931 p=75975 u=lanceshort n=ansible INFO| TASK [2. Connection Diagnostics] **********************************************************************************
+2026-03-19 17:33:25,954 p=75975 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "msg": " FAILED: The VM cannot reach your Mac.  Check if your Mac Firewall is on or if you need to use a VPN IP. "
+}
+2026-03-19 17:33:25,955 p=75975 u=lanceshort n=ansible INFO| PLAY RECAP ********************************************************************************************************
+2026-03-19 17:33:25,955 p=75975 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1   
+2026-03-19 17:37:40,670 p=76029 u=lanceshort n=ansible INFO| PLAY [Verify RHEL-to-Mac Connectivity] ****************************************************************************
+2026-03-19 17:37:40,674 p=76029 u=lanceshort n=ansible INFO| TASK [1. Test Web Server Reachability] ****************************************************************************
+2026-03-19 17:37:56,077 p=76029 u=lanceshort n=ansible WARNING| [WARNING]: Host 'rhel95_ocpv_ibmcloud' is using the discovered Python interpreter at '/usr/bin/python3.9', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-03-19 17:37:56,078 p=76029 u=lanceshort n=ansible ERROR| [ERROR]: Task failed: Module failed: Status code was -1 and not [200]: Request failed: <urlopen error timed out>
+Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_connectivity.yml:10:7
+
+ 8
+ 9   tasks:
+10     - name: 1. Test Web Server Reachability
+         ^ column 7
+
+
+2026-03-19 17:37:56,078 p=76029 u=lanceshort n=ansible INFO| fatal: [rhel95_ocpv_ibmcloud]: FAILED! => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python3.9"}, "changed": false, "elapsed": 10, "msg": "Status code was -1 and not [200]: Request failed: <urlopen error timed out>", "redirected": false, "status": -1, "url": "http://100.64.0.6:8080"}
+2026-03-19 17:37:56,078 p=76029 u=lanceshort n=ansible INFO| ...ignoring
+2026-03-19 17:37:56,082 p=76029 u=lanceshort n=ansible INFO| TASK [2. Connection Diagnostics] **********************************************************************************
+2026-03-19 17:37:56,105 p=76029 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "msg": " FAILED: The VM cannot reach your Mac.  Check if your Mac Firewall is on or if you need to use a VPN IP. "
+}
+2026-03-19 17:37:56,106 p=76029 u=lanceshort n=ansible INFO| PLAY RECAP ********************************************************************************************************
+2026-03-19 17:37:56,106 p=76029 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1   
+2026-03-19 18:37:19,795 p=76506 u=lanceshort n=ansible INFO| PLAY [Verify RHEL-to-Mac Connectivity] ****************************************************************************
+2026-03-19 18:37:19,800 p=76506 u=lanceshort n=ansible INFO| TASK [1. Test Web Server Reachability] ****************************************************************************
+2026-03-19 18:37:35,460 p=76506 u=lanceshort n=ansible WARNING| [WARNING]: Host 'rhel95_ocpv_ibmcloud' is using the discovered Python interpreter at '/usr/bin/python3.9', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-03-19 18:37:35,461 p=76506 u=lanceshort n=ansible ERROR| [ERROR]: Task failed: Module failed: Status code was -1 and not [200]: Request failed: <urlopen error timed out>
+Origin: /Users/lanceshort/AnsibleProjects/ibmtest/check_connectivity.yml:10:7
+
+ 8
+ 9   tasks:
+10     - name: 1. Test Web Server Reachability
+         ^ column 7
+
+
+2026-03-19 18:37:35,461 p=76506 u=lanceshort n=ansible INFO| fatal: [rhel95_ocpv_ibmcloud]: FAILED! => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python3.9"}, "changed": false, "elapsed": 10, "msg": "Status code was -1 and not [200]: Request failed: <urlopen error timed out>", "redirected": false, "status": -1, "url": "http://100.64.0.6:8080"}
+2026-03-19 18:37:35,461 p=76506 u=lanceshort n=ansible INFO| ...ignoring
+2026-03-19 18:37:35,465 p=76506 u=lanceshort n=ansible INFO| TASK [2. Connection Diagnostics] **********************************************************************************
+2026-03-19 18:37:35,488 p=76506 u=lanceshort n=ansible INFO| ok: [rhel95_ocpv_ibmcloud] => {
+    "msg": " FAILED: The VM cannot reach your Mac.  Check if your Mac Firewall is on or if you need to use a VPN IP. "
+}
+2026-03-19 18:37:35,489 p=76506 u=lanceshort n=ansible INFO| PLAY RECAP ********************************************************************************************************
+2026-03-19 18:37:35,489 p=76506 u=lanceshort n=ansible INFO| rhel95_ocpv_ibmcloud       : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1   
