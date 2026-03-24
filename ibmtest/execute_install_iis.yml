@@ -18,8 +18,15 @@
           - libnsl
           - libxcrypt-compat
         state: present
+    
+    - name: 2. Create InfoSphere Console Admin (isadmin)
+      user:
+        name: isadmin
+        groups: dstage,db2iadm1
+        append: yes
+        state: present
 
-    - name: 2. Copy Response File to VM
+    - name: 3. Copy Response File to VM
       template:
         src: "{{ response_file_local }}"
         dest: "{{ response_file_remote }}"
@@ -27,7 +34,7 @@
         group: itzuser
         mode: '0644'
 
-    - name: 3. Create Secure Password File on VM
+    - name: 4. Create Secure Password File on VM
       copy:
         content: |
           is.console.password={{ ibm_password }}
@@ -38,7 +45,7 @@
         group: itzuser
         mode: '0600'
 
-    - name: 4. Run the IBM Installer (Silent Mode)
+    - name: 5. Run the IBM Installer (Silent Mode)
       # This task will take 45-90 minutes depending on DB2/WebSphere setup
       shell: "./setup -rsp {{ response_file_remote }} -verbose"
       args:
@@ -47,6 +54,6 @@
       async: 7200  
       poll: 60     
 
-    - name: 5. Show Installation Summary
+    - name: 6. Show Installation Summary
       debug:
         var: install_output.stdout_lines
