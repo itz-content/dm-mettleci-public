@@ -1,0 +1,53 @@
+---
+- name: Tune RHEL 9 for IBM Information Server 11.7
+  hosts: techzone_servers
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: 1. Configure Linux User Limits (ulimits)
+      pam_limits:
+        domain: "{{ item.domain }}"
+        limit_type: "-"
+        limit_item: "{{ item.limit_item }}"
+        value: "{{ item.value }}"
+      loop:
+        # Installer User
+        - { domain: 'itzuser', limit_item: 'nofile', value: 65536 }
+        - { domain: 'itzuser', limit_item: 'nproc', value: 16384 }
+        - { domain: 'itzuser', limit_item: 'fsize', value: 'unlimited' }
+        - { domain: 'itzuser', limit_item: 'stack', value: 10240 }
+        
+        # DataStage Engine User
+        - { domain: 'dsadm', limit_item: 'nofile', value: 65536 }
+        - { domain: 'dsadm', limit_item: 'nproc', value: 16384 }
+        
+        # DB2 Instance Owner
+        - { domain: 'db2inst1', limit_item: 'nofile', value: 65536 }
+        - { domain: 'db2inst1', limit_item: 'nproc', value: 16384 }
+        - { domain: 'db2inst1', limit_item: 'data', value: 'unlimited' }
+
+    - name: 2. Configure Kernel Parameters (sysctl)
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      loop:
+        # Shared Memory (8GB example for 12GB+ RAM systems)
+        - { name: 'kernel.shmmax', value: '8589934592' }
+        - { name: 'kernel.shmall', value: '2097152' }
+        # Semaphores
+        - { name: 'kernel.sem', value: '250 32000 100 128' }
+        # Message Queues
+        - { name: 'kernel.msgmax', value: '65536' }
+        - { name: 'kernel.msgmnb', value: '65536' }
+        # Memory Management
+        - { name: 'vm.swappiness', value: '10' }
+        - { name: 'vm.max_map_count', value: '262144' }
+
+    - name: 3. Verify itzuser Group Membership
+      user:
+        name: itzuser
+        groups: dstage,db2iadm1
+        append: yes
