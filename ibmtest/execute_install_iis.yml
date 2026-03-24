@@ -1,0 +1,52 @@
+---
+- name: Execute IBM Information Server 11.7.1.6 Silent Install
+  hosts: techzone_servers
+  become: yes
+  gather_facts: no
+
+  vars:
+    installer_path: "/mnt/second/IBM/InfoSphere/is-suite"
+    response_file_local: "./responsems.txt"
+    response_file_remote: "/tmp/responsems.txt"
+    password_file_remote: "/tmp/password.txt"
+    ibm_password: "IBMiis@117$1!6"
+
+  tasks:
+    - name: 1. Ensure RHEL 9 Compatibility Libraries are Present
+      dnf:
+        name:
+          - libnsl
+          - libxcrypt-compat
+        state: present
+
+    - name: 2. Copy Response File to VM
+      template:
+        src: "{{ response_file_local }}"
+        dest: "{{ response_file_remote }}"
+        owner: itzuser
+        group: itzuser
+        mode: '0644'
+
+    - name: 3. Create Secure Password File on VM
+      copy:
+        content: |
+          is.console.password={{ ibm_password }}
+          db2.instance.password={{ ibm_password }}
+          is.admin.password={{ ibm_password }}
+        dest: "{{ password_file_remote }}"
+        owner: itzuser
+        group: itzuser
+        mode: '0600'
+
+    - name: 4. Run the IBM Installer (Silent Mode)
+      # This task will take 45-90 minutes depending on DB2/WebSphere setup
+      shell: "./setup -rsp {{ response_file_remote }} -verbose"
+      args:
+        chdir: "{{ installer_path }}"
+      register: install_output
+      async: 7200  
+      poll: 60     
+
+    - name: 5. Show Installation Summary
+      debug:
+        var: install_output.stdout_lines
