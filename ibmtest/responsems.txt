@@ -37,4 +37,4 @@
 -OPT ds.admin.group=dstage
 
 # 7. --- License Agreement ---
--OPT acceptLicense=true
+-OPT LicAgreement=ACCEPT
