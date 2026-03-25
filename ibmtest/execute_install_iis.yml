@@ -12,6 +12,15 @@
     ibm_password: "IBMiis@117$1!6"
 
   tasks:
+
+    - name: 0. Cleanup any stuck IBM installer processes and locks
+      shell: |
+        pkill -9 -f is-suite || true
+        pkill -9 -f setup || true
+        rm -rf /tmp/IBM_Information_Server_Install_Lock
+        rm -rf /tmp/is-suite*
+      ignore_errors: yes
+
     - name: 1. Ensure RHEL 9 Compatibility Libraries are Present
       dnf:
         name:
