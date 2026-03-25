@@ -2,7 +2,7 @@
 - name: Execute IBM Information Server 11.7.1.6 Silent Install
   hosts: techzone_servers
   become: yes
-  gather_facts: no
+  gather_facts: yes
 
   vars:
     installer_path: "/mnt/second/IBM/InfoSphere/is-suite"
@@ -63,7 +63,7 @@
 
     - name: 5. Run the IBM Installer (Silent Mode)
       # This task will take 45-90 minutes depending on DB2/WebSphere setup
-      shell: "./setup -rsp {{ response_file_remote }} -acceptLicense true -verbose"
+      shell: "./setup -rsp {{ response_file_remote }} -acceptLicense true -licAgreement ACCEPT -verbose"
       args:
         chdir: "{{ installer_path }}"
       register: install_output
