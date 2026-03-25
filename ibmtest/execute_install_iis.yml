@@ -28,14 +28,7 @@
         name:
           - libnsl
           - libxcrypt-compat
-          - haveged  # This provides the "randomness" Java needs to start
-        state: present
-
-    - name: 1.1. Start Haveged Entropy Service
-      systemd:
-        name: haveged
-        state: started
-        enabled: yes   
+        state : present
 
     - name: 1.5. Ensure Local Hostname is in /etc/hosts (Prevents IBM Hang)
       lineinfile:
@@ -79,6 +72,8 @@
         # Force a single locale to stop the CA/US "getLanguage" hang
         LC_ALL: "en_US.UTF-8"
         LANG: "en_US.UTF-8"
+        # The JVM "No-Wait" flag
+        IBM_JAVA_OPTIONS: "-Djava.security.egd=file:/dev/./urandom"
       register: install_output
       async: 7200  
       poll: 60     
