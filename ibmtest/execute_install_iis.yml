@@ -18,6 +18,13 @@
           - libnsl
           - libxcrypt-compat
         state: present
+
+    - name: 1.5. Ensure Local Hostname is in /etc/hosts (Prevents IBM Hang)
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127.0.0.1'
+        line: "127.0.0.1 {{ ansible_hostname }} localhost localhost.localdomain"
+        state: present
     
     - name: 2. Create InfoSphere Console Admin (isadmin)
       user:
