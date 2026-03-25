@@ -36,5 +36,3 @@
 -OPT ds.admin.user=dsadm
 -OPT ds.admin.group=dstage
 
-# 7. --- License Agreement ---
--OPT LicAgreement=ACCEPT
