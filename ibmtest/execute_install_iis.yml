@@ -75,6 +75,10 @@
       shell: "./setup -rsp {{ response_file_remote }} -acceptLicense true -licAgreement ACCEPT -verbose"
       args:
         chdir: "{{ installer_path }}"
+      environment:
+        # Force a single locale to stop the CA/US "getLanguage" hang
+        LC_ALL: "en_US.UTF-8"
+        LANG: "en_US.UTF-8"
       register: install_output
       async: 7200  
       poll: 60     
