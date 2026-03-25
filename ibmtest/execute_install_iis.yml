@@ -19,6 +19,8 @@
         pkill -9 -f setup || true
         rm -rf /tmp/IBM_Information_Server_Install_Lock
         rm -rf /tmp/is-suite*
+        rm -rf /tmp/ibm_is_logs/*
+        rm -rf /usr/ibm/common/acsi/logs/*
       ignore_errors: yes
 
     - name: 1. Ensure RHEL 9 Compatibility Libraries are Present
@@ -26,7 +28,14 @@
         name:
           - libnsl
           - libxcrypt-compat
+          - haveged  # This provides the "randomness" Java needs to start
         state: present
+
+    - name: 1.1. Start Haveged Entropy Service
+      systemd:
+        name: haveged
+        state: started
+        enabled: yes   
 
     - name: 1.5. Ensure Local Hostname is in /etc/hosts (Prevents IBM Hang)
       lineinfile:
