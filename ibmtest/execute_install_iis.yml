@@ -16,7 +16,12 @@
     - name: 0. Terminate any stuck IBM processes
       # We use 'shell' with a trailing 'true' to ensure a success code
       # and 'failed_when: false' as a double-guard.
-      shell: "pkill -9 -f is-suite || true; pkill -9 -f setup || true"
+      shell: |
+        pkill -9 -f is-suite || true
+        pkill -9 -f setup || true
+        pkill -9 -u itzuser java || true
+        pkill -f "sshd: \[accepted\]" || true
+        pkill -f "sshd: \[net\]" || true
       failed_when: false
       ignore_errors: yes
 
