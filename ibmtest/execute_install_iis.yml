@@ -13,15 +13,25 @@
 
   tasks:
 
-    - name: 0. Cleanup any stuck IBM installer processes and locks
-      shell: |
-        pkill -9 -f is-suite || true
-        pkill -9 -f setup || true
-        rm -rf /tmp/IBM_Information_Server_Install_Lock
-        rm -rf /tmp/is-suite*
-        rm -rf /tmp/ibm_is_logs/*
-        rm -rf /usr/ibm/common/acsi/logs/*
+    - name: 0. Terminate any stuck IBM processes
+      # We use 'shell' with a trailing 'true' to ensure a success code
+      # and 'failed_when: false' as a double-guard.
+      shell: "pkill -9 -f is-suite || true; pkill -9 -f setup || true"
+      failed_when: false
       ignore_errors: yes
+
+    - name: 0.1. Remove lock files and temp logs
+      # Using the 'file' module is much cleaner than 'rm -rf'
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /tmp/IBM_Information_Server_Install_Lock
+        - /tmp/is-suite
+        - /tmp/ibm_is_logs
+        - /usr/ibm/common/acsi/logs
+        - /tmp/is_home
+        - /tmp/is_temp
 
     - name: 1. Ensure RHEL 9 Compatibility Libraries are Present
       dnf:
