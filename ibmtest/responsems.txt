@@ -3,36 +3,39 @@
 # #############################################################################
 
 # 1. Installation Directories
--OPT installLocation=/opt/IBM/InformationServer
--OPT password.file=/tmp/password.txt
+installLocation=/opt/IBM/InformationServer
+password.file=/tmp/password.txt
 
 # 2. Tier Selection (1=Install, 0=Skip)
--OPT install.is.metadata.repo=1
--OPT install.is.services.tier=1
--OPT install.is.engine.tier=1
--OPT install.is.client.tier=0
+install.is.metadata.repo=1
+install.is.services.tier=1
+install.is.engine.tier=1
+install.is.client.tier=0
 
 # 3. Metadata Repository (DB2) - Pointed to your high-perf disk
--OPT db2.install.location=/opt/ibm/db2/V11.5
--OPT db2.instance.user=db2inst1
--OPT db2.instance.home.dir=/mnt/second/home/db2inst1
--OPT db2.data.location=/mnt/second/IBM/DB2Data
--OPT db2.port.number=50000
+db2.install.location=/opt/ibm/db2/V11.5
+db2.instance.user=db2inst1
+db2.instance.home.dir=/mnt/second/home/db2inst1
+db2.data.location=/mnt/second/IBM/DB2Data
+db2.port.number=50000
 
 # 4. WebSphere Liberty (Services Tier)
--OPT ias.server.type=liberty
--OPT ias.liberty.install.location=/opt/IBM/WebSphere/Liberty
--OPT ias.http.port=9080
--OPT ias.https.port=9443
+ias.server.type=liberty
+ias.liberty.install.location=/opt/IBM/WebSphere/Liberty
+ias.http.port=9080
+ias.https.port=9443
 
 # 5. Engine Tier Configuration
--OPT is.engine.install.location=/opt/IBM/InformationServer/Server
--OPT is.engine.tag.id=itstage
--OPT is.engine.rpc.port=31538
+is.engine.install.location=/opt/IBM/InformationServer/Server
+is.engine.tag.id=itstage
+is.engine.rpc.port=31538
 
 # 6. User Account Assignments
--OPT is.admin.user=isadmin
--OPT is.admin.group=isadmin
--OPT ds.admin.user=dsadm
--OPT ds.admin.group=dstage
+is.admin.user=isadmin
+is.admin.group=isadmin
+ds.admin.user=dsadm
+ds.admin.group=dstage
 
+# 7. --- License Agreement ---
+acceptLicense=true
+licAgreement=ACCEPT
