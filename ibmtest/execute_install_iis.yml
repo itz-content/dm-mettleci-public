@@ -75,7 +75,7 @@
 
     - name: 5. Run the IBM Installer (Silent Mode)
       # This task will take 45-90 minutes depending on DB2/WebSphere setup
-      shell: "./setup -rsp {{ response_file_remote }} -verbose"
+      shell: "./setup -rsp {{ response_file_remote }} -verbose -force"
       args:
         chdir: "{{ installer_path }}"
       environment:
@@ -83,7 +83,7 @@
         LC_ALL: "en_US.UTF-8"
         LANG: "en_US.UTF-8"
         # The JVM "No-Wait" flag
-        IBM_JAVA_OPTIONS: "-Djava.security.egd=file:/dev/./urandom -Duser.home=/tmp/is_home"
+        _JAVA_OPTIONS: "-Djava.security.egd=file:/dev/./urandom -Duser.home=/tmp/is_home"
         IATEMPDIR: "/tmp/is_temp"
       register: install_output
       async: 7200  
