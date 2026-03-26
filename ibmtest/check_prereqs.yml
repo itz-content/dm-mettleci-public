@@ -12,7 +12,7 @@
           - ansible_distribution_major_version == "9"
         fail_msg: "This playbook requires RHEL 9. Found {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
 
-    - name: 2. Install Required Packages and Java 1.8
+    - name: 2a. Install Required Packages and Java 1.8
       yum:
         name:
           - java-1.8.0-openjdk
@@ -23,7 +23,28 @@
           - libstdc++
           - tar
           - unzip
+          - libXp        
+          - chkconfig    
+          - libXft       
+          - libXtst      
+          - bc           
         state: present
+
+    - name: 2b. Patch PAM configuration for IBM
+      replace:
+        path: /etc/pam.d/other
+        regexp: 'pam_deny.so'
+        replace: 'pam_unix.so'
+
+    - name: 2c. Set file descriptor limits (ulimits)
+      pam_limits:
+        domain: "*"
+        limit_type: "{{ item }}"
+        limit_item: nofile
+        value: '10240'
+      loop:
+        - soft
+        - hard
 
     - name: 3a. Locate Java 1.8 Binary Path
       shell: "find /usr/lib/jvm/java-1.8.0-openjdk* -name java | grep bin/java | head -n 1"
