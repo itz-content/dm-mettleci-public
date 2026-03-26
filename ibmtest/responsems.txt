@@ -37,5 +37,4 @@ ds.admin.user=dsadm
 ds.admin.group=dstage
 
 # 7. --- License Agreement ---
-acceptLicense=true
-licAgreement=ACCEPT
+LIC_AGREEMENT=ACCEPT
