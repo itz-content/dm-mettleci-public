@@ -80,7 +80,9 @@
 
     - name: 5. Run the IBM Installer (Silent Mode)
       # This task will take 45-90 minutes depending on DB2/WebSphere setup
-      shell: "./setup -rsp {{ response_file_remote }} -verbose -force"
+      shell: |
+        umask  022
+        ./setup -rsp {{ response_file_remote }} -verbose -force
       args:
         chdir: "{{ installer_path }}"
       environment:
