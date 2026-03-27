@@ -1,0 +1,43 @@
+# #############################################################################
+# IBM InfoSphere Information Server 11.7.1.6 - FINAL VERIFIED TEMPLATE
+# #############################################################################
+
+# 1. Global Installation Logic (The "Triggers")
+is.install.type=NEW
+LICENSE_ACCEPTED=true
+
+# 2. Tier Selection (Using 11.7 Boolean Syntax)
+is.en.install=true
+is.se.install=true
+is.re.install=true
+is.cl.install=false
+
+# 3. Installation Directories
+is.install.dir=/opt/IBM/InformationServer
+is.re.db2.install.dir=/opt/ibm/db2/V11.5
+
+# 4. Metadata Repository (DB2) - Using your /mnt/second paths
+is.re.db.type=DB2
+is.re.db2.instance.user=db2inst1
+is.re.db2.instance.home.dir=/mnt/second/home/db2inst1
+is.re.db2.port=50000
+
+# 5. WebSphere Liberty (Services Tier)
+is.se.server.type=liberty
+is.se.liberty.install.dir=/opt/IBM/WebSphere/Liberty
+is.se.http.port=9080
+is.se.https.port=9443
+
+# 6. Engine Tier Configuration
+is.en.tag.id=itstage
+is.en.rpc.port=31538
+
+# 7. User Account Assignments
+is.admin.user=isadmin
+is.ds.admin.user=dsadm
+is.ds.admin.group=dstage
+
+# 8. Credentials (Mapping your ibm_password variable)
+is.admin.password={{ ibm_password }}
+is.ds.admin.password={{ ibm_password }}
+is.re.db2.password={{ ibm_password }}
