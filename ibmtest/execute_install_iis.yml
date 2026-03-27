@@ -38,6 +38,14 @@
         - /tmp/is_home
         - /tmp/is_temp
 
+    - name: 0.2. Fix IBM Metadata Directory Naming (The NullPointer Fix)
+      # This ensures the Java 'ProductBundleDictionary' finds the folder it expects
+      shell: |
+        if [ -d "{{ installer_path }}/payloads" ]; then
+          mv "{{ installer_path }}/payloads" "{{ installer_path }}/payload"
+        fi
+      become: yes
+
     - name: 1. Ensure RHEL 9 Compatibility Libraries are Present
       dnf:
         name:
