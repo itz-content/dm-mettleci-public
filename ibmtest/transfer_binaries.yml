@@ -49,4 +49,5 @@
     - name: 5. Final Confirmation
       debug:
         msg: "All components present in /mnt/second/IBM/InfoSphere/is-suite/"
-      when: file_check.results | map(attribute='stat.exists') | all
+      # This checks that the count of existing files is exactly 2 (setup and image.properties)
+      when: file_check.results | selectattr('stat.exists', 'equalto', true) | list | length == 2
