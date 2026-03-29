@@ -68,7 +68,7 @@
         mode: '0644'
 
 - name: 4. Run the IBM Installer (Silent Mode)
-      # Added -Duser.language and -Duser.country to fix the blank country code hang
+  # These must be indented 2 spaces relative to the hyphen (-)
   shell: |
     umask 022
     ./setup -rsp {{ response_file_remote }} -verbose -force
@@ -77,11 +77,10 @@
   environment:
     LC_ALL: "en_US.UTF-8"
     LANG: "en_US.UTF-8"
-    # CRITICAL: Added user.language, user.country, and headless mode
     _JAVA_OPTIONS: "-Duser.language=en -Duser.country=US -Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom -Duser.home=/tmp/is_home"
     IATEMPDIR: "/tmp/is_temp"
   register: install_output
-  async: 7200  
+  async: 7200 
   poll: 60
 
 - name: 6. Show Installation Summary
