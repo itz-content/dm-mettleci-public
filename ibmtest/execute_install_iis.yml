@@ -86,4 +86,4 @@
 
 - name: 6. Show Installation Summary
   debug:
-  var: install_output.stdout_lines
+    var: install_output.stdout_lines
