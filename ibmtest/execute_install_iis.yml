@@ -67,24 +67,23 @@
         group: root
         mode: '0644'
 
-    - name: 4. Run the IBM Installer (Silent Mode)
-      # This task will take 45-90 minutes depending on DB2/WebSphere setup
-      shell: |
-        umask  022
-        ./setup -rsp {{ response_file_remote }} -acceptLicense -verbose -force
-      args:
-        chdir: "{{ installer_path }}"
-      environment:
-        # Force a single locale to stop the CA/US "getLanguage" hang
-        LC_ALL: "en_US.UTF-8"
-        LANG: "en_US.UTF-8"
-        # The JVM "No-Wait" flag
-        _JAVA_OPTIONS: "-Djava.security.egd=file:/dev/./urandom -Duser.home=/tmp/is_home"
-        IATEMPDIR: "/tmp/is_temp"
-      register: install_output
-      async: 7200  
-      poll: 60     
+- name: 4. Run the IBM Installer (Silent Mode)
+      # Added -Duser.language and -Duser.country to fix the blank country code hang
+  shell: |
+    umask 022
+        ./setup -rsp {{ response_file_remote }} -verbose -force
+  args:
+    chdir: "{{ installer_path }}"
+  environment:
+    LC_ALL: "en_US.UTF-8"
+    LANG: "en_US.UTF-8"
+    # CRITICAL: Added user.language, user.country, and headless mode
+    _JAVA_OPTIONS: "-Duser.language=en -Duser.country=US -Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom -Duser.home=/tmp/is_home"
+    IATEMPDIR: "/tmp/is_temp"
+  register: install_output
+  async: 7200  
+  poll: 60
 
-    - name: 6. Show Installation Summary
-      debug:
-        var: install_output.stdout_lines
+- name: 6. Show Installation Summary
+  debug:
+  var: install_output.stdout_lines
