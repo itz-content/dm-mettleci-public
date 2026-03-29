@@ -38,17 +38,6 @@
         - /tmp/is_home
         - /tmp/is_temp
 
-    - name: 0.2. Map Payload Directories (Universal Fix)
-      # This ensures both 'payload' and 'payloads' exist so the 
-      # installer finds its metadata regardless of build version.
-      shell: |
-        if [ -d "{{ installer_path }}/payload" ] && [ ! -d "{{ installer_path }}/payloads" ]; then
-          ln -s "{{ installer_path }}/payload" "{{ installer_path }}/payloads"
-        elif [ -d "{{ installer_path }}/payloads" ] && [ ! -d "{{ installer_path }}/payload" ]; then
-          ln -s "{{ installer_path }}/payloads" "{{ installer_path }}/payload"
-        fi
-      become: yes
-
     - name: 1. Ensure RHEL 9 Compatibility Libraries are Present
       dnf:
         name:
