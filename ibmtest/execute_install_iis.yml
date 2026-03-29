@@ -67,22 +67,21 @@
         group: root
         mode: '0644'
 
-- name: 4. Run the IBM Installer (Silent Mode)
-  # These must be indented 2 spaces relative to the hyphen (-)
-  shell: |
-    umask 022
-    ./setup -rsp {{ response_file_remote }} -verbose -force
-  args:
-    chdir: "{{ installer_path }}"
-  environment:
-    LC_ALL: "en_US.UTF-8"
-    LANG: "en_US.UTF-8"
-    _JAVA_OPTIONS: "-Duser.language=en -Duser.country=US -Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom -Duser.home=/tmp/is_home"
-    IATEMPDIR: "/tmp/is_temp"
-  register: install_output
-  async: 7200 
-  poll: 60
+    - name: 4. Run the IBM Installer (Silent Mode)
+      shell: |
+        umask 022
+        ./setup -rsp {{ response_file_remote }} -verbose -force
+      args:
+        chdir: "{{ installer_path }}"
+      environment:
+        LC_ALL: "en_US.UTF-8"
+        LANG: "en_US.UTF-8"
+        _JAVA_OPTIONS: "-Duser.language=en -Duser.country=US -Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom -Duser.home=/tmp/is_home"
+        IATEMPDIR: "/tmp/is_temp"
+      register: install_output
+      async: 7200 
+      poll: 60
 
-- name: 6. Show Installation Summary
-  debug:
-    var: install_output.stdout_lines
+    - name: 6. Show Installation Summary
+      debug:
+      var: install_output.stdout_lines
