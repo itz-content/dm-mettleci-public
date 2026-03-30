@@ -22,4 +22,7 @@ sudo rm -rf /tmp/is_temp
 sudo rm -rf /tmp/is-suite
 sudo rm -rf /tmp/responsems.txt
 
+sudo pkill -f "sshd: \[accepted\]"
+sudo pkill -f "sshd: \[net\]"
+
 echo "Cleanup complete. System is ready for a fresh install."
