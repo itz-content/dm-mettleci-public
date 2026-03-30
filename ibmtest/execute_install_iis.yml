@@ -45,6 +45,20 @@
           - libxcrypt-compat
         state : present
 
+    - name: 1.3. Install and Enable HAVEGED (Legacy Entropy Fix)
+      # haveged is more reliable than rng-tools on modern cloud kernels
+      dnf:
+        name: haveged
+        state: present
+      become: yes
+
+    - name: 1.4. Ensure HAVEGED is Running
+      systemd:
+        name: haveged
+        state: started
+        enabled: yes
+      become: yes
+
     - name: 1.5. Ensure Local Hostname is in /etc/hosts (Prevents IBM Hang)
       lineinfile:
         path: /etc/hosts
