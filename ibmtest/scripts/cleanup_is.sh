@@ -22,6 +22,7 @@ sudo rm -rf /tmp/is_temp
 sudo rm -rf /tmp/is-suite
 sudo rm -rf /tmp/responsems.txt
 
+echo "clear loitering ssh sessions..."
 sudo pkill -f "sshd: \[accepted\]"
 sudo pkill -f "sshd: \[net\]"
 
