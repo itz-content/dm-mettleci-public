@@ -90,6 +90,7 @@
       environment:
         LC_ALL: "C"
         LANG: "C"
+        LANGUAGE: "C"
         _JAVA_OPTIONS: "-Duser.language=en -Duser.country=US -Djava.awt.headless=true -Djava.security.egd=file:///dev/urandom -Duser.home=/tmp/is_home"
         IATEMPDIR: "/tmp/is_temp"
       register: install_output
