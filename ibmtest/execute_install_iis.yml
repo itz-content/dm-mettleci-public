@@ -88,8 +88,8 @@
       args:
         chdir: "{{ installer_path }}"
       environment:
-        LC_ALL: "en_US.UTF-8"
-        LANG: "en_US.UTF-8"
+        LC_ALL: "C"
+        LANG: "C"
         _JAVA_OPTIONS: "-Duser.language=en -Duser.country=US -Djava.awt.headless=true -Djava.security.egd=file:///dev/urandom -Duser.home=/tmp/is_home"
         IATEMPDIR: "/tmp/is_temp"
       register: install_output
