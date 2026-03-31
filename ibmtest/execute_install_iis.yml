@@ -6,10 +6,10 @@
 
   vars:
     installer_path: "/mnt/second/IBM/InfoSphere/is-suite"
-    response_file_local: "./templates/responsems.txt.j2"
+    response_file_local: "./templates/legacy_lite_rhel9.rsp.j2"
     response_file_remote: "/tmp/responsems.txt"
     password_file_remote: "/tmp/password.txt"
-    ibm_password: "IBMiis@117$1!6"
+    ibm_password: "IBMiis11716"
 
   tasks:
 
