@@ -1,0 +1,61 @@
+# #############################################################################
+# IBM InfoSphere Information Server 11.7.1.6 - LEGACY SYNTAX (LITE)
+# #############################################################################
+
+# 1. Global Installation Logic
+# These match your manual file exactly to bypass RHEL 9 hangs
+suite.installLocation=/mnt/second/IBM/InformationServer
+LIC_AGREEMENT=ACCEPT
+target.language.code=en
+target.country.code=US
+nls.enabled=false
+nls.language=English-UTF8
+
+# 2. Tier Selection
+suite.tier[database.tier].selected=true
+suite.tier[app.server.tier].selected=true
+suite.tier[engine.tier].selected=true
+
+# 3. Product Selection (Stripped to "Lite" DataStage core)
+product[datastage].selected=true
+product[ISF].selected=true
+product[CommonMetadata].selected=true
+product[ISALite].selected=true
+
+# 4. App Server Configuration (Liberty Profile)
+# Note: Even in legacy syntax, we specify Liberty to save RAM
+app.server.type=liberty
+was.install.location=/mnt/second/IBM/WebSphere/Liberty
+was.default.host.port=9080
+was.secure.default.host.port=9443
+
+# 5. Database Configuration (DB2 on /mnt/second)
+use.bundled.db2=true
+db2.install.location=/mnt/second/IBM/db2/V11.5
+db2.instance.name=db2inst1
+db2.instance.user.name=db2inst1
+db2.instance.home.directory=/mnt/second/home/db2inst1
+db2.instance.group=db2iadm1
+db2.port.number=50000
+
+# 6. Repository Locations (XMETA & IADB)
+xmeta.db.type=db2
+xmeta.db.hostname={{ ansible_hostname }}
+xmeta.db.name=xmeta
+xmeta.db.location=/mnt/second/IBM/InformationServer/Repos/xmeta
+ia.db.type=db2_11_5
+ia.db.name=iadb
+ia.db.location=/mnt/second/IBM/InformationServer/Repos/iadb
+
+# 7. Engine Configuration
+ds.rpc.instance.tag=ade
+dsrpc.port=31538
+is.admin.user=isadmin
+ds.admin.uid=dsadm
+ds.admin.gid=dstage
+
+# 8. Credentials (Ansible Jinja2 Placeholders)
+is.admin.password={{ ibm_password }}
+datastage.user.password={{ ibm_password }}
+db2.instance.user.password={{ ibm_password }}
+app.server.password={{ ibm_password }}
