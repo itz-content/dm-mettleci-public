@@ -93,7 +93,7 @@
 
     - name: 8b. Ensure InfoSphere Subdirectory Exists
       file:
-        path: /mnt/second/IBM/InfoSphere
+        path: /mnt/second/IBM/InformationServer
         state: directory
         owner: itzuser
         group: itzuser
@@ -116,11 +116,13 @@
         - dstage      # Primary group for DataStage Engine
         - db2iadm1    # Primary group for DB2 Instance
         - faspgrp     # Required for some 11.7 features
+        - db2fadm1    # Fenced group for DB2 (Required)
 
     - name: 8e. Create IBM Service Users on Secondary Disk
       user:
         name: "{{ item.name }}"
         group: "{{ item.group }}"
+        password: "{{ ibm_password | password_hash('sha512') }}"
         home: "/mnt/second/home/{{ item.name }}"
         shell: /bin/bash
         state: present
@@ -128,11 +130,14 @@
       loop:
         - { name: 'dsadm', group: 'dstage' }
         - { name: 'db2inst1', group: 'db2iadm1' }
+        - { name: 'db2fenc1', group: 'db2fadm1' }
+        - { name: 'xmeta', group: 'db2iadm1' }
+        - { name: 'isadmin', group: 'dstage' }
 
     - name: 8f. Ensure itzuser is in the IBM groups
       user:
         name: itzuser
-        groups: dstage,db2iadm1
+        groups: dstage,db2iadm1,db2fadm1
         append: yes 
 
     - name: 9. Verify Sufficient Disk Space on Secondary Mount

@@ -6,7 +6,7 @@
 
   vars:
     local_binary_path: "./IS_V11716"
-    remote_staging_path: "/mnt/second/IBM/InfoSphere"
+    remote_staging_path: "/mnt/second/IBM/InformationServer"
     # Individual file names
     main_tar: "IS_V11716_Linux_x86_multi.tar.gz"
     spec_zip: "IS_V11716.bundle_spec_file_mult.zip"
@@ -38,6 +38,14 @@
         group: itzuser
         remote_src: no
 
+    - name: 3.5. Force Recursive Ownership and Permissions
+      file:
+        path: "{{ remote_staging_path }}/is-suite"
+        owner: itzuser
+        group: itzuser
+        mode: '0775'
+        recurse: yes  
+
     - name: 4. Verify Critical Files
       stat:
         path: "{{ remote_staging_path }}/is-suite/{{ item }}"
@@ -48,6 +56,6 @@
 
     - name: 5. Final Confirmation
       debug:
-        msg: "All components present in /mnt/second/IBM/InfoSphere/is-suite/"
+        msg: "All components present in /mnt/second/IBM/InformationServer/is-suite/"
       # This checks that the count of existing files is exactly 2 (setup and image.properties)
       when: file_check.results | selectattr('stat.exists', 'equalto', true) | list | length == 2

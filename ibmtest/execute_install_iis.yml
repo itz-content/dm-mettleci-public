@@ -5,7 +5,7 @@
   gather_facts: yes
 
   vars:
-    installer_path: "/mnt/second/IBM/InfoSphere/is-suite"
+    installer_path: "/mnt/second/IBM/InformationServer/is-suite"
     response_file_local: "./templates/legacy_lite_rhel9.rsp.j2"
     response_file_remote: "/tmp/responsems.txt"
     password_file_remote: "/tmp/password.txt"
@@ -63,13 +63,6 @@
         regexp: '^127.0.0.1'
         line: "127.0.0.1 {{ ansible_hostname }} localhost localhost.localdomain"
         state: present
-    
-    - name: 2. Create InfoSphere Console Admin (isadmin)
-      user:
-        name: isadmin
-        groups: dstage,db2iadm1
-        append: yes
-        state: present
 
     - name: 3. Copy Response File to VM
       template:
@@ -82,15 +75,15 @@
     - name: 4. Run the IBM Installer (Silent Mode)
       shell: |
         umask 022
-        ./setup -rsp {{ response_file_remote }} -accceptLicense -verbose -force -uiMode silent -reportfile /tmp/report.txt
+        ./setup -rsp {{ response_file_remote }} -acceptLicense -verbose -force -uiMode silent
       args:
         chdir: "{{ installer_path }}"
       environment:
         EXCEPTION_POLICY: "2"
         IBM_JAVA_OPTIONS: ""
-        LC_ALL: "en_US.UTF-8"
-        LANG: "en_US.UTF-8"
-        LANGUAGE: "en_US.UTF-8"
+        LC_ALL: "C"
+        LANG: "C"
+        LANGUAGE: "C"
         _JAVA_OPTIONS: "-Duser.language=en -Duser.country=US -Djava.awt.headless=true -Djava.security.egd=file:///dev/urandom -Duser.home=/tmp/is_home"
         IATEMPDIR: "/tmp/is_temp"
       register: install_output
