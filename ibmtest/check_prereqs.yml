@@ -3,6 +3,8 @@
   hosts: techzone_servers
   become: yes
   gather_facts: yes
+  vars:
+    ibm_password: "IBMiis11716"
 
   tasks:
     - name: 1. Verify Operating System is RHEL
