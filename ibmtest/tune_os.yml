@@ -27,6 +27,12 @@
         - { domain: 'db2inst1', limit_item: 'nproc', value: 16384 }
         - { domain: 'db2inst1', limit_item: 'data', value: 'unlimited' }
 
+        # DB2 Fenced User
+        - { domain: 'db2fenc1', limit_item: 'nofile', value: 65536 }
+
+        # Metadata User
+        - { domain: 'xmeta', limit_item: 'nofile', value: 65536 }
+
     - name: 2. Configure Kernel Parameters (sysctl)
       sysctl:
         name: "{{ item.name }}"
@@ -49,5 +55,5 @@
     - name: 3. Verify itzuser Group Membership
       user:
         name: itzuser
-        groups: dstage,db2iadm1
+        groups: dstage,db2iadm1,db2fadm1
         append: yes
