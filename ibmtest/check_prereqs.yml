@@ -29,7 +29,10 @@
           - chkconfig    
           - libXft       
           - libXtst      
-          - bc           
+          - bc
+          - pam.i686
+          - libnsl.i686
+
         state: present
 
     - name: 2b. Patch PAM configuration for IBM
@@ -140,7 +143,22 @@
       user:
         name: itzuser
         groups: dstage,db2iadm1,db2fadm1
-        append: yes 
+        append: yes
+
+    - name: 8g. Create Global IBM Temp Directory
+      file:
+        path: /mnt/second/is_temp
+        state: directory
+        owner: itzuser
+        group: itzuser
+        mode: '1777'
+
+    - name: 8h. Scrub interactive commands from IBM profiles
+      lineinfile:
+        path: "/mnt/second/home/{{ item }}/.bashrc"
+        regexp: '^stty'
+        state: absent
+      loop: [ 'db2inst1', 'db2fenc1', 'dsadm' ]
 
     - name: 9. Verify Sufficient Disk Space on Secondary Mount
       assert:

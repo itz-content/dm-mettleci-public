@@ -57,3 +57,9 @@
         name: itzuser
         groups: dstage,db2iadm1,db2fadm1
         append: yes
+
+    - name: 4. Force Global umask for IBM stability
+      lineinfile:
+        path: /etc/profile
+        line: "umask 022"
+        state: present
