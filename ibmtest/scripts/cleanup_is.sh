@@ -4,10 +4,12 @@
 echo "Stopping any lingering IBM processes..."
 sudo pkill -9 -u dsadm 2>/dev/null
 sudo pkill -9 -u db2inst1 2>/dev/null
+sudo pkill -9 -u isadmin 2>/dev/null
 sudo pkill -9 -u xmeta 2>/dev/null
 sudo pkill -9 -u itzuser -f "java" 2>/dev/null
 
 sudo userdel -r dsadm
+sudo userdel -r isadmin
 sudo userdel -r db2inst1
 sudo userdel -r db2fenc1
 sudo userdel -r xmeta
