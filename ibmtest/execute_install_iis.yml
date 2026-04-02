@@ -76,9 +76,7 @@
 
     - name: 4. Run the IBM Installer (Silent Mode)
       shell: |
-        umask 022 && ./setup -rsp {{ response_file_remote }} \
-        -acceptLicense -verbose -force -n -uiMode silent \
-        -_JAVA_OPTIONS "-Djava.io.tmpdir=/mnt/second/is_temp -Duser.home=/mnt/second/is_temp -Duser.language=en -Duser.country=US -Djava.awt.headless=true"
+        umask 022 && ./setup -rsp {{ response_file_remote }} -acceptLicense -verbose -force -n -uiMode silent -_JAVA_OPTIONS "-Djava.io.tmpdir=/mnt/second/is_temp -Duser.home=/mnt/second/is_temp -Duser.language=en -Duser.country=US -Djava.awt.headless=true"
       args:
         chdir: "{{ installer_path }}"
         executable: /bin/bash
