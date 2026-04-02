@@ -74,12 +74,11 @@
         group: root
         mode: '0644'
 
-    - name: 3.5 Ensure /tmp has execution permissions (RHEL 9 Security)
-      mount:
-        path: /tmp
-        state: remounted
-        opts: exec
+    - name: 3.5 Force /tmp execution permissions via shell
+      command: mount -o remount,exec /tmp
       become: yes
+      # This ensures the playbook continues even if /tmp is already 'exec'
+      changed_when: false
 
     - name: 4. Run the IBM Installer (Silent Mode)
       shell: |
