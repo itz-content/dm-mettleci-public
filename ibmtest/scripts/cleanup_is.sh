@@ -29,6 +29,7 @@ sudo rm -rf /etc/ibm/InstallationManager
 sudo rm -rf /etc/ibm/viewer
 
 echo "Cleaning temporary files and and directories ..."
+sudo rm -f /tmp/*
 sudo rm -rf /tmp/ibm_is_logs
 sudo rm -rf /tmp/is_temp
 sudo rm -rf /tmp/is-suite
