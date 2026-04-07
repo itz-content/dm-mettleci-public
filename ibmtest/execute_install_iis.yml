@@ -87,7 +87,7 @@
         executable: /bin/bash
       environment:
         EXCEPTION_POLICY: "2"
-        IBM_JAVA_OPTIONS: ""
+        IBM_JAVA_OPTIONS: "-Djava.security.egd=file:/dev/./urandom"
       register: install_output
       async: 7200 
       poll: 60
