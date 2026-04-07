@@ -81,7 +81,7 @@
         export LANGUAGE=en_US.UTF-8
         export IATEMPDIR=/tmp
         export CHECK_CORES=FALSE
-        umask 022 && ./setup -rsp {{ response_file_remote }} -verbose -force -n -uiMode silent -language en  
+        umask 022 && ./setup -rsp {{ response_file_remote }} -verbose -force -n -uiMode silent -language en  > /tmp/raw_installer_debug.log 2>&1
       args: 
         chdir: "{{ installer_path }}"
         executable: /bin/bash
