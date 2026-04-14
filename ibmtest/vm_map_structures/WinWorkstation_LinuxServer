@@ -1,0 +1,31 @@
+[
+  {
+    "name": "workstation",
+    "template": "itz-windows2022-std",
+    "cpu": 4,
+    "memory": 8,
+    "rootDiskSize": 300,
+    "ports": ["3389/tcp"]
+  },
+  {
+    "name": "server",
+    "template": "itz-rhel9-server",
+    "cpu": 2,
+    "memory": 12,
+    "rootDiskSize": 100,
+    "secondaryDiskSize": 100,
+    "ports": ["80/tcp"],
+    "cloudInit": ["rhel-subscription", "uptycs"],
+    "customCloudInit": [
+      "firewall-cmd --zone=public --add-port=80/tcp --permanent",
+      "firewall-cmd --reload"
+    ],
+    "postDeploy": {
+      "repository": "git@github.ibm.com:itz-content/certified-playbooks.git",
+      "variables": {
+       "nginx_message": "Welcome to Techzone!"
+     },
+      "play": "mongodb/install-mongodb.yml"
+    }
+  }
+]
