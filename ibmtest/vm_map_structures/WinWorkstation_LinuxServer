@@ -14,18 +14,28 @@
     "memory": 12,
     "rootDiskSize": 100,
     "secondaryDiskSize": 100,
-    "ports": ["80/tcp"],
+    "ports": [
+      "80/tcp",
+      "9080/tcp", 
+      "9443/tcp", 
+      "50000/tcp"
+    ],
     "cloudInit": ["rhel-subscription", "uptycs"],
     "customCloudInit": [
+      "dnf install -y java-1.8.0-openjdk-devel gtk2 libffi libgcc libstdc++ tar unzip libXp chkconfig libXft libXtst bc pam.i686 libnsl.i686 libnsl.x86_64 libxcrypt-compat", 
       "firewall-cmd --zone=public --add-port=80/tcp --permanent",
-      "firewall-cmd --reload"
+      "firewall-cmd --zone=public --add-port=9080/tcp --permanent",
+      "firewall-cmd --zone=public --add-port=9443/tcp --permanent",
+      "firewall-cmd --zone=public --add-port=50000/tcp --permanent",
+      "firewall-cmd --reload",
+      "mkfs.xfs /dev/vdb"
     ],
     "postDeploy": {
-      "repository": "git@github.ibm.com:itz-content/certified-playbooks.git",
+      "repository": "git@github.ibm.com:itz-content/<insert my playbook repo>.git",
       "variables": {
        "nginx_message": "Welcome to Techzone!"
      },
-      "play": "mongodb/install-mongodb.yml"
+      "play": "<insert path to>/main.yml"
     }
   }
 ]
