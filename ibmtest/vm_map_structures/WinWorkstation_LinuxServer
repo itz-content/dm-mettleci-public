@@ -29,8 +29,6 @@
       "firewall-cmd --zone=public --add-port=50000/tcp --permanent",
       "firewall-cmd --reload",
       "mkfs.xfs /dev/vdb"
-    ],
-    "postDeploy": {
-    }
+    ]
   }
 ]
