@@ -31,11 +31,11 @@
       "mkfs.xfs /dev/vdb"
     ],
     "postDeploy": {
-      "repository": "git@github.ibm.com:itz-content/certified-playbooks.git",
+      "repository": "git@github.com:itz-content/dm-mettleci-public.git",
       "variables": {
         "nginx_message": "Welcome to Techzone!"
       },
-      "play": "mongodb/install-mongodb.yml"
+      "play": "ibmtest/main.yml"
   }
 }
 ]

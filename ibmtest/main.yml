@@ -5,8 +5,8 @@
 - name: Optimize OS
   import_playbook: tune_os.yml
   
-- name: Transfer Binaries
-  import_playbook: transfer_binaries.yml
+#- name: Transfer Binaries
+#  import_playbook: transfer_binaries.yml
   
-- name: Execute IIS Installation
-  import_playbook: execute_install_iis.yml
+#- name: Execute IIS Installation
+#  import_playbook: execute_install_iis.yml
