@@ -29,6 +29,13 @@
       "firewall-cmd --zone=public --add-port=50000/tcp --permanent",
       "firewall-cmd --reload",
       "mkfs.xfs /dev/vdb"
-    ]
+    ],
+    "postDeploy": {
+      "repository": "git@github.ibm.com:itz-content/certified-playbooks.git",
+      "variables": {
+        "nginx_message": "Welcome to Techzone!"
+      },
+      "play": "mongodb/install-mongodb.yml"
   }
+}
 ]
