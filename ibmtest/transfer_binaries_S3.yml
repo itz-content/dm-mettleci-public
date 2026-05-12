@@ -7,7 +7,7 @@
   vars:
     # These should ideally be passed in via your Techzone JSON variables
     s3_bucket_name: "dm-mettleci-public"
-    s3_endpoint_url: "https://s3.us.cloud-object-storage.appdomain.cloud"
+    aws_endpoint_url: "https://s3.us.cloud-object-storage.appdomain.cloud"
     
     remote_staging_path: "/mnt/second/IBM/InformationServer"
     # File names in S3
@@ -25,7 +25,7 @@
 
     - name: 2. Download Main Tarball from S3
       amazon.aws.s3_object:
-        endpoint_url: "{{ s3_endpoint_url }}"
+        endpoint_url: "{{ aws_endpoint_url }}"
         bucket: "{{ s3_bucket_name }}"
         object: "{{ main_tar }}"
         dest: "{{ remote_staging_path }}/{{ main_tar }}"
@@ -35,7 +35,7 @@
 
     - name: 3. Download Bundle Spec Zip from S3
       amazon.aws.s3_object:
-        endpoint_url: "{{ s3_endpoint_url }}"
+        endpoint_url: "{{ aws_endpoint_url }}"
         bucket: "{{ s3_bucket_name }}"
         object: "{{ spec_zip }}"
         dest: "{{ remote_staging_path }}/{{ spec_zip }}"
