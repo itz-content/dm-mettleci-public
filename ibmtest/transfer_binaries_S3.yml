@@ -1,0 +1,84 @@
+---
+- name: Transfer and Extract IBM 11.7.1.6 Binaries from S3
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    # These should ideally be passed in via your Techzone JSON variables
+    s3_bucket_name: "dm-mettleci-public"
+    s3_endpoint_url: "https://s3.us.cloud-object-storage.appdomain.cloud"
+    
+    remote_staging_path: "/mnt/second/IBM/InformationServer"
+    # File names in S3
+    main_tar: "IS_V11716_Linux_x86_multi.tar.gz"
+    spec_zip: "IS_V11716.bundle_spec_file_mult.zip"
+
+  tasks:
+    - name: 1. Ensure Staging Directory Exists
+      file:
+        path: "{{ remote_staging_path }}"
+        state: directory
+        owner: itzuser
+        group: itzuser
+        mode: '0775'
+
+    - name: 2. Download Main Tarball from S3
+      amazon.aws.s3_object:
+        endpoint_url: "{{ s3_endpoint_url }}"
+        bucket: "{{ s3_bucket_name }}"
+        object: "{{ main_tar }}"
+        dest: "{{ remote_staging_path }}/{{ main_tar }}"
+        mode: get
+        access_key: "{{ aws_access_key_id }}"
+        secret_key: "{{ aws_secret_access_key }}"
+
+    - name: 3. Download Bundle Spec Zip from S3
+      amazon.aws.s3_object:
+        endpoint_url: "{{ s3_endpoint_url }}"
+        bucket: "{{ s3_bucket_name }}"
+        object: "{{ spec_zip }}"
+        dest: "{{ remote_staging_path }}/{{ spec_zip }}"
+        mode: get
+        access_key: "{{ aws_access_key_id }}"
+        secret_key: "{{ aws_secret_access_key }}"
+
+    - name: 4. Extract Main Tarball (Locally on RHEL)
+      unarchive:
+        src: "{{ remote_staging_path }}/{{ main_tar }}"
+        dest: "{{ remote_staging_path }}"
+        owner: itzuser
+        group: itzuser
+        remote_src: yes # Changed to YES because file is now on the RHEL server
+
+    - name: 5. Extract Bundle Spec Zip (Into the is-suite folder)
+      unarchive:
+        src: "{{ remote_staging_path }}/{{ spec_zip }}"
+        dest: "{{ remote_staging_path }}/is-suite"
+        owner: itzuser
+        group: itzuser
+        remote_src: yes # Changed to YES
+
+    - name: 6. Force Recursive Ownership
+      file:
+        path: "{{ remote_staging_path }}/is-suite"
+        owner: itzuser
+        group: itzuser
+        mode: '0775'
+        recurse: yes  
+
+    - name: 7. Verify Critical Files
+      stat:
+        path: "{{ remote_staging_path }}/is-suite/{{ item }}"
+      loop:
+        - setup
+        - image.properties
+      register: file_check
+
+    - name: 8. Cleanup Downloaded Archives (Optional)
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ remote_staging_path }}/{{ main_tar }}"
+        - "{{ remote_staging_path }}/{{ spec_zip }}"

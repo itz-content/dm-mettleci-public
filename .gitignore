@@ -9,6 +9,8 @@
 **/*.key
 **/hosts.ini
 **/ansible.log
+*secrets.yml
 
 # Mac system junk
 .DS_Store
+WinWorkstation_LinuxServer
