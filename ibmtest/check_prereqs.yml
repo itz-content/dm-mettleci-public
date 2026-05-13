@@ -32,6 +32,8 @@
           - bc
           - pam.i686
           - libnsl.i686
+          - python3-pip
+          - python3-boto3
 
         state: present
 
