@@ -8,8 +8,8 @@
 #- name: Transfer Binaries
 #  import_playbook: transfer_binaries.yml
 
-#- name: Transfer Binaries from S3
-#  import_playbook: transfer_binaries_S3.yml
+- name: Transfer Binaries from S3
+  import_playbook: transfer_binaries_S3.yml
   
-#- name: Execute IIS Installation
-#  import_playbook: execute_install_iis.yml
+- name: Execute IIS Installation
+  import_playbook: execute_install_iis.yml
