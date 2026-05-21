@@ -16,6 +16,11 @@ Write-Host "Checking for AWS S3 PowerShell module..." -ForegroundColor Cyan
 # Force TLS 1.2 to ensure the download from PSGallery doesn't fail on a fresh VM
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
+#Set PSGallery to trusted so it doesn't prompt "Are you sure you want to install from an untrusted repository?"
+if ((Get-PSRepository -Name "PSGallery").InstallationPolicy -ne "Trusted") {
+    Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
+}
+
 if (!(Get-Module -ListAvailable -Name AWS.Tools.S3)) {
     Write-Host "Installing AWS.Tools.Common and AWS.Tools.S3..." -ForegroundColor Yellow
     # -Force and -AllowClobber bypass any prompts so the script runs hands-free
