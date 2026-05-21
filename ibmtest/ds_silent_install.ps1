@@ -9,6 +9,19 @@ $ResponseFile = "C:\is_temp\client_install_response.txt"
 # --- 1. Preparation ---
 if (!(Test-Path $LocalTmp)) { New-Item -ItemType Directory -Path $LocalTmp }
 
+# --- 1b. Install AWS Tools for S3 Module ---
+Write-Host "Checking for AWS S3 PowerShell module..." -ForegroundColor Cyan
+
+# Force TLS 1.2 to ensure the download from PSGallery doesn't fail on a fresh VM
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+if (!(Get-Module -ListAvailable -Name AWS.Tools.S3)) {
+    Write-Host "Installing AWS.Tools.Common and AWS.Tools.S3..." -ForegroundColor Yellow
+    # -Force and -AllowClobber bypass any prompts so the script runs hands-free
+    Install-Module -Name AWS.Tools.Common -Force -AllowClobber -Scope AllUsers
+    Install-Module -Name AWS.Tools.S3 -Force -AllowClobber -Scope AllUsers
+}
+
 # --- 2. Download from IBM COS (S3) ---
 Write-Host "Downloading $ObjectKey from $BucketName..." -ForegroundColor Cyan
 # Replace with your stored credentials or ensure your environment variables are set
