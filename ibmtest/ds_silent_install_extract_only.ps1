@@ -13,8 +13,17 @@ if (!(Test-Path $LocalTmp)) { New-Item -ItemType Directory -Path $LocalTmp }
 # --- 1b. Install AWS Tools for S3 Module ---
 Write-Host "Checking for AWS S3 PowerShell module..." -ForegroundColor Cyan
 
+#Bypass execution policy for this specific process execution
+Set-ExecutionPolicy Bypass -Scope Process -Force -Confirm:$false
+
 # Force TLS 1.2 to ensure the download from PSGallery doesn't fail on a fresh VM
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+#Silently install and bootstrap the NuGet provider if missing
+if (!(Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+    Write-Host "Installing NuGet provider silently..." -ForegroundColor Yellow
+    Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
+}
 
 #Set PSGallery to trusted so it doesn't prompt "Are you sure you want to install from an untrusted repository?"
 if ((Get-PSRepository -Name "PSGallery").InstallationPolicy -ne "Trusted") {
