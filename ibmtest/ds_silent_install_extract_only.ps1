@@ -19,10 +19,21 @@ Set-ExecutionPolicy Bypass -Scope Process -Force -Confirm:$false
 # Force TLS 1.2 to ensure the download from PSGallery doesn't fail on a fresh VM
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-#Silently install and bootstrap the NuGet provider if missing
+#Silently download and place the NuGet DLL directly to bypass the prompt
 if (!(Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
-    Write-Host "Installing NuGet provider silently..." -ForegroundColor Yellow
-    Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
+    Write-Host "Manually bootstrapped NuGet provider bypassing interactive prompts..." -ForegroundColor Yellow
+    
+    # Define the exact path where PowerShell searches for PackageManagement providers
+    $ProviderPath = Join-Path $env:ProgramFiles "PackageManagement\ProviderAssemblies\nuget\2.8.5.208"
+    if (!(Test-Path $ProviderPath)) { 
+        New-Item -ItemType Directory -Path $ProviderPath -Force | Out-Null 
+    }
+    
+    # Download the DLL directly using basic web request
+    $DllUrl = "https://cdn.oneget.org/providers/Microsoft.PackageManagement.NuGetProvider-2.8.5.208.dll"
+    $DllPath = Join-Path $ProviderPath "Microsoft.PackageManagement.NuGetProvider.dll"
+    
+    Invoke-WebRequest -Uri $DllUrl -OutFile $DllPath -UseBasicParsing
 }
 
 #Set PSGallery to trusted so it doesn't prompt "Are you sure you want to install from an untrusted repository?"
