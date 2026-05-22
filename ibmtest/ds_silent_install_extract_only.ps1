@@ -13,6 +13,10 @@ if (!(Test-Path $LocalTmp)) { New-Item -ItemType Directory -Path $LocalTmp }
 # --- 1b. Install AWS Tools for S3 Module ---
 Write-Host "Checking for AWS S3 PowerShell module..." -ForegroundColor Cyan
 
+# Force PowerShell to refresh its module paths and explicitly import the S3 tools
+$env:PSModulePath = [Environment]::GetEnvironmentVariable("PSModulePath", "Machine") + ";" + [Environment]::GetEnvironmentVariable("PSModulePath", "User")
+Import-Module -Name AWS.Tools.S3 -ErrorAction SilentlyContinue
+
 # --- 2. Download from IBM COS (S3) ---
 Write-Host "Downloading $ObjectKey from $BucketName..." -ForegroundColor Cyan
 # Replace with your stored credentials or ensure your environment variables are set
