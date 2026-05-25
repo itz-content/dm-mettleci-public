@@ -32,13 +32,13 @@ if (-not (Test-Path -Path $AwsCliPath)) {
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 # --- 3. Download from IBM COS (S3) via AWS CLI ---
-Write-Host "Downloading $ObjectKey from S3 bucket $env:s3_bucket_name..." -ForegroundColor Cyan
+Write-Host "Downloading $ObjectKey from S3 bucket $env:AWS_BUCKET_NAME..." -ForegroundColor Cyan
 
 # AWS CLI natively inherits $env:aws_access_key_id and $env:aws_secret_access_key from Techzone
 aws s3 cp `
-  "s3://$env:s3_bucket_name/$ObjectKey" `
+  "s3://$env:AWS_BUCKET_NAME/$ObjectKey" `
   "$ZipFile" `
-  --endpoint-url $env:aws_endpoint_url
+  --endpoint-url $env:AWS_ENDPOINT_URL
 
 if (!(Test-Path $ZipFile)) {
     Write-Error "Failed to download $ObjectKey from S3 bucket."
