@@ -1,66 +1,55 @@
 # ==============================================================================
-# TechZone Windows postDeploy Script: Install AWS CLI & Stream S3 Binaries
+# Techzone postDeploy Script: Pull IBM Client via AWS CLI
 # ==============================================================================
 
-# 1. Setup variables (TechZone injections match lowercase names from JSON)
-$RemoteStagingPath   = $env:remote_staging_path   # e.g., "D:\IBM\InformationServer"
-$S3BucketName        = $env:s3_bucket_name        # e.g., "dm-mettleci-public"
-$AwsEndpointUrl      = $env:aws_endpoint_url      # e.g., "https://s3..."
-$MainTar             = "IS_V11716_Linux_x86_multi.tar.gz"
-$SpecZip             = "IS_V11716.bundle_spec_file_mult.zip"
+# --- Configuration ---
+# Hardcoded local paths for predictability on Windows
+$LocalTmp          = "C:\is_temp"
+$ObjectKey         = "binaries/IS_V11.7.1.6_WINDOWS_CLIENT.zip"
+$ZipFile           = "C:\is_temp\IS_V11.7.1.6_WINDOWS_CLIENT.zip"
+$ExtractDir        = "C:\is_temp\IS_Client_Extract"
+$ResponseFile      = "C:\is_temp\client_install_response.txt"
 
-# Inject AWS Credentials into the current session process environment
-$env:AWS_ACCESS_KEY_ID     = $env:aws_access_key_id
-$env:AWS_SECRET_ACCESS_KEY = $env:aws_secret_access_key
-
-# 2. Ensure Staging Directory Exists
-if (-not (Test-Path -Path $RemoteStagingPath)) {
-    New-Item -ItemType Directory -Force -Path $RemoteStagingPath | Out-Null
-    Write-Output "Created staging directory: $RemoteStagingPath"
+# --- 1. Preparation ---
+if (!(Test-Path $LocalTmp)) { 
+    New-Item -ItemType Directory -Path $LocalTmp | Out-Null 
+    Write-Host "Created staging directory at $LocalTmp" -ForegroundColor Green
 }
 
-# 3. Download and Install AWS CLI v2 Silently (if not already present)
+# --- 2. Install AWS CLI v2 Silently ---
 $AwsCliPath = "C:\Program Files\Amazon\AWSCLIV2\aws.exe"
 if (-not (Test-Path -Path $AwsCliPath)) {
-    Write-Output "AWS CLI not found. Starting installation..."
+    Write-Host "AWS CLI not found. Installing silently..." -ForegroundColor Cyan
     $MsiPath = "$env:TEMP\AWSCLIV2.msi"
     
-    # Download official installer
     Invoke-WebRequest -Uri "https://awscli.amazonaws.com/AWSCLIV2.msi" -OutFile $MsiPath
-    
-    # Run completely silent installation and wait for it to finish
     Start-Process msiexec.exe -ArgumentList "/i `"$MsiPath`" /qn /norestart" -Wait
     Remove-Item $MsiPath -Force
-    Write-Output "AWS CLI installation completed successfully."
+    Write-Host "AWS CLI installation complete." -ForegroundColor Green
 }
 
-# 4. CRITICAL: Force active PowerShell session to discover the new 'aws' command
+# Force the running session to reload the path to find the 'aws' executable
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-# 5. Download the Main Tarball using AWS CLI
-Write-Output "Starting download of Main Tarball from S3..."
+# --- 3. Download from IBM COS (S3) via AWS CLI ---
+Write-Host "Downloading $ObjectKey from S3 bucket $env:s3_bucket_name..." -ForegroundColor Cyan
+
+# AWS CLI natively inherits $env:aws_access_key_id and $env:aws_secret_access_key from Techzone
 aws s3 cp `
-  "s3://$S3BucketName/$MainTar" `
-  "$RemoteStagingPath\$MainTar" `
-  --endpoint-url $AwsEndpointUrl
+  "s3://$env:s3_bucket_name/$ObjectKey" `
+  "$ZipFile" `
+  --endpoint-url $env:aws_endpoint_url
 
-# 6. Download the Bundle Spec Zip
-Write-Output "Starting download of Bundle Spec Zip..."
-aws s3 cp `
-  "s3://$S3BucketName/$SpecZip" `
-  "$RemoteStagingPath\$SpecZip" `
-  --endpoint-url $AwsEndpointUrl
+if (!(Test-Path $ZipFile)) {
+    Write-Error "Failed to download $ObjectKey from S3 bucket."
+    exit 1
+}
 
-# 7. Extract Archives natively in Windows
-Write-Output "Extracting binaries..."
-Expand-Archive -Path "$RemoteStagingPath\$SpecZip" -DestinationPath "$RemoteStagingPath\is-suite" -Force
+# --- 4. Extraction ---
+Write-Host "Extracting media to $ExtractDir..." -ForegroundColor Cyan
+if (Test-Path $ExtractDir) { 
+    Remove-Item $ExtractDir -Recurse -Force 
+}
+Expand-Archive -Path $ZipFile -DestinationPath $ExtractDir -Force
 
-# Note: Windows doesn't natively extract .tar.gz out-of-the-box with Expand-Archive.
-# Since AWS CLI includes a lightweight version of tar, we use that to unzip the main bundle:
-tar -f "$RemoteStagingPath\$MainTar" -C $RemoteStagingPath -xz
-
-# 8. Cleanup downloaded zip/tar files to save disk space
-Remove-Item "$RemoteStagingPath\$MainTar" -Force
-Remove-Item "$RemoteStagingPath\$SpecZip" -Force
-
-Write-Output "postDeploy script execution completed successfully!"
+Write-Host "Download and Extraction completed successfully in $LocalTmp!" -ForegroundColor Green
