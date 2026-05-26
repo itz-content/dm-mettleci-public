@@ -36,9 +36,7 @@ Write-Host "Downloading $ObjectKey from S3 bucket $env:AWS_BUCKET_NAME..." -Fore
 
 # AWS CLI natively inherits $env:aws_access_key_id and $env:aws_secret_access_key from Techzone
 aws s3 cp `
-  "s3://$env:AWS_BUCKET_NAME/$ObjectKey" `
-  "$ZipFile" `
-  --endpoint-url $env:AWS_ENDPOINT_URL
+  "s3://$env:AWS_BUCKET_NAME/$ObjectKey" "$ZipFile" --endpoint-url $env:AWS_ENDPOINT_URL
 
 if (!(Test-Path $ZipFile)) {
     Write-Error "Failed to download $ObjectKey from S3 bucket."
