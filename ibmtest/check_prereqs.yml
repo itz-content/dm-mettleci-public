@@ -42,15 +42,13 @@
         regexp: 'pam_deny.so'
         replace: 'pam_unix.so'
 
-    - name: 2c. Set file descriptor limits (ulimits)
-      pam_limits:
-        domain: "*"
-        limit_type: "{{ item }}"
-        limit_item: nofile
-        value: '10240'
-      loop:
-        - soft
-        - hard
+    - name: 2c. Set file descriptor limits (ulimits) via Blockinfile
+      blockinfile:
+        path: /etc/security/limits.conf
+        marker: "# {mark} ANSIBLE MANAGED IBM LIMITS"
+        block: |
+          * soft nofile 10240
+          * hard nofile 10240
 
     - name: 3a. Locate Java 1.8 Binary Path
       shell: "find /usr/lib/jvm/java-1.8.0-openjdk* -name java | grep bin/java | head -n 1"
