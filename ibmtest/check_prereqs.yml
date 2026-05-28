@@ -37,10 +37,7 @@
         state: present
 
     - name: 2b. Patch PAM configuration for IBM
-      replace:
-        path: /etc/pam.d/other
-        regexp: 'pam_deny.so'
-        replace: 'pam_unix.so'
+      replace: path=/etc/pam.d/other regexp='pam_deny.so' replace='pam_unix.so'
 
     - name: 2c. Set file descriptor limits (ulimits)
       pam_limits:
