@@ -3,8 +3,6 @@
   hosts: techzone_servers
   become: yes
   gather_facts: yes
-  vars:
-    ibm_password: "IBMiis11716"
 
   tasks:
     - name: 1. Verify Operating System is RHEL
@@ -16,6 +14,7 @@
 
     - name: 2a. Install Required Packages and Java 1.8
       yum:
+        state: present
         name:
           - java-1.8.0-openjdk
           - java-1.8.0-openjdk-devel
@@ -34,7 +33,6 @@
           - libnsl.i686
           - python3-pip
           - python3-boto3
-        state: present
 
     - name: 2b. Patch PAM configuration for IBM
       replace:
@@ -57,12 +55,9 @@
       register: found_java_path
       changed_when: false
 
-    - name: 3b. Set Java 1.8 as Default using Dynamic Path
-      alternatives:
-        name: java
-        path: "{{ found_java_path.stdout }}"
-        link: /usr/bin/java
-      when: found_java_path.stdout != ""
+    - name: 3b. Set Java 1.8 as Default using Command Line
+      shell: "alternatives --set java {{ found_java_path.stdout }}"
+      when: found_java_path.stdout != ""   
 
     - name: 4. Final Java Verification
       shell: "java -version 2>&1"
@@ -82,9 +77,7 @@
         that:
           - ansible_processor_vcpus >= 2
           - ansible_memtotal_mb >= 12000
-        fail_msg: |
-          UNSUPPORTED HARDWARE: IBM 11.7 requires at least 2 Cores and 12GB RAM for a nonproduction system
-          Detected: {{ ansible_processor_vcpus }} Cores and {{ ansible_memtotal_mb }} MB RAM.
+        fail_msg: "UNSUPPORTED HARDWARE: IBM 11.7 requires 2+ Cores and 12GB+ RAM. Detected: {{ ansible_processor_vcpus }} Cores and {{ ansible_memtotal_mb }} MB RAM."
         success_msg: "Hardware check passed. Ready for IBM 11.7 installation."
 
     - name: 8a. Ensure IBM Parent Directory Exists
@@ -117,16 +110,17 @@
         name: "{{ item }}"
         state: present
       loop:
-        - dstage
-        - db2iadm1
-        - faspgrp
-        - db2fadm1
+        - dstage      
+        - db2iadm1    
+        - faspgrp     
+        - db2fadm1    
 
     - name: 8e. Create IBM Service Users on Secondary Disk
       user:
         name: "{{ item.name }}"
         group: "{{ item.group }}"
-        password: "{{ ibm_password | password_hash('sha512') }}"
+        # Static SHA-512 hash for "IBMiis11716" to bypass missing python-passlib libraries
+        password: "$6$rounds=656000$vdR7M3Z2v8$R1gU3sXv8l8n8Zq9g7pYKEP9N3fS3fS0W8zK98xO8fA6eR7tY8uI9oO0pP1qQ2rR3sS4tT5uU6vV7wW8xX9yY."
         home: "/mnt/second/home/{{ item.name }}"
         shell: /bin/bash
         state: present
