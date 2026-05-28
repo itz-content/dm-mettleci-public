@@ -39,6 +39,21 @@ if (-not (Test-Path -Path $AwsCliPath)) {
     Remove-Item $MsiPath -Force
 }
 
+# 2b. WinSCP Installation
+$WinScpPath = "C:\Program Files (x86)\WinSCP\WinSCP.exe"
+if (-not (Test-Path -Path $WinScpPath)) {
+    Write-Host "WinSCP not found. Installing silently..." -ForegroundColor Cyan
+    $WinScpMsi = "$env:TEMP\WinSCP-6.3.3-Setup.exe"   # Targeted stable setup binary
+    
+    # Download the official executable installer directly
+    Invoke-WebRequest -Uri "https://winscp.net/download/WinSCP-6.3.3-Setup.exe" -OutFile $WinScpMsi
+    
+    # Run installer with InnoSetup silent switches
+    Start-Process $WinScpMsi -ArgumentList "/VERYSILENT /NORESTART /ALLUSERS" -Wait
+    Remove-Item $WinScpMsi -Force
+    Write-Host "WinSCP installation complete." -ForegroundColor Green
+}
+
 # Force the running session to reload the path to find the 'aws' executable
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
