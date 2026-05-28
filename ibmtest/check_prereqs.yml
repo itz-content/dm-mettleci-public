@@ -25,16 +25,15 @@
           - libstdc++
           - tar
           - unzip
-          - libXp        
-          - chkconfig    
-          - libXft       
-          - libXtst      
+          - libXp
+          - chkconfig
+          - libXft
+          - libXtst
           - bc
           - pam.i686
           - libnsl.i686
           - python3-pip
           - python3-boto3
-
         state: present
 
     - name: 2b. Patch PAM configuration for IBM
@@ -65,7 +64,7 @@
         name: java
         path: "{{ found_java_path.stdout }}"
         link: /usr/bin/java
-      when: found_java_path.stdout != ""   
+      when: found_java_path.stdout != ""
 
     - name: 4. Final Java Verification
       shell: "java -version 2>&1"
@@ -120,10 +119,10 @@
         name: "{{ item }}"
         state: present
       loop:
-        - dstage      # Primary group for DataStage Engine
-        - db2iadm1    # Primary group for DB2 Instance
-        - faspgrp     # Required for some 11.7 features
-        - db2fadm1    # Fenced group for DB2 (Required)
+        - dstage
+        - db2iadm1
+        - faspgrp
+        - db2fadm1
 
     - name: 8e. Create IBM Service Users on Secondary Disk
       user:
@@ -169,5 +168,4 @@
         fail_msg: "INSUFFICIENT SPACE: /mnt/second needs at least 60GB for the IBM binaries."
         success_msg: "Secondary disk check passed. Found {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB free."
       loop: "{{ ansible_mounts }}"
-      when: item.mount == '/mnt/second'  
-   
+      when: item.mount == '/mnt/second'
