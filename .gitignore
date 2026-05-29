@@ -7,7 +7,7 @@
 # Ignore sensitive IBM Cloud keys and connection info
 **/*.pem
 **/*.key
-**/hosts.ini
+**/hosts.ini*
 **/ansible.log
 *secrets.yml
 
