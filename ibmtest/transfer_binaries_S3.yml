@@ -5,7 +5,7 @@
   gather_facts: yes
 
   vars:
-    # Keys are passed via Techzone JSON variables in variables
+    # Keys are passed via Techzone JSON variables
     s3_bucket_name: "dm-mettleci-public"
     aws_endpoint_url: "https://s3.us.cloud-object-storage.appdomain.cloud"
     remote_staging_path: "/mnt/second/IBM/InformationServer"
@@ -14,7 +14,23 @@
     spec_zip: "binaries/IS_V11716.bundle_spec_file_mult.zip"
 
   tasks:
-    - name: 1. Ensure Staging Directory Exists
+    - name: 1. Check if AWS CLI is installed
+      shell: command -v aws
+      register: aws_cli_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: 2. Install AWS CLI on RHEL9 if missing
+      shell: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip -q awscliv2.zip
+        ./aws/install --update
+        rm -rf awscliv2.zip ./aws
+      args:
+        chdir: /tmp
+      when: aws_cli_check.rc != 0
+
+    - name: 3. Ensure Staging Directory Exists
       file:
         path: "{{ remote_staging_path }}"
         state: directory
@@ -22,43 +38,47 @@
         group: itzuser
         mode: '0775'
 
-    - name: 2. Download Main Tarball from S3
-      amazon.aws.s3_object:
-        endpoint_url: "{{ aws_endpoint_url }}"
-        bucket: "{{ s3_bucket_name }}"
-        object: "{{ main_tar }}"
-        dest: "{{ remote_staging_path }}/{{ main_tar }}"
-        mode: get
-        access_key: "{{ aws_access_key_id }}"
-        secret_key: "{{ aws_secret_access_key }}"
+    - name: 4. Copy Main Tarball using AWS CLI
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        aws s3 cp s3://{{ s3_bucket_name }}/{{ main_tar }} {{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true  # Hides your AWS secret keys from the TechZone logs
 
-    - name: 3. Download Bundle Spec Zip from S3
-      amazon.aws.s3_object:
-        endpoint_url: "{{ aws_endpoint_url }}"
-        bucket: "{{ s3_bucket_name }}"
-        object: "{{ spec_zip }}"
-        dest: "{{ remote_staging_path }}/{{ spec_zip }}"
-        mode: get
-        access_key: "{{ aws_access_key_id }}"
-        secret_key: "{{ aws_secret_access_key }}"
+    - name: 5. Copy Bundle Spec Zip using AWS CLI
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        aws s3 cp s3://{{ s3_bucket_name }}/{{ spec_zip }} {{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true
 
-    - name: 4. Extract Main Tarball (Locally on RHEL)
+    - name: 6. Extract Main Tarball (Locally on RHEL)
       unarchive:
-        src: "{{ remote_staging_path }}/{{ main_tar }}"
+        src: "{{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz"
         dest: "{{ remote_staging_path }}"
         owner: itzuser
         group: itzuser
-        remote_src: yes # Changed to YES because file is now on the RHEL server
+        remote_src: yes
 
-    - name: 5. Extract Bundle Spec Zip (Into the is-suite folder)
+    - name: 7. Ensure Target Directory for Bundle Spec Exists
+      file:
+        path: "{{ remote_staging_path }}/is-suite"
+        state: directory
+        owner: itzuser
+        group: itzuser
+        mode: '0775'
+
+    - name: 8. Extract Bundle Spec Zip (Into the is-suite folder)
       unarchive:
-        src: "{{ remote_staging_path }}/{{ spec_zip }}"
+        src: "{{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip"
         dest: "{{ remote_staging_path }}/is-suite"
         owner: itzuser
         group: itzuser
-        remote_src: yes # Changed to YES
+        remote_src: yes
 
-    - name: 6. Force Recursive Ownership
+    - name: 9. Force Recursive Ownership
       file:
         path: "{{ remote_staging_path }}/is-suite"
         owner: itzuser
@@ -66,7 +86,7 @@
         mode: '0775'
         recurse: yes  
 
-    - name: 7. Verify Critical Files
+    - name: 10. Verify Critical Files
       stat:
         path: "{{ remote_staging_path }}/is-suite/{{ item }}"
       loop:
@@ -74,10 +94,11 @@
         - image.properties
       register: file_check
 
-    - name: 8. Cleanup Downloaded Archives (Optional)
+    - name: 11. Cleanup Downloaded Archives
       file:
         path: "{{ item }}"
         state: absent
       loop:
-        - "{{ remote_staging_path }}/{{ main_tar }}"
-        - "{{ remote_staging_path }}/{{ spec_zip }}"
+        - "{{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz"
+        - "{{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip"
+        

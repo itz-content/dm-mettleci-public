@@ -5,33 +5,31 @@
   gather_facts: no
 
   tasks:
-    - name: 1. Configure Linux User Limits (ulimits)
-      pam_limits:
-        domain: "{{ item.domain }}"
-        limit_type: "-"
-        limit_item: "{{ item.limit_item }}"
-        value: "{{ item.value }}"
-      loop:
-        # Installer User
-        - { domain: 'itzuser', limit_item: 'nofile', value: 65536 }
-        - { domain: 'itzuser', limit_item: 'nproc', value: 16384 }
-        - { domain: 'itzuser', limit_item: 'fsize', value: 'unlimited' }
-        - { domain: 'itzuser', limit_item: 'stack', value: 10240 }
-        
-        # DataStage Engine User
-        - { domain: 'dsadm', limit_item: 'nofile', value: 65536 }
-        - { domain: 'dsadm', limit_item: 'nproc', value: 16384 }
-        
-        # DB2 Instance Owner
-        - { domain: 'db2inst1', limit_item: 'nofile', value: 65536 }
-        - { domain: 'db2inst1', limit_item: 'nproc', value: 16384 }
-        - { domain: 'db2inst1', limit_item: 'data', value: 'unlimited' }
+    - name: 1. Configure Linux User Limits (ulimits) via Blockinfile
+      blockinfile:
+        path: /etc/security/limits.conf
+        marker: "# {mark} ANSIBLE MANAGED IBM SERVICE USER LIMITS"
+        block: |
+          # Installer User
+          itzuser          -       nofile          65536
+          itzuser          -       nproc           16384
+          itzuser          -       fsize           unlimited
+          itzuser          -       stack           10240
 
-        # DB2 Fenced User
-        - { domain: 'db2fenc1', limit_item: 'nofile', value: 65536 }
+          # DataStage Engine User
+          dsadm            -       nofile          65536
+          dsadm            -       nproc           16384
 
-        # Metadata User
-        - { domain: 'xmeta', limit_item: 'nofile', value: 65536 }
+          # DB2 Instance Owner
+          db2inst1         -       nofile          65536
+          db2inst1         -       nproc           16384
+          db2inst1         -       data            unlimited
+
+          # DB2 Fenced User
+          db2fenc1         -       nofile          65536
+
+          # Metadata User
+          xmeta            -       nofile          65536
 
     - name: 2. Configure Kernel Parameters (sysctl)
       sysctl:
@@ -63,3 +61,4 @@
         path: /etc/profile
         line: "umask 022"
         state: present
+        
