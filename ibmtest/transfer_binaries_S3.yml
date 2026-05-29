@@ -44,7 +44,7 @@
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
         aws s3 cp s3://{{ s3_bucket_name }}/{{ main_tar }} {{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz
         --endpoint-url {{ aws_endpoint_url }}
-      no_log: true  # Hides your AWS secret keys from the TechZone logs
+      #no_log: true  # Hides your AWS secret keys from the TechZone logs
 
     - name: 5. Copy Bundle Spec Zip using AWS CLI
       shell: >
@@ -52,7 +52,7 @@
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
         aws s3 cp s3://{{ s3_bucket_name }}/{{ spec_zip }} {{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip
         --endpoint-url {{ aws_endpoint_url }}
-      no_log: true
+      #no_log: true
 
     - name: 6. Extract Main Tarball (Locally on RHEL)
       unarchive:
@@ -101,4 +101,3 @@
       loop:
         - "{{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz"
         - "{{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip"
-        
