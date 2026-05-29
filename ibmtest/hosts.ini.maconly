@@ -1,0 +1,8 @@
+[techzone_servers]
+rhel95_ocpv_ibmcloud ansible_host=67.18.131.28
+
+[techzone_servers:vars]
+ansible_port=10022
+ansible_user=itzuser
+ansible_ssh_private_key_file=/Users/lanceshort/.ssh/pem_ibmcloudvsi_download.pem
+ansible_ssh_common_args='-o IdentitiesOnly=yes -o ServerAliveInterval=60'
