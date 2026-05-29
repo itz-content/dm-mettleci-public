@@ -1,6 +1,6 @@
 ---
 - name: Execute IBM Information Server 11.7.1.6 Silent Install
-  hosts: techzone_servers
+  hosts: all:!localhost
   become: yes
   gather_facts: yes
 
