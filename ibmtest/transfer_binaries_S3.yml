@@ -1,6 +1,6 @@
 ---
 - name: Transfer and Extract IBM 11.7.1.6 Binaries from S3
-  hosts: all:!localhost
+  hosts: techzone_servers
   become: yes
   gather_facts: yes
 

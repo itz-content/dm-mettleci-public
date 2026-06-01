@@ -1,6 +1,6 @@
 ---
 - name: IBM 11.7 Infrastructure and Prerequisite Check
-  hosts: all:!localhost
+  hosts: techzone_servers
   become: yes
   gather_facts: yes
 
