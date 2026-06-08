@@ -2,7 +2,6 @@
   hosts: localhost
   become: yes
   gather_facts: yes
-
   
 - name: Master Deployment for IBM Information Server
   import_playbook: check_prereqs.yml 
