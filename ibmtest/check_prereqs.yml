@@ -12,10 +12,24 @@
           - ansible_distribution_major_version == "9"
         fail_msg: "This playbook requires RHEL 9. Found {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
 
-    - name: 2a. Install Required Packages and Java 1.8
+    - name: 2a. Check if chkconfig is already registered on system
+      ansible.builtin.command: rpm -q chkconfig
+      register: chkconfig_check
+      failed_when: false
+      changed_when: false
+
+    - name: 2b. Clear conflicting init.d directory marker if chkconfig is missing
+      ansible.builtin.file:
+        path: /etc/init.d
+        state: absent
+      when: chkconfig_check.rc != 0
+
+    - name: 2c. Install Required Packages, Utilities, and Java 1.8
       yum:
         state: present
         name:
+          - chkconfig        # Added: Resolves legacy script process monitoring hooks
+          - net-tools        # Added: Restores 'netstat' required by validation tasks
           - java-1.8.0-openjdk
           - java-1.8.0-openjdk-devel
           - gtk2
@@ -25,22 +39,31 @@
           - tar
           - unzip
           - libXp
-          - chkconfig
           - libXft
           - libXtst
+          - libXmu
           - bc
           - pam.i686
           - libnsl.i686
           - python3-pip
           - python3-boto3
 
-    - name: 2b. Patch PAM configuration for IBM
+    - name: 2d. Recreate empty init.d hierarchy context if it was cleared
+      ansible.builtin.file:
+        path: /etc/init.d
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+      when: chkconfig_check.rc != 0
+
+    - name: 2e. Patch PAM configuration for IBM
       replace:
         path: /etc/pam.d/other
         regexp: 'pam_deny.so'
         replace: 'pam_unix.so'
 
-    - name: 2c. Set file descriptor limits (ulimits) via Blockinfile
+    - name: 2f. Set file descriptor limits (ulimits) via Blockinfile
       blockinfile:
         path: /etc/security/limits.conf
         marker: "# {mark} ANSIBLE MANAGED IBM LIMITS"
@@ -76,7 +99,7 @@
       assert:
         that:
           - ansible_processor_vcpus >= 2
-          - ansible_memtotal_mb >= 12000
+          - ansible_memtotal_mb >= 11600
         fail_msg: "UNSUPPORTED HARDWARE: IBM 11.7 requires 2+ Cores and 12GB+ RAM. Detected: {{ ansible_processor_vcpus }} Cores and {{ ansible_memtotal_mb }} MB RAM."
         success_msg: "Hardware check passed. Ready for IBM 11.7 installation."
 

@@ -80,7 +80,8 @@
         chdir: "{{ installer_path }}"
         executable: /bin/bash
       become: yes
-      become_user: itzuser  # <--- CRITICAL FIX: Executes with the proper directory ownership context
+      become_user: root  # <--- CRITICAL FIX: Executes with the proper directory ownership context
+      become_flags: "--login"
       environment:
         EXCEPTION_POLICY: "2"
         IBM_JAVA_OPTIONS: "-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true"
