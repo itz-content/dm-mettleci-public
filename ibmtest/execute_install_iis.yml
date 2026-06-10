@@ -75,6 +75,8 @@
         export LANGUAGE=en_US.UTF-8
         export IATEMPDIR=/tmp
         export CHECK_CORES=FALSE
+        export BYPASS_OS_CHECK=true
+        export DB2_PREREQ_BYPASS=true
         umask 022 && ./setup -rsp {{ response_file_remote }} -verbose -force -uiMode silent -language en > /tmp/raw_installer_debug.log 2>&1
       args: 
         chdir: "{{ installer_path }}"
