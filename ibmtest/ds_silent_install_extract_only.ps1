@@ -8,7 +8,7 @@ $ResponseFile  = "C:\is_temp\client_install_response.txt"
 $EndPointUrl   = "https://s3.us.cloud-object-storage.appdomain.cloud"
 
 # --- External Tooling Endpoints ---
-$WinscpUrl     = "https://winscp.net/download/WinSCP-6.3.3-Setup.exe"
+$WinscpUrl     = "https://winscp.net/download/WinSCP-6.5.6-Setup.exe"
 
 # --- 1. Preparation ---
 if (!(Test-Path $LocalTmp)) { New-Item -ItemType Directory -Path $LocalTmp }
