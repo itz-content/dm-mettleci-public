@@ -46,12 +46,23 @@ if (-not (Test-Path -Path $WinScpPath)) {
     $WinScpMsi = "$env:TEMP\WinSCP-6.3.3-Setup.exe"   # Targeted stable setup binary
     
     # Download the official executable installer directly
-    Invoke-WebRequest -Uri "https://winscp.net/download/WinSCP-6.3.3-Setup.exe" -OutFile $WinScpMsi
+    Invoke-WebRequest -Uri "https://winscp.net/download/WinSCP-6.3.3-Setup.exe" -OutFile $WinScpMsi -UseBasicParsing
     
-    # Run installer with InnoSetup silent switches
-    Start-Process $WinScpMsi -ArgumentList "/VERYSILENT /NORESTART /ALLUSERS" -Wait
-    Remove-Item $WinScpMsi -Force
-    Write-Host "WinSCP installation complete." -ForegroundColor Green
+    # FIX: Corrected InnoSetup argument parsing arrays (Lower-case execution flags)
+    Write-Host "Executing WinSCP installer thread..." -ForegroundColor Cyan
+    Start-Process $WinScpMsi -ArgumentList "/allusers", "/silent", "/verysilent", "/norestart", "/nocloseapplications" -Wait -NoNewWindow
+    
+    # Quick post-install validation check
+    if (Test-Path -Path $WinScpPath) {
+        Write-Host "WinSCP installation complete." -ForegroundColor Green
+    } else {
+        Write-Warning "WinSCP installer completed execution, but binaries were not found at target path."
+    }
+    
+    # Cleanup installer artifact
+    if (Test-Path $WinScpMsi) { Remove-Item $WinScpMsi -Force }
+} else {
+    Write-Host "WinSCP is already present. Skipping installation." -ForegroundColor Green
 }
 
 # Force the running session to reload the path to find the 'aws' executable
