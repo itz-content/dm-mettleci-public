@@ -68,6 +68,13 @@
         group: root
         mode: '0644'
 
+    - name: 3.5. Temporarily spoof OS version to RHEL 8 for DB2 installer compatibility
+      ansible.builtin.copy:
+        dest: /etc/redhat-release
+        content: "Red Hat Enterprise Linux release 8.6 (Ootpa)"
+        backup: yes
+      register: os_spoof
+
     - name: 4. Run the IBM Installer (Silent Mode as Installer User)
       shell: |
         export LC_ALL=en_US.UTF-8
@@ -77,6 +84,10 @@
         export CHECK_CORES=FALSE
         export BYPASS_OS_CHECK=true
         export DB2_PREREQ_BYPASS=true
+
+        unset -f which
+        unset BASH_FUNC_which%%
+        
         umask 022 && ./setup -rsp {{ response_file_remote }} -verbose -force -uiMode silent -language en > /tmp/raw_installer_debug.log 2>&1
       args: 
         chdir: "{{ installer_path }}"
@@ -91,7 +102,13 @@
       async: 7200 
       poll: 60
 
+    - name: 5. Restore the original RHEL 9 release identity
+      ansible.builtin.copy:
+        src: "{{ os_spoof.backup_file }}"
+        dest: /etc/redhat-release
+        remote_src: yes
+      when: os_spoof.backup_file is defined
+
     - name: 6. Show Installation Summary
       debug:
         var: install_output.stdout_lines
-        

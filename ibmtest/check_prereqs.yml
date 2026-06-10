@@ -30,6 +30,9 @@
         name:
           - chkconfig        # Added: Resolves legacy script process monitoring hooks
           - net-tools        # Added: Restores 'netstat' required by validation tasks
+          - ed
+          - util-linux
+          - libgcc.i686
           - java-1.8.0-openjdk
           - java-1.8.0-openjdk-devel
           - gtk2
@@ -154,6 +157,7 @@
         - { name: 'db2fenc1', group: 'db2fadm1' }
         - { name: 'xmeta', group: 'db2iadm1' }
         - { name: 'isadmin', group: 'dstage' }
+        - { name: 'dsodb', group: 'dstage'}
 
     - name: 8f. Ensure itzuser is in the IBM groups
       user:
@@ -161,12 +165,26 @@
         groups: dstage,db2iadm1,db2fadm1
         append: yes
 
+    - name: 8f_links. Create symlink redirection to secondary disk homes
+      ansible.builtin.file:
+        src: "/mnt/second/home/{{ item }}"
+        dest: "/home/{{ item }}"
+        state: link
+        force: yes
+      loop: [ 'dsadm', 'db2inst1', 'db2fenc1', 'xmeta', 'isadmin', 'dsodb' ]
+
     - name: 8g. Create Global IBM Temp Directory
       file:
         path: /mnt/second/is_temp
         state: directory
         owner: itzuser
         group: itzuser
+        mode: '1777'
+
+    - name: 8g_tmp. Ensure global system tmp has correct permissions for DB2
+      file:
+        path: /tmp
+        state: directory
         mode: '1777'
 
     - name: 8h. Scrub interactive commands from IBM profiles
