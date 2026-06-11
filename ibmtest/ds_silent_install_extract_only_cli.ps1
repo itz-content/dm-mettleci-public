@@ -39,38 +39,50 @@ if (-not (Test-Path -Path $AwsCliPath)) {
     Remove-Item $MsiPath -Force
 }
 
-# 2b. WinSCP Installation (S3 Sourced)
+# 2b. WinSCP Installation (Using Filename Variable)
 $WinScpPath = "C:\Program Files (x86)\WinSCP\WinSCP.exe"
 if (-not (Test-Path -Path $WinScpPath)) {
     Write-Host "WinSCP not found. Fetching installer from private S3 bucket..." -ForegroundColor Cyan
     
-    $WinScpMsi      = "$env:TEMP\WinSCP-6.5.6-Setup.exe"
-    $WinScpS3Key    = "binaries/WinSCP-6.5.6-Setup.exe"
+    # Define the installer filename in a single variable for easy updates
+    $WinScpFileName = "WinSCP-6.5.6-Setup.exe"
     
-    # Natively pull the executable via AWS CLI utilizing the already verified environment variables
-    aws s3 cp "s3://$env:AWS_BUCKET_NAME/$WinScpS3Key" "$WinScpMsi" --endpoint-url $env:AWS_ENDPOINT_URL
+    # Construct the absolute path string using the variable
+    $LocalInstallerPath = "C:\Users\itzuser\Downloads\$WinScpFileName"
+    
+    # Execute the pull directly using the variable paths
+    aws s3 cp "s3://$env:AWS_BUCKET_NAME/binaries/$WinScpFileName" $LocalInstallerPath --endpoint-url $env:AWS_ENDPOINT_URL
 
-    if ((Test-Path $WinScpMsi) -and ((Get-Item $WinScpMsi).Length -gt 0)) {
-        Write-Host "WinSCP Installer pulled successfully. Running headless deployment task..." -ForegroundColor Cyan
+    # Simple verification check on the literal file path
+    if (Test-Path $LocalInstallerPath) {
+        $FileSizeMB = [math]::Round((Get-Item $LocalInstallerPath).Length / 1MB, 2)
+        Write-Host "WinSCP Installer verified in Downloads ($FileSizeMB MB). Running installation..." -ForegroundColor Cyan
         
-        # Execute the installation with pipeline-hardened arguments
-        Start-Process $WinScpMsi -ArgumentList "/allusers", "/silent", "/verysilent", "/norestart", "/nocloseapplications" -Wait -NoNewWindow
+        # Hardcoded single-string argument block to prevent parsing issues
+        $OuterArguments = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCLOSEAPPLICATIONS /ALLUSERS'
         
+        # Launch the install process natively from the variable path
+        $Process = Start-Process -FilePath $LocalInstallerPath -ArgumentList $OuterArguments -Wait -NoNewWindow -PassThru
+        
+        Write-Host "Installer process exited with Code: $($Process.ExitCode)" -ForegroundColor Yellow
+        
+        # Final validation check to ensure binaries are in Program Files
         if (Test-Path -Path $WinScpPath) {
-            Write-Host "WinSCP installation complete!" -ForegroundColor Green
+            Write-Host "SUCCESS: WinSCP installation verified at target path!" -ForegroundColor Green
         } else {
-            Write-Error "Critical Error: WinSCP installer exited, but binary was not found at $WinScpPath. Check permission context."
+            Write-Error "CRITICAL: The installer ran, but the binaries are missing from $WinScpPath."
         }
     } else {
-        Write-Error "Critical Error: Failed to download WinSCP installer from S3 bucket path: $WinScpS3Key"
+        Write-Error "CRITICAL: Download failed. The file is missing from $LocalInstallerPath"
     }
     
-    # Cleanup local temporary setup artifact
-    if (Test-Path $WinScpMsi) { Remove-Item $WinScpMsi -Force }
+    # Clean up the installer from Downloads after execution
+    if (Test-Path $LocalInstallerPath) { 
+        Remove-Item $LocalInstallerPath -Force 
+    }
 } else {
     Write-Host "WinSCP is already present. Skipping task." -ForegroundColor Green
 }
-
 # Force the running session to reload the path to find the 'aws' executable
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
