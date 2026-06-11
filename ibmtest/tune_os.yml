@@ -47,7 +47,7 @@
           vm.max_map_count = 262144
 
     - name: 2b. Reload Kernel Parameters Instantly
-      shell: "sysctl --system"
+      shell: "sysctl -p /etc/sysctl.d/99-ibm-tuning.conf"
 
     - name: 3. Verify itzuser Group Membership
       user:

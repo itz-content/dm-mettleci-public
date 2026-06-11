@@ -33,6 +33,12 @@
         - /tmp/is_home
         - /tmp/is_temp
 
+    - name: 0.2. Re-enforce global system tmp write permissions for DB2
+      ansible.builtin.file:
+        path: /tmp
+        state: directory
+        mode: '1777'
+
     - name: 1. Ensure RHEL 9 Compatibility Libraries are Present
       dnf:
         name:
@@ -94,7 +100,6 @@
         executable: /bin/bash
       become: yes
       become_user: root  # <--- CRITICAL FIX: Executes with the proper directory ownership context
-      become_flags: "--login"
       environment:
         EXCEPTION_POLICY: "2"
         #IBM_JAVA_OPTIONS: "-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true"

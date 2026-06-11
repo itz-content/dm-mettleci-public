@@ -58,31 +58,31 @@
       unarchive:
         src: "{{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz"
         dest: "{{ remote_staging_path }}"
-        owner: itzuser
-        group: itzuser
+        owner: root
+        group: datastage
         remote_src: yes
 
     - name: 7. Ensure Target Directory for Bundle Spec Exists
       file:
         path: "{{ remote_staging_path }}/is-suite"
         state: directory
-        owner: itzuser
-        group: itzuser
+        owner: root
+        group: datastage
         mode: '0775'
 
     - name: 8. Extract Bundle Spec Zip (Into the is-suite folder)
       unarchive:
         src: "{{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip"
         dest: "{{ remote_staging_path }}/is-suite"
-        owner: itzuser
-        group: itzuser
+        owner: root
+        group: datastage
         remote_src: yes
 
     - name: 9. Force Recursive Ownership
       file:
         path: "{{ remote_staging_path }}/is-suite"
-        owner: itzuser
-        group: itzuser
+        owner: root
+        group: datastage
         mode: '0775'
         recurse: yes  
 
