@@ -51,7 +51,7 @@ if (-not (Test-Path -Path $WinScpPath)) {
     $LocalInstallerPath = "C:\Users\itzuser\Downloads\$WinScpFileName"
     
     # Execute the pull directly using the variable paths
-    aws s3 cp "s3://$env:AWS_BUCKET_NAME/binaries/$WinScpFileName" $LocalInstallerPath --endpoint-url $env:AWS_ENDPOINT_URL
+    aws s3 cp "s3://$env:AWS_BUCKET_NAME/binaries/$WinScpFileName" "$LocalInstallerPath" --endpoint-url $env:AWS_ENDPOINT_URL
 
     # Simple verification check on the literal file path
     if (Test-Path $LocalInstallerPath) {
