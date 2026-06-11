@@ -34,9 +34,9 @@
       file:
         path: "{{ remote_staging_path }}"
         state: directory
-        owner: itzuser
-        group: itzuser
-        mode: '0775'
+        owner: root
+        group: datastage
+        mode: '0777'
 
     - name: 4. Copy Main Tarball using AWS CLI
       shell: >
@@ -68,7 +68,7 @@
         state: directory
         owner: root
         group: datastage
-        mode: '0775'
+        mode: '0777'
 
     - name: 8. Extract Bundle Spec Zip (Into the is-suite folder)
       unarchive:
@@ -83,7 +83,7 @@
         path: "{{ remote_staging_path }}/is-suite"
         owner: root
         group: datastage
-        mode: '0775'
+        mode: '0777'
         recurse: yes  
 
     - name: 10. Verify Critical Files
