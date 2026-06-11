@@ -39,30 +39,36 @@ if (-not (Test-Path -Path $AwsCliPath)) {
     Remove-Item $MsiPath -Force
 }
 
-# 2b. WinSCP Installation
+# 2b. WinSCP Installation (S3 Sourced)
 $WinScpPath = "C:\Program Files (x86)\WinSCP\WinSCP.exe"
 if (-not (Test-Path -Path $WinScpPath)) {
-    Write-Host "WinSCP not found. Installing silently..." -ForegroundColor Cyan
-    $WinScpMsi = "$env:TEMP\WinSCP-6.3.3-Setup.exe"   # Targeted stable setup binary
+    Write-Host "WinSCP not found. Fetching installer from private S3 bucket..." -ForegroundColor Cyan
     
-    # Download the official executable installer directly
-    Invoke-WebRequest -Uri "https://winscp.net/download/WinSCP-6.3.3-Setup.exe" -OutFile $WinScpMsi -UseBasicParsing
+    $WinScpMsi      = "$env:TEMP\WinSCP-6.5.6-Setup.exe"
+    $WinScpS3Key    = "binaries/WinSCP-6.5.6-Setup.exe"
     
-    # FIX: Corrected InnoSetup argument parsing arrays (Lower-case execution flags)
-    Write-Host "Executing WinSCP installer thread..." -ForegroundColor Cyan
-    Start-Process $WinScpMsi -ArgumentList "/allusers", "/silent", "/verysilent", "/norestart", "/nocloseapplications" -Wait -NoNewWindow
-    
-    # Quick post-install validation check
-    if (Test-Path -Path $WinScpPath) {
-        Write-Host "WinSCP installation complete." -ForegroundColor Green
+    # Natively pull the executable via AWS CLI utilizing the already verified environment variables
+    aws s3 cp "s3://$env:AWS_BUCKET_NAME/$WinScpS3Key" "$WinScpMsi" --endpoint-url $env:AWS_ENDPOINT_URL
+
+    if ((Test-Path $WinScpMsi) -and ((Get-Item $WinScpMsi).Length -gt 0)) {
+        Write-Host "WinSCP Installer pulled successfully. Running headless deployment task..." -ForegroundColor Cyan
+        
+        # Execute the installation with pipeline-hardened arguments
+        Start-Process $WinScpMsi -ArgumentList "/allusers", "/silent", "/verysilent", "/norestart", "/nocloseapplications" -Wait -NoNewWindow
+        
+        if (Test-Path -Path $WinScpPath) {
+            Write-Host "WinSCP installation complete!" -ForegroundColor Green
+        } else {
+            Write-Error "Critical Error: WinSCP installer exited, but binary was not found at $WinScpPath. Check permission context."
+        }
     } else {
-        Write-Warning "WinSCP installer completed execution, but binaries were not found at target path."
+        Write-Error "Critical Error: Failed to download WinSCP installer from S3 bucket path: $WinScpS3Key"
     }
     
-    # Cleanup installer artifact
+    # Cleanup local temporary setup artifact
     if (Test-Path $WinScpMsi) { Remove-Item $WinScpMsi -Force }
 } else {
-    Write-Host "WinSCP is already present. Skipping installation." -ForegroundColor Green
+    Write-Host "WinSCP is already present. Skipping task." -ForegroundColor Green
 }
 
 # Force the running session to reload the path to find the 'aws' executable
