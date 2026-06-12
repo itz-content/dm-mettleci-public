@@ -34,7 +34,6 @@
           - util-linux
           - unzip
           - bc
-          - ipcs
 
     - name: 2d. Recreate empty init.d hierarchy context if it was cleared
       ansible.builtin.file:
