@@ -3,7 +3,8 @@
 # #############################################################################
 
 # 1. Global Installation Logic & RHEL 9 Identity
-suite.installLocation=/mnt/second/IBM/InformationServer
+# Updated: Pointed to the high-capacity standard root installation path
+suite.installLocation=/opt/IBM/InformationServer
 LIC_AGREEMENT=ACCEPT
 target.language.code=en
 target.country.code=US
@@ -22,26 +23,29 @@ product[datastage].selected=true
 product[ISALite].selected=true
 
 # 4. WebSphere Liberty Configuration (Lite Services)
+# Updated: Relocated Liberty profiles natively under the /opt space
 app.server.type=liberty
-was.install.location=/mnt/second/IBM/WebSphere/Liberty
+was.install.location=/opt/IBM/WebSphere/Liberty
 was.default.host.port=9080
 was.secure.default.host.port=9443
 
-# 5. DB2 Engine & Instance (The /mnt/second storage)
+# 5. DB2 Engine & Instance (The Native Root Drive Storage)
+# Updated: Shifted binary location and aligned the instance home to the standard OS path
 use.bundled.db2=true
-db2.install.location=/mnt/second/IBM/InformationServer/db2/V11.5
+db2.install.location=/opt/IBM/InformationServer/db2/V11.5
 db2.instance.name=db2inst1
 db2.instance.user.name=db2inst1
-db2.instance.home.directory=/mnt/second/home/db2inst1
+db2.instance.home.directory=/home/db2inst1
 db2.instance.group=db2iadm1
 db2.port.number=50000
 
 # 6. XMETA Repository (The missing Metadata Core)
+# Updated: Positioned the local DB2 repository footprint under /opt
 xmeta.db.type=db2
 xmeta.db.hostname={{ ansible_hostname }}
 xmeta.db.name=xmeta
 xmeta.db.user.name=xmeta
-xmeta.db.location=/mnt/second/IBM/InformationServer/Repos/xmeta
+xmeta.db.location=/opt/IBM/InformationServer/Repos/xmeta
 xmeta.driver.type=DB2_11_5
 
 # 7. Engine & DataStage Tier Configuration
