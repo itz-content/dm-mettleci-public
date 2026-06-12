@@ -7,6 +7,8 @@ $LocalTmp          = "C:\is_temp"
 $ObjectKey         = "binaries/IS_V11.7.1.6_WINDOWS_CLIENT.zip"
 $ZipFile           = "C:\is_temp\IS_V11.7.1.6_WINDOWS_CLIENT.zip"
 $ExtractDir        = "C:\is_temp\IS_Client_Extract"
+$WinScpObjKey      = "binaries/WinSCP-6.5.6-Setup.exe"
+$WinScpDownloadPath = "C:\Users\itzuser\Downloads\WinSCP-6.5.6-Setup.exe"
 
 # NEW: Natively parse the TechZone variables file from disk to bypass scoping bugs
 $JsonPath = "C:\Temp\post_deploy_repo\post_deploy_variables.json"
@@ -46,15 +48,9 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 $WinScpPath = "C:\Program Files (x86)\WinSCP\WinSCP.exe"
 if (-not (Test-Path -Path $WinScpPath)) {
     Write-Host "WinSCP not found. Fetching installer from private S3 bucket..." -ForegroundColor Cyan
-    
-    # Define the installer filename in a single variable for easy updates
-    $WinScpFileName = "WinSCP-6.5.6-Setup.exe"
-    
-    # Construct the absolute path string using the variable
-    $LocalInstallerPath = "C:\Users\itzuser\Downloads\$WinScpFileName"
-    
+     
     # Execute the pull directly using the variable paths
-    aws s3 cp "s3://$env:AWS_BUCKET_NAME/binaries/$WinScpFileName" "$LocalInstallerPath" --endpoint-url $env:AWS_ENDPOINT_URL
+    aws s3 cp "s3://$env:AWS_BUCKET_NAME/$WinScpObjKey" "$WinScpDownloadPath" --endpoint-url $env:AWS_ENDPOINT_URL
 
     # Simple verification check on the literal file path
     if (Test-Path $LocalInstallerPath) {
@@ -65,7 +61,7 @@ if (-not (Test-Path -Path $WinScpPath)) {
         $OuterArguments = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCLOSEAPPLICATIONS /ALLUSERS'
         
         # Launch the install process natively from the variable path
-        $Process = Start-Process -FilePath $LocalInstallerPath -ArgumentList $OuterArguments -Wait -NoNewWindow -PassThru
+        $Process = Start-Process -FilePath $WinScpDownloadPath -ArgumentList $OuterArguments -Wait -NoNewWindow -PassThru
         
         Write-Host "Installer process exited with Code: $($Process.ExitCode)" -ForegroundColor Yellow
         
@@ -76,12 +72,12 @@ if (-not (Test-Path -Path $WinScpPath)) {
             Write-Error "CRITICAL: The installer ran, but the binaries are missing from $WinScpPath."
         }
     } else {
-        Write-Error "CRITICAL: Download failed. The file is missing from $LocalInstallerPath"
+        Write-Error "CRITICAL: Download failed. The file is missing: $WinScpDownloadPath"
     }
     
     # Clean up the installer from Downloads after execution
-    if (Test-Path $LocalInstallerPath) { 
-        Remove-Item $LocalInstallerPath -Force 
+    if (Test-Path $WinScpDownloadPath) { 
+        Remove-Item $WinScpDownloadPath -Force 
     }
 } else {
     Write-Host "WinSCP is already present. Skipping task." -ForegroundColor Green
