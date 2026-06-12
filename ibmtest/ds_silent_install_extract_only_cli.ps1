@@ -53,8 +53,8 @@ if (-not (Test-Path -Path $WinScpPath)) {
     aws s3 cp "s3://$env:AWS_BUCKET_NAME/$WinScpObjKey" "$WinScpDownloadPath" --endpoint-url $env:AWS_ENDPOINT_URL
 
     # Simple verification check on the literal file path
-    if (Test-Path $LocalInstallerPath) {
-        $FileSizeMB = [math]::Round((Get-Item $LocalInstallerPath).Length / 1MB, 2)
+    if (Test-Path $WinScpDownloadPath) {
+        $FileSizeMB = [math]::Round((Get-Item $WinScpDownloadPath).Length / 1MB, 2)
         Write-Host "WinSCP Installer verified in Downloads ($FileSizeMB MB). Running installation..." -ForegroundColor Cyan
         
         # Hardcoded single-string argument block to prevent parsing issues
