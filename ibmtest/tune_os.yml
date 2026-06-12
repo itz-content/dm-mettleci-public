@@ -38,9 +38,14 @@
         mode: '0644'
         marker: "# {mark} ANSIBLE MANAGED IBM KERNEL SETTINGS"
         block: |
-          kernel.shmmax = 8589934592
-          kernel.shmall = 2097152
-          kernel.sem = 250 32000 100 128
+          # Shared Memory scaled perfectly for a 32GB RAM footprint (allocating 16GB)
+          kernel.shmmax = 17179869184
+          kernel.shmall = 4194304
+          
+          # Semaphores tuned explicitly to satisfy DB2 minimum thresholds (SEMMNI=1024)
+          kernel.sem = 250 256000 32 1024
+          
+          # Messaging thresholds and virtual memory allocations
           kernel.msgmax = 65536
           kernel.msgmnb = 65536
           vm.swappiness = 10
@@ -49,13 +54,7 @@
     - name: 2b. Reload Kernel Parameters Instantly
       shell: "sysctl -p /etc/sysctl.d/99-ibm-tuning.conf"
 
-    - name: 3. Verify itzuser Group Membership
-      user:
-        name: itzuser
-        groups: dstage,db2iadm1,db2fadm1
-        append: yes
-
-    - name: 4. Force Global umask for IBM stability
+    - name: 3. Force Global umask for IBM stability
       lineinfile:
         path: /etc/profile
         line: "umask 022"

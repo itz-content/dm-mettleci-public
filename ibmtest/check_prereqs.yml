@@ -28,28 +28,13 @@
       yum:
         state: present
         name:
-          - chkconfig        # Added: Resolves legacy script process monitoring hooks
-          - net-tools        # Added: Restores 'netstat' required by validation tasks
+          - chkconfig        
+          - net-tools        
           - ed
           - util-linux
-          - libgcc.i686
-          - java-1.8.0-openjdk
-          - java-1.8.0-openjdk-devel
-          - gtk2
-          - libffi
-          - libgcc
-          - libstdc++
-          - tar
           - unzip
-          - libXp
-          - libXft
-          - libXtst
-          - libXmu
           - bc
-          - pam.i686
-          - libnsl.i686
-          - python3-pip
-          - python3-boto3
+          - ipcs
 
     - name: 2d. Recreate empty init.d hierarchy context if it was cleared
       ansible.builtin.file:
@@ -106,32 +91,24 @@
         fail_msg: "UNSUPPORTED HARDWARE: IBM 11.7 requires 2+ Cores and 12GB+ RAM. Detected: {{ ansible_processor_vcpus }} Cores and {{ ansible_memtotal_mb }} MB RAM."
         success_msg: "Hardware check passed. Ready for IBM 11.7 installation."
 
-    - name: 8a. Ensure IBM Parent Directory Exists
+    - name: 8a. Ensure Standard IBM Parent Directory Exists
       file:
-        path: /mnt/second/IBM
+        path: /opt/IBM
         state: directory
         owner: itzuser
         group: itzuser
         mode: '0775'
 
-    - name: 8b. Ensure InfoSphere Subdirectory Exists
+    - name: 8b. Ensure Standard InfoSphere Subdirectory Exists
       file:
-        path: /mnt/second/IBM/InformationServer
+        path: /opt/IBM/InformationServer
         state: directory
         owner: itzuser
         group: itzuser
         mode: '0775'
         recurse: yes
 
-    - name: 8c. Create Home Parent Directory on Secondary Disk
-      file:
-        path: /mnt/second/home
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
-
-    - name: 8d. Create IBM Service Groups
+    - name: 8c. Create IBM Service Groups
       group:
         name: "{{ item }}"
         state: present
@@ -141,16 +118,15 @@
         - faspgrp     
         - db2fadm1    
 
-    - name: 8e. Create IBM Service Users on Secondary Disk
+    - name: 8d. Create IBM Service Users (Standard Linux OS Paths)
       user:
         name: "{{ item.name }}"
         group: "{{ item.group }}"
         # Static SHA-512 hash for "IBMiis11716" to bypass missing python-passlib libraries
         password: "$6$rounds=656000$vdR7M3Z2v8$R1gU3sXv8l8n8Zq9g7pYKEP9N3fS3fS0W8zK98xO8fA6eR7tY8uI9oO0pP1qQ2rR3sS4tT5uU6vV7wW8xX9yY."
-        home: "/mnt/second/home/{{ item.name }}"
         shell: /bin/bash
         state: present
-        create_home: yes
+        create_home: yes  # Natively builds standard /home/username paths
       loop:
         - { name: 'dsadm', group: 'dstage' }
         - { name: 'db2inst1', group: 'db2iadm1' }
@@ -159,46 +135,30 @@
         - { name: 'isadmin', group: 'dstage' }
         - { name: 'dsodb', group: 'dstage'}
 
-    - name: 8f. Ensure itzuser is in the IBM groups
+    - name: 8e. Ensure itzuser is in the IBM groups
       user:
         name: itzuser
         groups: dstage,db2iadm1,db2fadm1
         append: yes
 
-    - name: 8f_links. Create symlink redirection to secondary disk homes
-      ansible.builtin.file:
-        src: "/mnt/second/home/{{ item }}"
-        dest: "/home/{{ item }}"
-        state: link
-        force: yes
-      loop: [ 'dsadm', 'db2inst1', 'db2fenc1', 'xmeta', 'isadmin', 'dsodb' ]
-
-    - name: 8g. Create Global IBM Temp Directory
-      file:
-        path: /mnt/second/is_temp
-        state: directory
-        owner: itzuser
-        group: itzuser
-        mode: '1777'
-
-    - name: 8g_tmp. Ensure global system tmp has correct permissions for DB2
+    - name: 8f. Ensure global system tmp has correct permissions for DB2
       file:
         path: /tmp
         state: directory
         mode: '1777'
 
-    - name: 8h. Scrub interactive commands from IBM profiles
+    - name: 8g. Scrub interactive commands from IBM profiles
       lineinfile:
-        path: "/mnt/second/home/{{ item }}/.bashrc"
+        path: "/home/{{ item }}/.bashrc"
         regexp: '^stty'
         state: absent
       loop: [ 'db2inst1', 'db2fenc1', 'dsadm' ]
 
-    - name: 9. Verify Sufficient Disk Space on Secondary Mount
+    - name: 9. Verify Sufficient Disk Space on Root Mount
       assert:
         that:
-          - item.mount == '/mnt/second' and (item.size_available > 60 * 1024 * 1024 * 1024)
-        fail_msg: "INSUFFICIENT SPACE: /mnt/second needs at least 60GB for the IBM binaries."
-        success_msg: "Secondary disk check passed. Found {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB free."
+          - item.mount == '/' and (item.size_available > 60 * 1024 * 1024 * 1024)
+        fail_msg: "INSUFFICIENT SPACE: The root disk needs at least 60GB for the IBM binaries."
+        success_msg: "Root disk capacity check passed. Found {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB free."
       loop: "{{ ansible_mounts }}"
-      when: item.mount == '/mnt/second'
+      when: item.mount == '/'

@@ -5,7 +5,7 @@
   gather_facts: yes
 
   vars:
-    installer_path: "/mnt/second/IBM/InformationServer/is-suite"
+    installer_path: "/opt/IBM/InformationServer_Staging/is-suite"
     response_file_local: "./templates/legacy_lite_rhel9.rsp.j2"
     response_file_remote: "/tmp/responsems.txt"
     password_file_remote: "/tmp/password.txt"
@@ -19,45 +19,27 @@
         pkill -9 -f setup || true
         pkill -9 -u itzuser java || true
       failed_when: false
-      ignore_errors: yes
+      changed_when: false
 
-    - name: 0.1. Remove lock files and temp logs
+    - name: 0.1. Absolute Purge of Installer Lock Files, Temp Directories, and Logs
       file:
         path: "{{ item }}"
         state: absent
-      with_items:
+      loop:
         - /tmp/IBM_Information_Server_Install_Lock
         - /tmp/is-suite
         - /tmp/ibm_is_logs
         - /usr/ibm/common/acsi/logs
         - /tmp/is_home
         - /tmp/is_temp
+        - /tmp/is_prereq*
+        - ~/.isi/
 
     - name: 0.2. Re-enforce global system tmp write permissions for DB2
       ansible.builtin.file:
         path: /tmp
         state: directory
         mode: '1777'
-
-    - name: 1. Ensure RHEL 9 Compatibility Libraries are Present
-      dnf:
-        name:
-          - libnsl
-          - libxcrypt-compat
-          - pam.i686
-          - libnsl.i686
-        state: present
-
-    - name: 1.3. Install and Enable HAVEGED (Legacy Entropy Fix)
-      dnf:
-        name: haveged
-        state: present
-
-    - name: 1.4. Ensure HAVEGED is Running
-      systemd:
-        name: haveged
-        state: started
-        enabled: yes
 
     - name: 1.5. Ensure Local Hostname is in /etc/hosts (Prevents IBM Hang)
       lineinfile:
@@ -74,19 +56,14 @@
         group: root
         mode: '0644'
 
-    - name: 3.5. Temporarily spoof OS version to RHEL 8 for DB2 installer compatibility
-      ansible.builtin.copy:
-        dest: /etc/redhat-release
-        content: "Red Hat Enterprise Linux release 8.6 (Ootpa)"
-        backup: yes
-      register: os_spoof
-
-    - name: 4. Run the IBM Installer (Silent Mode as Installer User)
+    - name: 4. Run the IBM Installer (Native RHEL 9 Silent Mode)
       shell: |
         export LC_ALL=en_US.UTF-8
         export LANG=en_US.UTF-8
         export LANGUAGE=en_US.UTF-8
         export IATEMPDIR=/tmp
+        
+        # Kept safely as standard automation guards
         export CHECK_CORES=FALSE
         export BYPASS_OS_CHECK=true
         export DB2_PREREQ_BYPASS=true
@@ -99,21 +76,13 @@
         chdir: "{{ installer_path }}"
         executable: /bin/bash
       become: yes
-      become_user: root  # <--- CRITICAL FIX: Executes with the proper directory ownership context
+      become_user: root  
       environment:
         EXCEPTION_POLICY: "2"
-        #IBM_JAVA_OPTIONS: "-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true"
       register: install_output
       async: 7200 
       poll: 60
 
-    - name: 5. Restore the original RHEL 9 release identity
-      ansible.builtin.copy:
-        src: "{{ os_spoof.backup_file }}"
-        dest: /etc/redhat-release
-        remote_src: yes
-      when: os_spoof.backup_file is defined
-
-    - name: 6. Show Installation Summary
+    - name: 5. Show Installation Summary
       debug:
         var: install_output.stdout_lines
