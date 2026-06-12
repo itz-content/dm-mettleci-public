@@ -39,6 +39,9 @@ if (-not (Test-Path -Path $AwsCliPath)) {
     Remove-Item $MsiPath -Force
 }
 
+# Force the running session to reload the path to find the 'aws' executable
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
 # 2b. WinSCP Installation (Using Filename Variable)
 $WinScpPath = "C:\Program Files (x86)\WinSCP\WinSCP.exe"
 if (-not (Test-Path -Path $WinScpPath)) {
@@ -83,8 +86,6 @@ if (-not (Test-Path -Path $WinScpPath)) {
 } else {
     Write-Host "WinSCP is already present. Skipping task." -ForegroundColor Green
 }
-# Force the running session to reload the path to find the 'aws' executable
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 # --- 3. Download from IBM COS (S3) via AWS CLI ---
 Write-Host "Downloading $ObjectKey from S3 bucket $env:AWS_BUCKET_NAME..." -ForegroundColor Cyan
