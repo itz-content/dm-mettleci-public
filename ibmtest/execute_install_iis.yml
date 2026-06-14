@@ -75,6 +75,8 @@
         export CHECK_CORES=FALSE
         export BYPASS_OS_CHECK=true
         export DB2_PREREQ_BYPASS=true
+        export IS_SKIP_PREREQS=true
+        export BYPASS_FINAL_CHECK=true
 
         unset -f which
         unset BASH_FUNC_which%%
