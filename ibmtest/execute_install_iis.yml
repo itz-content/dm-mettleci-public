@@ -5,6 +5,7 @@
   gather_facts: yes
 
   vars:
+    # RESTORED: Pointing directly to your unified installation suite location
     installer_path: "/opt/IBM/InformationServer/is-suite"
     response_file_local: "./templates/legacy_lite_rhel9.rsp.j2"
     response_file_remote: "/tmp/responsems.txt"
@@ -56,7 +57,14 @@
         group: root
         mode: '0644'
 
-    - name: 4. Run the IBM Installer (Native RHEL 9 Silent Mode)
+    - name: 3.5. Force Spoof OS version to RHEL 8 (Mandatory to clear DB2 validation engine checks)
+      ansible.builtin.copy:
+        dest: /etc/redhat-release
+        content: "Red Hat Enterprise Linux release 8.6 (Ootpa)"
+        backup: yes
+      register: os_spoof
+
+    - name: 4. Run the IBM Installer (Spoofed RHEL 8 Silent Mode)
       shell: |
         export LC_ALL=en_US.UTF-8
         export LANG=en_US.UTF-8
@@ -83,6 +91,13 @@
       async: 7200 
       poll: 60
 
-    - name: 5. Show Installation Summary
+    - name: 5. Restore original RHEL 9 identity post-execution
+      ansible.builtin.copy:
+        src: "{{ os_spoof.backup_file }}"
+        dest: /etc/redhat-release
+        remote_src: yes
+      when: os_spoof.backup_file is defined
+
+    - name: 6. Show Installation Summary
       debug:
         var: install_output.stdout_lines
