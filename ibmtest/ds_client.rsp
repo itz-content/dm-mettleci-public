@@ -1,0 +1,26 @@
+suite.installLocation=C:\\IBM\\InformationServer
+
+#Tier selection
+suite.tier[client.tier].selected=true
+
+
+#Product selection
+product[qualitystage].selected=true
+product[ISALite].selected=true
+product[MetadataServer].selected=true
+product[CommonEvent].selected=true
+product[IMAM].selected=true
+product[datastage].selected=true
+product[CommonMetadata].selected=true
+product[ISF].selected=true
+
+
+#Variable setting
+LIC_AGREEMENT=ACCEPT
+create.desktop.shortcut=true
+ds.client.language.acronym=ENU
+install.path=1
+nls.language=English
+nls.language.code=ENU
+target.country.code=US
+target.language.code=en
