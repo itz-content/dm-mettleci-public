@@ -24,7 +24,7 @@
         state: absent
       when: chkconfig_check.rc != 0
 
-    - name: 2c. Install Required Packages, Utilities, and Java 1.8
+    - name: 2c. Enforce System Utility Packages and Java 1.8 SDK Status
       yum:
         state: present
         name:
@@ -34,6 +34,7 @@
           - util-linux
           - unzip
           - bc
+          - java-1.8.0-openjdk-devel
 
     - name: 2d. Recreate empty init.d hierarchy context if it was cleared
       ansible.builtin.file:
@@ -44,19 +45,21 @@
         group: root
       when: chkconfig_check.rc != 0
 
-    - name: 2e. Patch PAM configuration for IBM
+    - name: 2e. Provide OpenSSL 1.0 Legacy Compatibility Layer Symlinks
+      ansible.builtin.file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: link
+        force: yes
+      loop:
+        - { src: '/usr/lib64/libcrypto.so.3', dest: '/usr/lib64/libcrypto.so.10' }
+        - { src: '/usr/lib64/libssl.so.3', dest: '/usr/lib64/libssl.so.10' }
+
+    - name: 2f. Patch PAM configuration for IBM
       replace:
         path: /etc/pam.d/other
         regexp: 'pam_deny.so'
         replace: 'pam_unix.so'
-
-    - name: 2f. Set file descriptor limits (ulimits) via Blockinfile
-      blockinfile:
-        path: /etc/security/limits.conf
-        marker: "# {mark} ANSIBLE MANAGED IBM LIMITS"
-        block: |
-          * soft nofile 10240
-          * hard nofile 10240
 
     - name: 3a. Locate Java 1.8 Binary Path
       shell: "find /usr/lib/jvm/java-1.8.0-openjdk* -name java | grep bin/java | head -n 1"
@@ -94,17 +97,17 @@
       file:
         path: /opt/IBM
         state: directory
-        owner: itzuser
-        group: itzuser
-        mode: '0775'
+        owner: root
+        group: dstage
+        mode: '0777'
 
     - name: 8b. Ensure Standard InfoSphere Subdirectory Exists
       file:
         path: /opt/IBM/InformationServer
         state: directory
-        owner: itzuser
-        group: itzuser
-        mode: '0775'
+        owner: root
+        group: dstage
+        mode: '0777'
         recurse: yes
 
     - name: 8c. Create IBM Service Groups
@@ -114,24 +117,21 @@
       loop:
         - dstage      
         - db2iadm1    
-        - faspgrp     
         - db2fadm1    
 
     - name: 8d. Create IBM Service Users (Standard Linux OS Paths)
       user:
         name: "{{ item.name }}"
         group: "{{ item.group }}"
-        # Static SHA-512 hash for "IBMiis11716" to bypass missing python-passlib libraries
         password: "$6$rounds=656000$vdR7M3Z2v8$R1gU3sXv8l8n8Zq9g7pYKEP9N3fS3fS0W8zK98xO8fA6eR7tY8uI9oO0pP1qQ2rR3sS4tT5uU6vV7wW8xX9yY."
         shell: /bin/bash
         state: present
-        create_home: yes  # Natively builds standard /home/username paths
+        create_home: yes
       loop:
         - { name: 'dsadm', group: 'dstage' }
         - { name: 'db2inst1', group: 'db2iadm1' }
         - { name: 'db2fenc1', group: 'db2fadm1' }
         - { name: 'xmeta', group: 'db2iadm1' }
-        - { name: 'isadmin', group: 'dstage' }
         - { name: 'dsodb', group: 'dstage'}
 
     - name: 8e. Ensure itzuser is in the IBM groups

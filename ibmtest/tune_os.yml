@@ -1,5 +1,5 @@
 ---
-- name: Tune RHEL 9 for IBM Information Server 11.7
+- name: Tune RHEL 9 for IBM Information Server 11.7 (32GB Profile)
   hosts: localhost
   become: yes
   gather_facts: no
@@ -10,37 +10,42 @@
         path: /etc/security/limits.conf
         marker: "# {mark} ANSIBLE MANAGED IBM SERVICE USER LIMITS"
         block: |
-          # Installer User
+          # Installer User Boundary
           itzuser          -       nofile          65536
           itzuser          -       nproc           16384
           itzuser          -       fsize           unlimited
           itzuser          -       stack           10240
 
-          # DataStage Engine User
+          # DataStage Engine User Boundary
           dsadm            -       nofile          65536
           dsadm            -       nproc           16384
+          dsadm            -       fsize           unlimited
+          dsadm            -       stack           10240
 
-          # DB2 Instance Owner
+          # DB2 Instance Owner Boundary
           db2inst1         -       nofile          65536
           db2inst1         -       nproc           16384
           db2inst1         -       data            unlimited
+          db2inst1         -       fsize           unlimited
 
-          # DB2 Fenced User
+          # DB2 Fenced User Boundary
           db2fenc1         -       nofile          65536
+          db2fenc1         -       nproc           16384
 
-          # Metadata User
+          # Metadata User Boundary
           xmeta            -       nofile          65536
+          xmeta            -       nproc           16384
 
-    - name: 2a. Write Kernel Parameters to Configuration File
+    - name: 2a. Write Kernel Parameters to Modular Configuration File
       blockinfile:
         path: /etc/sysctl.d/99-ibm-tuning.conf
         create: yes
         mode: '0644'
         marker: "# {mark} ANSIBLE MANAGED IBM KERNEL SETTINGS"
         block: |
-          # Shared Memory scaled perfectly for a 32GB RAM footprint (allocating 16GB)
-          kernel.shmmax = 17179869184
-          kernel.shmall = 4194304
+          # Shared Memory scaled explicitly for your 32GB RAM footprint allocation
+          kernel.shmmax = 28991029248
+          kernel.shmall = 7077888
           
           # Semaphores tuned explicitly to satisfy DB2 minimum thresholds (SEMMNI=1024)
           kernel.sem = 250 256000 32 1024
@@ -51,11 +56,17 @@
           vm.swappiness = 10
           vm.max_map_count = 262144
 
-    - name: 2b. Reload Kernel Parameters Instantly
-      shell: "sysctl -p /etc/sysctl.d/99-ibm-tuning.conf"
+    - name: 2b. Reload Kernel Parameters Instantly across the RHEL 9 Tree Hierarchy
+      shell: "sysctl --system"
 
-    - name: 3. Force Global umask for IBM stability
+    - name: 3. Force Global umask for IBM Background Process Stability
       lineinfile:
         path: /etc/profile
         line: "umask 022"
         state: present
+
+    - name: 4. Patch Native PAM Authentication Fallbacks for Legacy App Routing
+      replace:
+        path: /etc/pam.d/other
+        regexp: 'pam_deny.so'
+        replace: 'pam_unix.so'

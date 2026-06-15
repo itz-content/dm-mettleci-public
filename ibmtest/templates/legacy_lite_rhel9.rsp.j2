@@ -42,10 +42,11 @@ db2.port.number=50000
 # 6. XMETA Repository (The missing Metadata Core)
 # Updated: Positioned the local DB2 repository footprint under /opt
 xmeta.db.type=db2
-xmeta.db.hostname={{ ansible_hostname }}
+xmeta.db.hostname=localhost
 xmeta.db.name=xmeta
 xmeta.db.user.name=xmeta
-xmeta.db.location=/opt/IBM/InformationServer/Repos/xmeta
+#xmeta.db.location=/opt/IBM/InformationServer/Repos/xmeta
+xmeta.db.location=/opt/IBM/Repos/xmeta
 xmeta.driver.type=DB2_11_5
 
 # 7. Engine & DataStage Tier Configuration
