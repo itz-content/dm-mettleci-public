@@ -106,7 +106,7 @@
       ansible.builtin.user:
         name: "{{ item.name }}"
         group: "{{ item.group }}"
-        password: "$6$rounds=656000$vdR7M3Z2v8$R1gU3sXv8l8n8Zq9g7pYKEP9N3fS3fS0W8zK98xO8fA6eR7tY8uI9oO0pP1qQ2rR3sS4tT5uU6vV7wW8xX9yY."
+        password: "{{ ibm_password | password_hash('sha512') }}"
         shell: /bin/bash
         state: present
         create_home: yes

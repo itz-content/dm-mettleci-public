@@ -10,7 +10,6 @@
     response_file_local: "./templates/legacy_lite_rhel9.rsp.j2"
     response_file_remote: "/tmp/responsems.txt"
     password_file_remote: "/tmp/password.txt"
-    ibm_password: "IBMiis11716"
 
   tasks:
 
