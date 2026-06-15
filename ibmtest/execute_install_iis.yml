@@ -50,9 +50,8 @@
         state: present
 
     - name: 2a. Temporarily set SELinux to Permissive for Install Verification
-      ansible.posix.selinux:
-        policy: targeted
-        state: permissive
+      ansible.builtin.shell: "setenforce 0"
+      failed_when: false
 
     - name: 2b. Temporarily halt fapolicyd to clear silent background binary blocks
       ansible.builtin.systemd:
@@ -102,9 +101,7 @@
       failed_when: false
 
     - name: 5b. Restore Enforcing SELinux State
-      ansible.posix.selinux:
-        policy: targeted
-        state: enforcing
+      ansible.builtin.shell: "setenforce 1"
       failed_when: false
 
     - name: 6. Show Installation Summary
