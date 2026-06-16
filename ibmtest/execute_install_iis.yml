@@ -71,7 +71,7 @@
         export LC_ALL=en_US.UTF-8
         export LANG=en_US.UTF-8
         export LANGUAGE=en_US.UTF-8
-        export IATEMPDIR=/tmp
+        export IATEMPDIR=/opt/IBM/is_install_tmp
         
         # Native documented parameters to force execution over modern kernel layouts
         export DB2_PREREQ_IGNORE=True

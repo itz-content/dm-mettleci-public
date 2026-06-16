@@ -146,6 +146,14 @@
         state: directory
         mode: '1777'
 
+    - name: 8h. Create isolated staging temp directory for IBM installer engine
+      ansible.builtin.file:
+        path: /opt/IBM/is_install_tmp
+        state: directory
+        owner: root
+        group: dstage
+        mode: '1777'
+
     - name: 8g. Scrub interactive commands from IBM profiles
       ansible.builtin.lineinfile:
         path: "/home/{{ item }}/.bashrc"
