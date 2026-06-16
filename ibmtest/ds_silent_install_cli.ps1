@@ -14,7 +14,7 @@ $WinScpDownloadPath = "C:\is_temp\WinSCP-6.5.6-Setup.exe"
 $TargetClientDir    = "$ExtractDir\is-client"
 $ResponseFile       = "$TargetClientDir\ds_client.rsp"  # Relocated per your spec
 $RepoResponseFile   = "C:\Temp\post_deploy_repo\ibmtest\ds_client.rsp" # Source path from repo
-$InstallerExe       = "$ExtractDir\is-installer\setup.exe"
+$InstallerExe       = "$TargetClientDir\setup.exe"
 $InstallLog         = "C:\is_temp\client_install_execution.log"
 
 # Disable progress bar to increase download performance and prevent automation hangs
