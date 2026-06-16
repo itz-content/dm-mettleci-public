@@ -12,10 +12,14 @@ $WinScpDownloadPath = "C:\is_temp\WinSCP-6.5.6-Setup.exe"
 
 # --- Dynamic Path Rules for Silent Installation ---
 $TargetClientDir    = "$ExtractDir\is-client"
-$ResponseFile       = "$TargetClientDir\ds_client.rsp"  # Relocated per your spec
-$RepoResponseFile   = "C:\Temp\post_deploy_repo\ibmtest\ds_client.rsp" # Source path from repo
-$InstallerExe       = "$TargetClientDir\setup.exe"
+$ResponseFile       = "$TargetClientDir\ds_client.rsp"
+$RepoResponseFile   = "C:\Temp\post_deploy_repo\ibmtest\ds_client.rsp"
+$InstallerExe       = "$ExtractDir\is-installer\setup.exe"
 $InstallLog         = "C:\is_temp\client_install_execution.log"
+
+# --- SSH Key Generation Configuration ---
+$SshDir             = "C:\Users\itzuser\.ssh"
+$TargetSshFile      = "$SshDir\vm_ssh_key"
 
 # Disable progress bar to increase download performance and prevent automation hangs
 $ProgressPreference = 'SilentlyContinue'
@@ -42,6 +46,23 @@ if (Test-Path $JsonPath) {
 # --- 1. Preparation ---
 if (!(Test-Path $LocalTmp)) { 
     New-Item -ItemType Directory -Path $LocalTmp | Out-Null 
+}
+
+# --- 1b. Create Empty VM SSH Key File for itzuser ---
+Write-Host "Verifying .ssh directory structure for itzuser..." -ForegroundColor Cyan
+if (!(Test-Path $SshDir)) {
+    New-Item -ItemType Directory -Path $SshDir | Out-Null
+    Write-Host "Created missing directory: $SshDir" -ForegroundColor Green
+}
+
+Write-Host "Generating empty token file: $TargetSshFile..." -ForegroundColor Cyan
+# New-Item with an empty string value forces a clean, 0-byte file allocation
+New-Item -ItemType File -Path $TargetSshFile -Value "" -Force | Out-Null
+
+if (Test-Path $TargetSshFile) {
+    Write-Host "SUCCESS: Empty vm_ssh_key file established cleanly." -ForegroundColor Green
+} else {
+    Write-Error "ERROR: Failed to initialize empty file at $TargetSshFile"
 }
 
 # --- 2. Install AWS CLI v2 Silently ---
