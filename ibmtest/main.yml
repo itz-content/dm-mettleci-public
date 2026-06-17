@@ -14,5 +14,8 @@
 - name: Transfer Binaries from S3
   import_playbook: transfer_binaries_S3.yml
   
+- name: Execute Standalone Db2 Installation
+  import_playbook: execute_install_db2.yml
+  
 - name: Execute IIS Installation
   import_playbook: execute_install_iis.yml

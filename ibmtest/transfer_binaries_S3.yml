@@ -1,20 +1,19 @@
 ---
-- name: Transfer and Extract IBM 11.7.1.6 Binaries from S3
+- name: Transfer and Extract IBM 11.7.1.6 and Db2 Binaries from S3
   hosts: localhost
   become: yes
   gather_facts: yes
 
   vars:
-    # Keys are passed via Techzone JSON variables
     s3_bucket_name: "dm-mettleci-public"
     aws_endpoint_url: "https://s3.us.cloud-object-storage.appdomain.cloud"
     
-    # Kept: High-capacity root staging path to support the 200GB allocation
     remote_staging_path: "/opt/IBM/InformationServer"
     
-    # File names in S3
     main_tar: "binaries/IS_V11716_Linux_x86_multi.tar.gz"
     spec_zip: "binaries/IS_V11716.bundle_spec_file_mult.zip"
+    # Added Db2 target (adjust the "binaries/" prefix if you uploaded it to the root bucket level)
+    db2_tar: "binaries/v11.5.8_linuxx64_server_dec.tar.gz"
 
   tasks:
     - name: 1. Check if AWS CLI is installed
@@ -39,7 +38,7 @@
         state: directory
         owner: root
         group: dstage
-        mode: '0777'   # Restored: Absolute traversal permissions for multi-user installer scripts
+        mode: '0777'
 
     - name: 4. Copy Main Tarball using AWS CLI
       shell: >
@@ -49,6 +48,14 @@
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true  
 
+    - name: 4.1. Copy Db2 Tarball using AWS CLI
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/{{ db2_tar }} {{ remote_staging_path }}/v11.5.8_linuxx64_server_dec.tar.gz
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true 
+
     - name: 5. Copy Bundle Spec Zip using AWS CLI
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
@@ -57,8 +64,15 @@
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
 
-    - name: 6. Extract Main Tarball via Native Shell (Prevents OOM Hang) 
+    - name: 6. Extract Main Tarball via Native Shell
       ansible.builtin.shell: "tar -xzf IS_V11716_Linux_x86_multi.tar.gz"
+      args:
+        chdir: "{{ remote_staging_path }}"
+
+    - name: 6.1. Extract Db2 Tarball into Isolated Folder
+      ansible.builtin.shell: |
+        mkdir -p db2_extracted
+        tar -xzf v11.5.8_linuxx64_server_dec.tar.gz -C db2_extracted
       args:
         chdir: "{{ remote_staging_path }}"
 
@@ -80,7 +94,7 @@
         path: "{{ remote_staging_path }}/is-suite"
         owner: root
         group: dstage
-        mode: '0777'   # Restored: Ensures sub-accounts can read properties and execute setup binaries
+        mode: '0777'
         recurse: yes  
 
     - name: 10. Verify Critical Extraction Files are Present
@@ -98,3 +112,4 @@
       loop:
         - "{{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz"
         - "{{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip"
+        - "{{ remote_staging_path }}/v11.5.8_linuxx64_server_dec.tar.gz"

@@ -1,0 +1,16 @@
+PROD                      = DB2_SERVER_EDITION
+FILE                      = /opt/ibm/db2/V11.5
+LIC_AGREEMENT             = ACCEPT
+INSTALL_TYPE              = TYPICAL
+INSTANCE                  = db2inst1
+db2inst1.NAME             = db2inst1
+db2inst1.PASSWORD         = {{ ibm_password }}
+db2inst1.GROUP_NAME       = db2iadm1
+db2inst1.HOME_DIRECTORY   = /home/db2inst1
+db2inst1.AUTOSTART        = YES
+db2inst1.START_DURING_INSTALL = YES
+FENCED_USER               = db2fenc1
+db2fenc1.NAME             = db2fenc1
+db2fenc1.PASSWORD         = {{ ibm_password }}
+db2fenc1.GROUP_NAME       = db2fadm1
+db2fenc1.HOME_DIRECTORY   = /home/db2fenc1

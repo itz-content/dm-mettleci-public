@@ -1,9 +1,9 @@
 # #############################################################################
 # IBM InfoSphere Information Server 11.7.1.6 - LEGACY SYNTAX (LITE + XMETA)
+# MODIFIED FOR NATIVE STANDALONE DB2 ENGINE DEPLOYMENT
 # #############################################################################
 
 # 1. Global Installation Logic & RHEL 9 Identity
-# Updated: Pointed to the high-capacity standard root installation path
 suite.installLocation=/opt/IBM/InformationServer
 LIC_AGREEMENT=ACCEPT
 target.language.code=en
@@ -12,6 +12,7 @@ nls.enabled=false
 nls.language=English-UTF8
 
 # 2. Tier Selection (Full Lite Stack)
+# Note: Database tier remains true so IS builds the xmeta tables inside our existing Db2
 suite.tier[database.tier].selected=true
 suite.tier[app.server.tier].selected=true
 suite.tier[engine.tier].selected=true
@@ -23,16 +24,15 @@ product[datastage].selected=true
 product[ISALite].selected=true
 
 # 4. WebSphere Liberty Configuration (Lite Services)
-# Updated: Relocated Liberty profiles natively under the /opt space
 app.server.type=liberty
 was.install.location=/opt/IBM/WebSphere/Liberty
 was.default.host.port=9080
 was.secure.default.host.port=9443
 
-# 5. DB2 Engine & Instance (The Native Root Drive Storage)
-# Updated: Shifted binary location and aligned the instance home to the standard OS path
-use.bundled.db2=true
-db2.install.location=/opt/IBM/InformationServer/db2/V11.5
+# 5. DB2 Engine & Instance (TARGETING EXISTING INSTANCE)
+# Updated: Disabled bundled installation. Pointing to the native port 50000 instance.
+use.bundled.db2=false
+# db2.install.location=/opt/IBM/InformationServer/db2/V11.5
 db2.instance.name=db2inst1
 db2.instance.user.name=db2inst1
 db2.instance.home.directory=/home/db2inst1
@@ -40,12 +40,10 @@ db2.instance.group=db2iadm1
 db2.port.number=50000
 
 # 6. XMETA Repository (The missing Metadata Core)
-# Updated: Positioned the local DB2 repository footprint under /opt
 xmeta.db.type=db2
 xmeta.db.hostname=localhost
 xmeta.db.name=xmeta
 xmeta.db.user.name=xmeta
-#xmeta.db.location=/opt/IBM/InformationServer/Repos/xmeta
 xmeta.db.location=/opt/IBM/InformationServer/Repos/xmeta
 xmeta.driver.type=DB2_11_5
 
@@ -63,3 +61,7 @@ datastage.user.password={{ ibm_password }}
 db2.instance.user.password={{ ibm_password }}
 app.server.password={{ ibm_password }}
 xmeta.db.user.password={{ ibm_password }}
+
+# 9. RHEL 9 Prerequisite Override
+# Crucial: Forces the Java wrapper to ignore OS and kernel version warnings
+sys.prereq.bypass=true

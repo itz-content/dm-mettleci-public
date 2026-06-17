@@ -1,0 +1,39 @@
+---
+- name: Execute Standalone Db2 Community Edition Setup
+  hosts: localhost
+  become: true
+  vars:
+    # Points exactly to where the transfer playbook unpacked it
+    db2_extracted_path: "/opt/IBM/InformationServer/db2_extracted/server"
+
+  tasks:
+    - name: 1. Ensure OS prerequisite libraries are present for RHEL 9
+      ansible.builtin.dnf:
+        name:
+          - libaio
+          - glibc
+          - libgcc
+          - libstdc++
+          - pam
+          - numactl-libs
+        state: present
+
+    - name: 2. Copy the silent response file from the repo to the target server
+      ansible.builtin.copy:
+        src: "./templates/db2_server.rsp"
+        dest: "/tmp/db2_server.rsp"
+        mode: '0644'
+
+    - name: 3. Execute Db2 silent installation natively
+      ansible.builtin.command:
+        cmd: "./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log"
+        chdir: "/opt/IBM/InformationServer/db2_extracted/server_dec"
+      register: db2_install_result
+      failed_when: db2_install_result.rc != 0
+
+    - name: 4. Verify Db2 engine is listening on port 50000
+      ansible.builtin.wait_for:
+        port: 50000
+        delay: 5
+        timeout: 120
+        msg: "Db2 instance failed to stand up and open port 50000."
