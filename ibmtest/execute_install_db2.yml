@@ -4,7 +4,7 @@
   become: true
   vars:
     # Points exactly to where the transfer playbook unpacked it
-    db2_extracted_path: "/opt/IBM/InformationServer/db2_extracted/server"
+    db2_extracted_path: "/opt/IBM/InformationServer/db2_extracted/server_dec"
 
   tasks:
     - name: 1. Ensure OS prerequisite libraries are present for RHEL 9
@@ -18,20 +18,41 @@
           - numactl-libs
         state: present
 
-    - name: 2. Copy the silent response file from the repo to the target server
-      ansible.builtin.copy:
-        src: "./templates/db2_server.rsp"
+    - name: 2. Template the silent response file with the injected password
+      ansible.builtin.template:
+        src: "./templates/db2_server.rsp.j2"
         dest: "/tmp/db2_server.rsp"
         mode: '0644'
 
-    - name: 3. Execute Db2 silent installation natively
+    - name: 2a. Temporarily set SELinux to Permissive for Db2
+      ansible.builtin.shell: "setenforce 0"
+      failed_when: false
+
+    - name: 2b. Temporarily halt fapolicyd for Db2
+      ansible.builtin.systemd:
+        name: fapolicyd
+        state: stopped
+      failed_when: false
+
+    - name: 3. Execute Db2 silent installation natively (With Strict 20m Timeout)
       ansible.builtin.command:
-        cmd: "./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log"
-        chdir: "/opt/IBM/InformationServer/db2_extracted/server_dec"
+        # The Linux kernel will kill this command and return exit code 124 if it hits 20 minutes
+        cmd: "timeout 20m ./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log"
+        chdir: "{{ db2_extracted_path }}"
       register: db2_install_result
       failed_when: db2_install_result.rc != 0
 
-    - name: 4. Verify Db2 engine is listening on port 50000
+    - name: 4a. Restore fapolicyd service post-installation
+      ansible.builtin.systemd:
+        name: fapolicyd
+        state: started
+      failed_when: false
+
+    - name: 4b. Restore Enforcing SELinux State
+      ansible.builtin.shell: "setenforce 1"
+      failed_when: false
+
+    - name: 5. Verify Db2 engine is listening on port 50000
       ansible.builtin.wait_for:
         port: 50000
         delay: 5
