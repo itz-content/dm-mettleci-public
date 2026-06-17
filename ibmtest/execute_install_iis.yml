@@ -5,7 +5,6 @@
   gather_facts: yes
 
   vars:
-    # Pointed directly to your unified installation suite folder
     installer_path: "/opt/IBM/InformationServer/is-suite"
     response_file_local: "./templates/legacy_lite_rhel9.rsp.j2"
     response_file_remote: "/tmp/responsems.txt"
@@ -66,34 +65,21 @@
         group: root
         mode: '0644'
 
-    - name: 3.1. Cryptographic Downgrade for IBM DB2 Compatibility (SHA-512)
-      ansible.builtin.shell: "echo '{{ item }}:{{ ibm_password }}' | chpasswd -c SHA512"
-      loop: [ 'dsadm', 'db2inst1', 'db2fenc1', 'xmeta', 'dsodb' ]
-
-    - name: 3.2. Lobotomize DB2 Prerequisite Checker (Bypass RHEL 9 Kernel Blocks)
-      ansible.builtin.shell: |
-        find {{ installer_path }} -name db2prereqcheck -type f -exec bash -c 'mv "$1" "$1.bak" && echo -e "#!/bin/bash\nexit 0" > "$1" && chmod +x "$1"' _ {} \;
-      args:
-        executable: /bin/bash
-       
     - name: 4. Run the IBM Installer (Native RHEL 9 Environment Bypass Mode)
       shell: |
         export LC_ALL=en_US.UTF-8
         export LANG=en_US.UTF-8
         export LANGUAGE=en_US.UTF-8
+        
+        # Point the installer temp directory to a safe, high-capacity path
+        mkdir -p /opt/IBM/is_install_tmp
         export IATEMPDIR=/opt/IBM/is_install_tmp
         
-        # Native documented parameters to force execution over modern kernel layouts
-        export DB2_PREREQ_IGNORE=True
-        export ARCH=x86_64
-        export CHECK_CORES=FALSE
-        export BYPASS_OS_CHECK=true
-
         unset -f which
         unset BASH_FUNC_which%%
         
-        # Runs natively on the true RHEL 9 profile, tracking warnings safely
-        umask 022 && ./setup -rsp {{ response_file_remote }} -verbose -force -uiMode silent -language en > /tmp/raw_installer_debug.log 2>&1 || true
+        # Executing silently without the '|| true' mask to ensure Ansible catches fatal errors
+        umask 022 && ./setup -rsp {{ response_file_remote }} -verbose -force -uiMode silent -language en > /tmp/raw_installer_debug.log 2>&1
       args: 
         chdir: "{{ installer_path }}"
         executable: /bin/bash
@@ -102,6 +88,8 @@
       environment:
         EXCEPTION_POLICY: "2"
       register: install_output
+      # Accept 0 (Perfect), 2 (Success with Warnings), or 3 (Success with non-fatal errors)
+      failed_when: install_output.rc not in [0, 2, 3]
 
     - name: 5a. Restore active fapolicyd service post-installation
       ansible.builtin.systemd:
@@ -115,4 +103,4 @@
 
     - name: 6. Show Installation Summary
       debug:
-        var: install_output.stdout_lines
+        msg: "Information Server wrapper completed with exit code {{ install_output.rc }}. Check /tmp/raw_installer_debug.log for details."
