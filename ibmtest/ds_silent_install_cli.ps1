@@ -13,7 +13,7 @@ $WinScpDownloadPath = "C:\is_temp\WinSCP-6.5.6-Setup.exe"
 # --- Exact Path Rules matching your is-client layout ---
 $TargetClientDir    = "$ExtractDir\is-client"
 $ResponseFile       = "$TargetClientDir\ds_client.rsp"
-$RepoResponseFile   = "C:\Temp\post_deploy_repo\ibmtest\ds_client.rsp"
+$RepoResponseFile   = "C:\Temp\post_deploy_repo\ibmtest\templates\ds_client.rsp"
 $InstallerExe       = "$TargetClientDir\setup.exe"
 $InstallLog         = "C:\is_temp\client_install_execution.log"
 
