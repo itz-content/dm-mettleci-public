@@ -9,8 +9,9 @@ db2inst1.GROUP_NAME       = db2iadm1
 db2inst1.HOME_DIRECTORY   = /home/db2inst1
 db2inst1.AUTOSTART        = YES
 db2inst1.START_DURING_INSTALL = YES
-FENCED_USER               = db2fenc1
-db2fenc1.NAME             = db2fenc1
-db2fenc1.PASSWORD         = {{ ibm_password }}
-db2fenc1.GROUP_NAME       = db2fadm1
-db2fenc1.HOME_DIRECTORY   = /home/db2fenc1
+
+# Modern Db2 Fenced User Syntax (Bound to db2inst1)
+db2inst1.FENCED_USERNAME  = db2fenc1
+db2inst1.FENCED_PASSWORD  = {{ ibm_password }}
+db2inst1.FENCED_GROUP_NAME = db2fadm1
+db2inst1.FENCED_HOME_DIRECTORY = /home/db2fenc1
