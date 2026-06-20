@@ -40,7 +40,21 @@
         cmd: "timeout 20m ./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log"
         chdir: "{{ db2_extracted_path }}"
       register: db2_install_result
-      ignore_errors: true
+      
+    - name: 3a. Force Db2 internal registry to use TCP/IP
+      ansible.builtin.command:
+        cmd: su - db2inst1 -c "db2set DB2COMM=TCPIP"
+
+    - name: 3b. Hardcode Db2 SVCENAME directly to port 50000 (Bypassing OS mapping)
+      ansible.builtin.command:
+        cmd: su - db2inst1 -c "db2 update dbm cfg using SVCENAME 50000"
+
+    - name: 3c. Bounce the Db2 engine to bind the network port
+      ansible.builtin.shell: |
+        su - db2inst1 -c "db2stop force"
+        su - db2inst1 -c "db2start"
+      register: db2_bounce
+      failed_when: "'SQL1026N' in db2_bounce.stdout"
 
     - name: 4a. Restore fapolicyd service post-installation
       ansible.builtin.systemd:
@@ -58,4 +72,4 @@
         delay: 5
         timeout: 120
         msg: "Db2 instance failed to stand up and open port 50000."
-      ignore_errors: true
+      
