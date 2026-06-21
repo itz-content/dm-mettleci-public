@@ -40,6 +40,7 @@
         cmd: "timeout 20m ./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log"
         chdir: "{{ db2_extracted_path }}"
       register: db2_install_result
+      ignore_errors: true
       
     - name: 3a. Force Db2 internal registry to use TCP/IP
       ansible.builtin.command:
