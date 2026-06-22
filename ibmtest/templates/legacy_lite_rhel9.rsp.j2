@@ -58,11 +58,11 @@ ds.admin.gid=dstage
 # 8. Credentials (Jinja2 Placeholders)
 # Note: Ensure no trailing spaces after the brackets
 is.admin.password={{ ibm_password }}
-datastage.user.password={{ ibm_password }}
+#datastage.user.password={{ ibm_password }}
 db2.instance.user.password={{ ibm_password }}
 app.server.password={{ ibm_password }}
-xmeta.db.user.password={{ ibm_password }}
+xmeta.db.password={{ ibm_password }}
 
 # 9. RHEL 9 Prerequisite Override
 # Crucial: Forces the Java wrapper to ignore OS and kernel version warnings
-sys.prereq.bypass=true
+sys.prereq.bypass=true 
