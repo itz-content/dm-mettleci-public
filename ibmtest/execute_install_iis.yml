@@ -79,7 +79,7 @@
         unset BASH_FUNC_which%%
         
         # Executing silently without the '|| true' mask to ensure Ansible catches fatal errors
-        umask 022 && timeout 90m ./setup -rsp {{ response_file_remote }} -verbose -force -uiMode silent -language en > /tmp/raw_installer_debug.log 2>&1
+        umask 022 && ./setup -rsp {{ response_file_remote }} -verbose -force -uiMode silent -language en > /tmp/raw_installer_debug.log 2>&1
       args: 
         chdir: "{{ installer_path }}"
         executable: /bin/bash
@@ -88,8 +88,13 @@
       environment:
         EXCEPTION_POLICY: "2"
       register: install_output
-      # Accept 0 (Perfect), 2 (Success with Warnings), or 3 (Success with non-fatal errors)
-      ignore_errors: true
+      # Background the task to prevent SSH network drops. Max time: 2 hours.
+      async: 7200
+      poll: 60
+      
+      # Explicitly allow 0 (Perfect), 2 (Warnings), and 3 (Non-fatal errors)
+      # Any other code (like 1 for fatal crash) will correctly halt the playbook
+      failed_when: install_output.rc not in [0, 2, 3]
       
     - name: 5a. Restore active fapolicyd service post-installation
       ansible.builtin.systemd:

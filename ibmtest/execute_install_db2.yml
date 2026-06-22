@@ -34,13 +34,19 @@
         state: stopped
       failed_when: false
 
-    - name: 3. Execute Db2 silent installation natively (With Strict 20m Timeout)
+    - name: 3. Execute Db2 silent installation natively
       ansible.builtin.command:
         # The Linux kernel will kill this command and return exit code 124 if it hits 20 minutes
-        cmd: "timeout 20m ./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log"
+        cmd: "./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log"
         chdir: "{{ db2_extracted_path }}"
       register: db2_install_result
-      ignore_errors: true
+      # Background the task to prevent SSH network drops. Max time: 20 minutes (1200 seconds).
+      async: 1200
+      poll: 30
+      
+      # Explicitly allow 0 (Perfect) and 1 (Warnings)
+      # Any other code will correctly halt the playbook immediately
+      failed_when: db2_install_result.rc not in [0, 1]
       
     - name: 3a. Force Db2 internal registry to use TCP/IP
       ansible.builtin.command:
