@@ -49,17 +49,40 @@
       failed_when: db2_install_result.rc not in [0, 1]
       
     - name: 3a. Force Db2 internal registry to use TCP/IP
-      ansible.builtin.command:
-        cmd: su - db2inst1 -c "db2set DB2COMM=TCPIP"
-
-    - name: 3b. Hardcode Db2 SVCENAME directly to port 50000 (Bypassing OS mapping)
-      ansible.builtin.command:
-        cmd: su - db2inst1 -c "db2 update dbm cfg using SVCENAME 50000"
-
-    - name: 3c. Bounce the Db2 engine to bind the network port
       ansible.builtin.shell: |
-        su - db2inst1 -c "db2stop force"
-        su - db2inst1 -c "db2start"
+        source ~/sqllib/db2profile
+        db2set DB2COMM=TCPIP
+      args:
+        executable: /bin/bash
+      become: yes
+      become_user: db2inst1
+
+    - name: 3b. Add Db2 service port mapping to /etc/services (IS Prereq Fix)
+      ansible.builtin.lineinfile:
+        path: /etc/services
+        line: "db2c_db2inst1   50000/tcp"
+        state: present
+        insertafter: EOF
+      # Keep this as root, /etc/services requires it
+
+    - name: 3c. Update Db2 SVCENAME to use the mapped text string
+      ansible.builtin.shell: |
+        source ~/sqllib/db2profile
+        db2 update dbm cfg using SVCENAME db2c_db2inst1
+      args:
+        executable: /bin/bash
+      become: yes
+      become_user: db2inst1
+
+    - name: 3d. Bounce the Db2 engine to bind the network port
+      ansible.builtin.shell: |
+        source ~/sqllib/db2profile
+        db2stop force
+        db2start
+      args:
+        executable: /bin/bash
+      become: yes
+      become_user: db2inst1
       register: db2_bounce
       failed_when: "'SQL1026N' in db2_bounce.stdout"
 
@@ -79,4 +102,5 @@
         delay: 5
         timeout: 120
         msg: "Db2 instance failed to stand up and open port 50000."
-      
+
+    
