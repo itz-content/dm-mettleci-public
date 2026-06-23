@@ -57,13 +57,12 @@
       become: yes
       become_user: db2inst1
 
-    - name: 3b. Add Db2 service port mapping to /etc/services (IS Prereq Fix)
+    - name: 3b. Add Db2 service port mapping to /etc/services
       ansible.builtin.lineinfile:
         path: /etc/services
+        regexp: '^db2c_db2inst1'
         line: "db2c_db2inst1   50000/tcp"
         state: present
-        insertafter: EOF
-      # Keep this as root, /etc/services requires it
 
     - name: 3c. Update Db2 SVCENAME to use the mapped text string
       ansible.builtin.shell: |
