@@ -18,4 +18,4 @@
   import_playbook: execute_install_db2.yml
   
 - name: Execute IIS Installation
-  import_playbook: execute_install_iis.yml
+  import_playbook: execute_install_iis_tiers.yml
