@@ -90,7 +90,7 @@
         unset -f which
         unset BASH_FUNC_which%%
         
-        umask 022 && ./setup -rsp {{ repo_file_remote }} -verbose -force -uiMode silent -language en > /tmp/repo_debug.log 2>&1
+        umask 022 && ./setup -rsp {{ repo_file_remote }} -verbose -force -uiMode silent -language en > /tmp/repo_debug.log 2>&1 </dev/null
       args: 
         chdir: "{{ installer_path }}"
         executable: /bin/bash
@@ -120,7 +120,7 @@
         unset -f which
         unset BASH_FUNC_which%%
         
-        umask 022 && ./setup -rsp {{ services_file_remote }} -verbose -force -uiMode silent -language en > /tmp/services_debug.log 2>&1
+        umask 022 && ./setup -rsp {{ services_file_remote }} -verbose -force -uiMode silent -language en > /tmp/services_debug.log 2>&1 </dev/null
       args: 
         chdir: "{{ installer_path }}"
         executable: /bin/bash
@@ -150,7 +150,7 @@
         unset -f which
         unset BASH_FUNC_which%%
         
-        umask 022 && ./setup -rsp {{ engine_file_remote }} -verbose -force -uiMode silent -language en > /tmp/engine_debug.log 2>&1
+        umask 022 && ./setup -rsp {{ engine_file_remote }} -verbose -force -uiMode silent -language en > /tmp/engine_debug.log 2>&1 </dev/null
       args: 
         chdir: "{{ installer_path }}"
         executable: /bin/bash
