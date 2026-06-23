@@ -37,7 +37,7 @@
     - name: 3. Execute Db2 silent installation natively
       ansible.builtin.command:
         # The Linux kernel will kill this command and return exit code 124 if it hits 20 minutes
-        cmd: "./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log"
+        cmd: "./db2setup -r /tmp/db2_server.rsp -l /tmp/db2_install.log 2>&1 </dev/null"
         chdir: "{{ db2_extracted_path }}"
       register: db2_install_result
       # Background the task to prevent SSH network drops. Max time: 20 minutes (1200 seconds).
