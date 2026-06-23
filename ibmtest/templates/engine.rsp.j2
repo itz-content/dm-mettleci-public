@@ -1,0 +1,54 @@
+suite.installLocation=/opt/IBM/InformationServer
+
+#Tier selection
+suite.tier[engine.tier].selected=true
+
+#Product selection
+product[CommonEvent].selected=true
+product[CommonMetadata].selected=true
+product[DataQualityExceptionConsole].selected=true
+product[FastTrack].selected=true
+product[IMAM].selected=true
+product[ISALite].selected=true
+product[ISF].selected=true
+product[InformationAnalyzer].selected=true
+product[InformationGovernanceCatalog].selected=true
+product[InformationGovernanceDashboard].selected=true
+product[MetadataServer].selected=true
+product[ThirdParty].selected=true
+product[WISD].selected=true
+product[datastage].selected=true
+product[qualitystage].selected=true
+
+#Variable setting
+LIC_AGREEMENT=ACCEPT
+cas.multiprocess.enabled=true
+cas.multiprocess.port.range.max=30020
+cas.multiprocess.port.range.min=30010
+datastage.user.password={{ ibm_password }}
+ds.admin.gid=dstage
+ds.admin.home.directory=/home/dsadm
+ds.admin.uid=dsadm
+ds.client.language.acronym=ENU
+ds.project.1.name=dstage1
+ds.project.1.path=/opt/IBM/InformationServer/Server/Projects/dstage1
+ds.project.1.version=New
+ds.rpc.instance.tag=ade
+dsrpc.port=31538
+https.truststore.path=/tmp/ibm_is_logs/iis-client-truststore.p12
+install.path=1
+is.admin.password={{ ibm_password }}
+is.admin.user=isadmin
+is.console.port=59445
+is.ha.selected=false
+is.sas.selected=false
+isf.agent.port=31531
+isf.server.host=server-1
+jobmon.port.1=13401
+jobmon.port.2=13402
+mq.install.choice=NONE
+nls.enabled=true
+nls.language=English-UTF8
+nls.language.code=ENU
+target.country.code=US
+target.language.code=en

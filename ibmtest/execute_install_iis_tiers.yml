@@ -1,0 +1,187 @@
+---
+- name: Execute IBM Information Server 11.7.1.6 Silent Install (Tiered RHEL 9 Native)
+  hosts: localhost
+  become: yes
+  gather_facts: yes
+
+  vars:
+    installer_path: "/opt/IBM/InformationServer/is-suite"
+    
+    # Tiered Response Files (Templates)
+    repo_file_local: "./templates/repo.rsp.j2"
+    services_file_local: "./templates/services.rsp.j2"
+    engine_file_local: "./templates/engine.rsp.j2"
+    
+    # Remote Execution Paths
+    repo_file_remote: "/tmp/repo.rsp"
+    services_file_remote: "/tmp/services.rsp"
+    engine_file_remote: "/tmp/engine.rsp"
+
+  tasks:
+
+    - name: 0. Terminate any stuck IBM processes
+      shell: |
+        pkill -9 -f is-suite || true
+        pkill -9 -f setup || true
+        pkill -9 -u itzuser java || true
+      failed_when: false
+      changed_when: false
+
+    - name: 0.1. Absolute Purge of Installer Lock Files, Temp Directories, and Logs
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/IBM_Information_Server_Install_Lock
+        - /tmp/is-suite
+        - /tmp/ibm_is_logs
+        - /usr/ibm/common/acsi/logs
+        - /tmp/is_home
+        - /tmp/is_temp
+        - /tmp/is_prereq*
+        - ~/.isi/
+
+    - name: 0.2. Re-enforce global system tmp write permissions for DB2
+      ansible.builtin.file:
+        path: /tmp
+        state: directory
+        mode: '1777'
+
+    - name: 1.5. Ensure Local Hostname is in /etc/hosts (Prevents IBM Hang)
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127.0.0.1'
+        line: "127.0.0.1 {{ ansible_hostname }} localhost localhost.localdomain"
+        state: present
+
+    - name: 2a. Temporarily set SELinux to Permissive for Install Verification
+      ansible.builtin.shell: "setenforce 0"
+      failed_when: false
+
+    - name: 2b. Temporarily halt fapolicyd to clear silent background binary blocks
+      ansible.builtin.systemd:
+        name: fapolicyd
+        state: stopped
+      failed_when: false
+
+    - name: 3. Stage Tiered Response Files to VM
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: '0644'
+      loop:
+        - { src: "{{ repo_file_local }}", dest: "{{ repo_file_remote }}" }
+        - { src: "{{ services_file_local }}", dest: "{{ services_file_remote }}" }
+        - { src: "{{ engine_file_local }}", dest: "{{ engine_file_remote }}" }
+
+
+    # ==========================================
+    # TIER 1: REPOSITORY DEPLOYMENT & VALIDATION
+    # ==========================================
+    - name: 4a. Run IBM Installer - Repository Tier
+      shell: |
+        export LC_ALL=en_US.UTF-8
+        export LANG=en_US.UTF-8
+        export LANGUAGE=en_US.UTF-8
+        mkdir -p /opt/IBM/is_install_tmp
+        export IATEMPDIR=/opt/IBM/is_install_tmp
+        unset -f which
+        unset BASH_FUNC_which%%
+        
+        umask 022 && ./setup -rsp {{ repo_file_remote }} -verbose -force -uiMode silent -language en > /tmp/repo_debug.log 2>&1
+      args: 
+        chdir: "{{ installer_path }}"
+        executable: /bin/bash
+      become: yes
+      become_user: root  
+      environment:
+        EXCEPTION_POLICY: "2"
+      register: repo_install
+      async: 7200
+      poll: 60
+      failed_when: repo_install.rc not in [0, 2, 3]
+
+    - name: 4b. Validate Repository Tier (Verify xmeta schema exists)
+      shell: "su - db2inst1 -c 'db2 connect to xmeta user xmeta using {{ ibm_password }} && db2 list tables for schema xmeta'"
+      register: repo_validation
+      failed_when: "'0 record(s) selected' in repo_validation.stdout or repo_validation.rc != 0"
+
+
+    # ==========================================
+    # TIER 2: SERVICES DEPLOYMENT & VALIDATION
+    # ==========================================
+    - name: 5a. Run IBM Installer - Services Tier (WebSphere)
+      shell: |
+        export LC_ALL=en_US.UTF-8
+        mkdir -p /opt/IBM/is_install_tmp
+        export IATEMPDIR=/opt/IBM/is_install_tmp
+        unset -f which
+        unset BASH_FUNC_which%%
+        
+        umask 022 && ./setup -rsp {{ services_file_remote }} -verbose -force -uiMode silent -language en > /tmp/services_debug.log 2>&1
+      args: 
+        chdir: "{{ installer_path }}"
+        executable: /bin/bash
+      become: yes
+      become_user: root  
+      environment:
+        EXCEPTION_POLICY: "2"
+      register: services_install
+      async: 7200
+      poll: 60
+      failed_when: services_install.rc not in [0, 2, 3]
+
+    - name: 5b. Validate Services Tier (Verify WebSphere JVM is running)
+      shell: "ps -ef | grep java | grep WebSphere"
+      register: was_process_check
+      failed_when: was_process_check.stdout == ""
+
+
+    # ==========================================
+    # TIER 3: ENGINE DEPLOYMENT & VALIDATION
+    # ==========================================
+    - name: 6a. Run IBM Installer - Engine Tier (DataStage)
+      shell: |
+        export LC_ALL=en_US.UTF-8
+        mkdir -p /opt/IBM/is_install_tmp
+        export IATEMPDIR=/opt/IBM/is_install_tmp
+        unset -f which
+        unset BASH_FUNC_which%%
+        
+        umask 022 && ./setup -rsp {{ engine_file_remote }} -verbose -force -uiMode silent -language en > /tmp/engine_debug.log 2>&1
+      args: 
+        chdir: "{{ installer_path }}"
+        executable: /bin/bash
+      become: yes
+      become_user: root  
+      environment:
+        EXCEPTION_POLICY: "2"
+      register: engine_install
+      async: 7200
+      poll: 60
+      failed_when: engine_install.rc not in [0, 2, 3]
+
+    - name: 6b. Validate Engine Tier (Verify RPC Daemon Listening on 31538)
+      shell: "netstat -an | grep 31538 | grep LISTEN"
+      register: rpc_process_check
+      failed_when: rpc_process_check.stdout == ""
+
+
+    # ==========================================
+    # POST-INSTALLATION: SECURITY RESTORATION
+    # ==========================================
+    - name: 7a. Restore active fapolicyd service post-installation
+      ansible.builtin.systemd:
+        name: fapolicyd
+        state: started
+      failed_when: false
+
+    - name: 7b. Restore Enforcing SELinux State
+      ansible.builtin.shell: "setenforce 1"
+      failed_when: false
+
+    - name: 8. Show Installation Summary
+      debug:
+        msg: "Tiered Installation Complete. Repo RC: {{ repo_install.rc }}, Services RC: {{ services_install.rc }}, Engine RC: {{ engine_install.rc }}. Check /tmp/ for tier-specific debug logs."
