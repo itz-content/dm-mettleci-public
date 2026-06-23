@@ -104,9 +104,10 @@
       failed_when: repo_install.rc not in [0, 2, 3]
 
     - name: 4b. Validate Repository Tier (Verify xmeta schema exists)
-      shell: "su - db2inst1 -c 'db2 connect to xmeta user xmeta using {{ ibm_password }} && db2 list tables for schema xmeta'"
+      shell: |
+        su - db2inst1 -c 'echo -e "connect to xmeta user xmeta using {{ ibm_password }}\nlist tables for schema xmeta" | db2'
       register: repo_validation
-      failed_when: "'0 record(s) selected' in repo_validation.stdout or repo_validation.rc != 0"
+      failed_when: "'0 record(s) selected' in repo_validation.stdout or 'SQL1024N' in repo_validation.stdout or repo_validation.rc != 0"
 
 
     # ==========================================
