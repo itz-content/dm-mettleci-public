@@ -73,18 +73,21 @@
         executable: /bin/bash
       become: yes
       become_user: db2inst1
+    
+    - name: 3d. Drop and reconnect SSH to clear NSS Cache and read /etc/services
+      ansible.builtin.meta: reset_connection
 
-    - name: 3d. Bounce the Db2 engine to bind the network port
+    - name: 3e. Bounce the Db2 engine to bind the network port
       ansible.builtin.shell: |
         source ~/sqllib/db2profile
-        db2stop force
+        db2stop force || true
         db2start
       args:
         executable: /bin/bash
       become: yes
       become_user: db2inst1
       register: db2_bounce
-      failed_when: "'SQL1026N' in db2_bounce.stdout"
+      failed_when: db2_bounce.rc != 0 and 'SQL1026N' not in db2_bounce.stdout
 
     - name: 4a. Restore fapolicyd service post-installation
       ansible.builtin.systemd:
