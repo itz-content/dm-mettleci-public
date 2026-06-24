@@ -140,10 +140,12 @@
       environment:
         EXCEPTION_POLICY: "2"
       register: services_install
-      async: 7200
+      async: 14400
       poll: 60
-      failed_when: services_install.rc not in [0, 2, 3]
-
+      failed_when: 
+        - services_install.rc is defined
+        - services_install.rc not in [0, 2, 3]
+    
     - name: 5b. Validate Services Tier (Verify WebSphere JVM is running)
       shell: "ps -ef | grep java | grep WebSphere"
       register: was_process_check
