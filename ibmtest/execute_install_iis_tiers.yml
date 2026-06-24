@@ -104,18 +104,19 @@
       failed_when: repo_install.rc not in [0, 2, 3]
 
     - name: 4b. Validate Repository Tier (Verify xmeta schema exists)
-      shell: |
-        su - db2inst1 -c 'echo -e "connect to xmeta user xmeta using {{ ibm_password }}\nlist tables for schema xmeta" | db2'
+      shell: '. ~/sqllib/db2profile && echo -e "connect to xmeta user xmeta using {{ ibm_password }}\nlist tables for schema xmeta" | db2'
+      become: true
+      become_user: db2inst1
       register: repo_validation
       failed_when: "'0 record(s) selected' in repo_validation.stdout or 'SQL1024N' in repo_validation.stdout or repo_validation.rc != 0"
 
     - name: Configure xmeta Transaction Logs
-      ansible.builtin.shell: db2 update db cfg for xmeta using LOGFILSIZ 32768
+      ansible.builtin.shell: . ~/sqllib/db2profile && db2 update db cfg for xmeta using LOGFILSIZ 32768
       become: true
       become_user: db2inst1
 
     - name: Restart Db2 Instance to Apply Log Configuration
-      ansible.builtin.shell: db2stop force && db2start
+      ansible.builtin.shell: . ~/sqllib/db2profile && db2stop force && db2start
       become: true
       become_user: db2inst1
 
@@ -174,7 +175,7 @@
       failed_when: engine_install.rc not in [0, 2, 3]
 
     - name: 6b. Validate Engine Tier (Verify RPC Daemon Listening on 31538)
-      shell: "netstat -an | grep 31538 | grep LISTEN"
+      shell: "/usr/sbin/ss -tln | grep 31538"
       register: rpc_process_check
       failed_when: rpc_process_check.stdout == ""
 
