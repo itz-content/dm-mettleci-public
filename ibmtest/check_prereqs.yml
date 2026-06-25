@@ -35,6 +35,7 @@
           - unzip
           - bc
           - java-1.8.0-openjdk-devel
+          - nano
 
     - name: 2d. Download legacy libXp library (RHEL 9 workaround)
       ansible.builtin.get_url:
