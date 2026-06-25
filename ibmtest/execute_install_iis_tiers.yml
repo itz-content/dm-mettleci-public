@@ -47,11 +47,16 @@
         state: directory
         mode: '1777'
 
-    - name: 1.5. Ensure Local Hostname is in /etc/hosts (Prevents IBM Hang)
+    - name: 1.5. Ensure Public IP mapping in /etc/hosts (Prevents WebSphere Binding to Loopback)
       lineinfile:
         path: /etc/hosts
-        regexp: '^127.0.0.1'
-        line: "127.0.0.1 {{ ansible_hostname }} localhost localhost.localdomain"
+        regexp: '.*{{ ansible_hostname }}$'
+        state: absent
+
+    - name: 1.5.1. Add public IP mapping to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "10.10.10.201  {{ ansible_hostname }} {{ ansible_hostname }}.localdomain"
         state: present
 
     - name: 2a. Temporarily set SELinux to Permissive for Install Verification
@@ -146,7 +151,12 @@
         - services_install.rc is defined
         - services_install.rc not in [0, 2, 3]
     
-    - name: 5b. Validate Services Tier (Verify WebSphere JVM is running)
+    - name: 5b. Configure ODF Kafka Bootstrap Servers to port 59092
+      shell: "/opt/IBM/InformationServer/ASBServer/bin/iisAdmin.sh -set -key com.ibm.iis.odf.kafka.bootstrap.servers -value localhost:59092"
+      become: true
+      become_user: root
+
+    - name: 5c. Validate Services Tier (Verify WebSphere JVM is running)
       shell: "ps -ef | grep java | grep WebSphere"
       register: was_process_check
       failed_when: was_process_check.stdout == ""
