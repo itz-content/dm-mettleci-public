@@ -67,10 +67,11 @@
         line: "{{ ansible_all_ipv4_addresses | select('match', '^10\\.10\\.') | first }} {{ ansible_hostname }} {{ ansible_hostname }}.localdomain"
         state: present
 
-    - name: 1.5d. Set SELinux to permissive for IBM installation
-      ansible.posix.selinux:
-        state: permissive
-        policy: targeted
+    - name: 1.5d. Set SELinux to permissive for IBM installation (Native)
+      ansible.builtin.lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=permissive'
 
     - name: 2a. Temporarily set SELinux to Permissive for Install Verification
       ansible.builtin.shell: "setenforce 0"
@@ -226,6 +227,12 @@
     - name: 7b. Restore Enforcing SELinux State
       ansible.builtin.shell: "setenforce 1"
       failed_when: false
+
+    - name: 7c. Restore Enforcing SELinux State in Config (Persistent)
+      ansible.builtin.lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=enforcing' 
 
     - name: 8. Show Installation Summary
       debug:
