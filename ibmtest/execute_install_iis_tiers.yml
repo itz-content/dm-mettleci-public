@@ -53,10 +53,10 @@
         regexp: '.*{{ ansible_hostname }}$'
         state: absent
 
-    - name: 1.5.1. Add dynamic internal IP mapping to /etc/hosts
+    - name: 1.5.1. Add internal IP mapping to /etc/hosts
       lineinfile:
         path: /etc/hosts
-        line: "{{ ansible_default_ipv4.address }} {{ ansible_hostname }} {{ ansible_hostname }}.localdomain"
+        line: "{{ ansible_all_ipv4_addresses | select('match', '^10\\.10\\.') | first }} {{ ansible_hostname }} {{ ansible_hostname }}.localdomain"
         state: present
 
     - name: 2a. Temporarily set SELinux to Permissive for Install Verification
