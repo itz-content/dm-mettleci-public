@@ -86,7 +86,16 @@
         - { src: "{{ services_file_local }}", dest: "{{ services_file_remote }}" }
         - { src: "{{ engine_file_local }}", dest: "{{ engine_file_remote }}" }
 
-
+    - name: Pre-flight check - Verify Db2 is reachable on the dynamically assigned TechZone IP
+      ansible.builtin.wait_for:
+        port: 50000
+        host: "{{ ansible_all_ipv4_addresses | select('match', '^10\\.10\\.') | first }}"
+        timeout: 60
+        state: started
+        msg: "Cannot reach Db2 on port 50000. Halting playbook before InfoSphere installer crashes."
+  
+  
+  
     # ==========================================
     # TIER 1: REPOSITORY DEPLOYMENT & VALIDATION
     # ==========================================
