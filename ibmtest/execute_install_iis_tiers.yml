@@ -47,19 +47,27 @@
         state: directory
         mode: '1777'
 
-    - name: 1.5. Ensure Public IP mapping in /etc/hosts (Prevents WebSphere Binding to Loopback)
-      lineinfile:
+    - name: 1.5a. Standardize IPv4 loopback (Strips hostname to prevent WebSphere loopback binding)
+      ansible.builtin.lineinfile:
         path: /etc/hosts
-        regexp: '.*{{ ansible_hostname }}$'
-        state: absent
+        regexp: '^127\.0\.0\.1'
+        line: '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4'
+        state: present
 
-    - name: 1.5.1. Add internal IP mapping to /etc/hosts
-      lineinfile:
+    - name: 1.5b. Standardize IPv6 loopback
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^::1'
+        line: '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6'
+        state: present
+
+    - name: 1.5c. Add internal IP mapping to /etc/hosts
+      ansible.builtin.lineinfile:
         path: /etc/hosts
         line: "{{ ansible_all_ipv4_addresses | select('match', '^10\\.10\\.') | first }} {{ ansible_hostname }} {{ ansible_hostname }}.localdomain"
         state: present
 
-    - name: 1.5.2 Set SELinux to permissive for IBM installation
+    - name: 1.5d. Set SELinux to permissive for IBM installation
       ansible.posix.selinux:
         state: permissive
         policy: targeted
