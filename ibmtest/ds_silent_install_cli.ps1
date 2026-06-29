@@ -88,7 +88,12 @@ Write-Host "Extracting media to $ExtractDir (This can take a minute)..." -Foregr
 if (Test-Path $ExtractDir) { 
     Remove-Item $ExtractDir -Recurse -Force 
 }
-Expand-Archive -Path $ZipFile -DestinationPath $ExtractDir -Force
+# tar requires the destination directory to exist before extracting
+New-Item -ItemType Directory -Path $ExtractDir -Force| Out-Null
+
+# Execute native Windows tar extraction
+tar.exe -xf $ZipFile -C $ExtractDir
+
 Write-Host "Extraction completed successfully!" -ForegroundColor Green
 
 # --- 4b. Relocate Response File from Git Repo to is-client Path ---
@@ -126,6 +131,18 @@ while ((Get-Process | Where-Object { $_.Name -ine "powershell" -and ($_.Name -li
     Write-Host "Installer is actively writing dependencies to disk... (Waiting 20 seconds)" -ForegroundColor Gray
     Start-Sleep -Seconds 20
     $LoopTimeout++
+}
+
+# Map DataStage RPC to port 80 to match the server configuration
+$servicesFile = "C:\Windows\System32\drivers\etc\services"
+$fileContent = Get-Content $servicesFile
+
+if ($fileContent -match "dsrpc") {
+    # If the IBM installer already put it there, replace the port with 80
+    $fileContent -replace "dsrpc\s+\d+/tcp", "dsrpc`t`t80/tcp" | Set-Content $servicesFile
+} else {
+    # If it is missing entirely, append it safely
+    Add-Content -Path $servicesFile -Value "`ndsrpc`t`t80/tcp"
 }
 
 Write-Host "All installation processing threads have finished cleanly!" -ForegroundColor Green
