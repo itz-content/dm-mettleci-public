@@ -1,0 +1,31 @@
+json
+{
+  "vm_map_string": {
+    "itz-rhel9-server": {
+      "platform": "RHEL 9",
+      "template": "RHEL 9 Standard",
+      "size": "medium",
+      "os_version": "9.2",
+      "disk": "100GB",
+      "network": "default"
+    },
+    "itz-windows2022-std": {
+      "platform": "Windows Server 2022",
+      "template": "Windows 2022 Standard",
+      "size": "medium",
+      "os_version": "2022",
+      "disk": "100GB",
+      "network": "default"
+    },
+    "cp4d-base-5.3.0": {
+      "platform": "Cloud Pak for Data",
+      "template": "CP4D Base 5.3.0",
+      "size": "medium",
+      "version": "5.3.0",
+      "addons": ["DataStage"],
+      "os": "RHEL NextGen",
+      "disk": "100GB",
+      "network": "default"
+    }
+  }
+}
