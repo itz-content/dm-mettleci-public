@@ -5,6 +5,14 @@ echo "=========================================="
 echo "Installing Cloud Pak for Data Platform Operator..."
 echo "=========================================="
 
+# Ensure the required namespace-scope ConfigMap exists before creating the subscription
+if ! oc get configmap namespace-scope -n cp4d-operators --kubeconfig=/home/itzuser/kubeconfig >/dev/null 2>&1; then
+    echo "Required ConfigMap 'namespace-scope' not found. Creating it now..."
+    oc create configmap namespace-scope -n cp4d-operators --from-literal=namespaces=cp4d-operators --kubeconfig=/home/itzuser/kubeconfig
+else
+    echo "ConfigMap 'namespace-scope' already exists. Proceeding..."
+fi
+
 # Apply the local YAML file directly
 oc apply -f cp4d-subscription.yml --kubeconfig=$KUBECONFIG
 
@@ -12,7 +20,7 @@ echo "=========================================="
 echo "Monitoring Operator Installation..."
 echo "=========================================="
 
-# 1. Wait for OpenShift to generate the ClusterServiceVersion (CSV)
+# Wait for OpenShift to generate the ClusterServiceVersion (CSV)
 CSV_NAME=""
 while [ -z "$CSV_NAME" ]; do
   echo "Waiting for OpenShift to generate the installation plan..."
@@ -23,7 +31,7 @@ done
 
 echo "Found installation package: $CSV_NAME"
 
-# 2. Track the live phase of the CSV
+# Track the live phase of the CSV
 while true; do
   # Extract the exact phase status using jsonpath
   PHASE=$(oc get csv $CSV_NAME -n cp4d-operators --kubeconfig=$KUBECONFIG -o jsonpath='{.status.phase}' 2>/dev/null)
