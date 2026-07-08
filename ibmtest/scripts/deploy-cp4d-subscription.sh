@@ -18,7 +18,7 @@ while [ -z "$CSV_NAME" ]; do
   echo "Waiting for OpenShift to generate the installation plan..."
   sleep 5
   # Grab the specific name of the generated CSV
-  CSV_NAME=$(oc get csv -n cp4d-operators --no-headers --kubeconfig=$KUBECONFIG | grep ibm-cpd-platform-operator | awk '{print $1}' | head -n 1)
+  CSV_NAME=$(oc get csv -n cp4d-operators --no-headers --kubeconfig=$KUBECONFIG | grep cpd-platform-operator | awk '{print $1}' | head -n 1)
 done
 
 echo "Found installation package: $CSV_NAME"
