@@ -6,7 +6,7 @@ echo "Installing Cloud Pak for Data Platform Operator..."
 echo "=========================================="
 
 # Apply the local YAML file directly
-oc apply -f cp4d-subscription.yaml --kubeconfig=$KUBECONFIG
+oc apply -f cp4d-subscription.yml --kubeconfig=$KUBECONFIG
 
 echo "=========================================="
 echo "Monitoring Operator Installation..."

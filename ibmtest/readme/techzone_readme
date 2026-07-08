@@ -1,0 +1,58 @@
+techzone_readme
+
+click to view
+in the left-hand plane click Environments
+move your cursor over "ocpv-cloud environment" button in the IIS 117.1.6 with MettleCI window.  Click to "Reserve It"
+populate the name  (i.e. Peer Review )
+	and a brief description.  (ie.  This is a Peer Review of the IIS install )
+Click Next
+For Purpose choose "Test"
+Click Next
+Choose a Geography from the list  (closest to where the environment is to be hosted)
+Click Next
+Note: Environment will be available for 12 hours from the time the reservation request is made
+Click Review (ignore what is says about configuration. this will be overwritten by playbook)
+Click box to agree to Techzone terms and conditions
+Click Submit
+Note:you can track the progress of your request by clicking the button
+You will recieve 3 successive emails Scheduled, Provision and Ready.  The "Ready" email will contain the detailed information for connecting to the requested environment.
+
+Note: it can take over an hour between the Sheduled and Ready messages.
+
+In the Ready message click the view your request button.
+In the Environments section of the window, Click the "^" next to enviornment name (IIS 117.1.6 with MettleCI) to open the drop down of environment details.
+Copy the "The generic user password for accessing the virtual machine."  You will need it in a moment to login to the server-1
+Click the console URL on the right hand side of the page.
+Login with your IBM W3ID
+Click the console button on the server window
+Choose "Use VNC Instead"
+Click anywhere in the screen a hit <RETURN> to bring up a login prompt
+UserID: itzuser
+Passwd: <copied password from previous step>
+Note:  to enter password use the "Send Text" button at the top of the window.  Paste password from clipboard. Add <CR>. Click Send.
+
+[itzuser@server-1]$ tail -f /tmp/post_deploy_repo/post_deploy_play.log
+
+you are looking for the completion message "Tiered installation complete..." (this signifies that the server install was successful)
+Note:  This could take 3.5 hrs from the time of the READY message 
+
+Return to the Techzone OCPv Console tab.   (it should still be open)
+Click the Console button
+Choose "Connect with RDP"
+You can close the Server Manager Windows. (ignore any errors)
+
+Open DSDesigner and login
+Host: 10.10.10.201:59445
+User Name: isadmin
+Password: 9BaAMKZjzmTiDcJtRb. (cut and paste is unlikely to work)
+
+Click project dropdown. Say yes to certificate message
+
+Choose "SERVER-1/dstage1"
+
+Designer window should open in the dstage1 project
+
+"SUCCESS!!!"
+
+
+

@@ -1,0 +1,24 @@
+cp4d.readme
+1. Download Kubeconfig and SSH Key
+2. Rename vm_ssh_key.vm to cp4d_ssh_key.vm
+3. Change permissions on cp4d_ssh_key.vm
+
+	chmod 600 ~/Downloads/cp4d_ssh_key.vm
+
+4. Copy conf_kubeconfig_download.conf to Bastion home directory as kubeconfig [Note: use Bastion SSH Connection info from Request]
+
+example:
+
+scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ~/Downloads/conf_kubeconfig_download.conf itzuser@api.itz-e0lhw6.infra02-lb.dal12.techzone.ibm.com:~/kubeconfig
+
+5. Copy cp4d*.yaml files to Bastion home directory
+
+scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./cp4d-*.yml itzuser@api.itz-e0lhw6.infra02-lb.dal12.techzone.ibm.com:~/
+
+6. Copy Scripts files to Bastion home directory
+
+scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./*.sh itzuser@api.itz-e0lhw6.infra02-lb.dal12.techzone.ibm.com:~/
+
+
+!!! i should change the name of scripts to start with "cp4d-".  Then I can put scripts and yml in the same zip file for the user to download.
+!!! i will then need to adjust the scp command accordingly.
