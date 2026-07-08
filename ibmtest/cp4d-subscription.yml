@@ -6,6 +6,6 @@ metadata:
 spec:
   channel: v4.4
   installPlanApproval: Automatic
-  name: ibm-cpd-platform-operator
+  name: cpd-platform-operator
   source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
