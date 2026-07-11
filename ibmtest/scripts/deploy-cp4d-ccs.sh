@@ -14,13 +14,13 @@ echo "Waiting for CCS API to register..."
 echo "=========================================="
 # Dynamically poll the API instead of a hardcoded sleep
 while ! oc api-resources --kubeconfig=$KUBECONFIG | grep -q "ccs.cpd.ibm.com"; do
-  echo "CCS API not ready yet. Checking again in 30 seconds..."
-  sleep 30
+  echo "CCS API not ready yet. Checking again in 2 minutes..."
+  sleep 120
 done
 
 # Add a tiny buffer to ensure the operator's backend webhooks are fully awake
-echo "API registered! Giving the controller 15 seconds to stabilize..."
-sleep 15
+echo "API registered! Giving the controller 30 seconds to stabilize..."
+sleep 30
 
 echo "=========================================="
 echo "Deploying Common Core Services (CCS)..."
@@ -40,9 +40,9 @@ while true; do
     echo "Error: CCS deployment failed. Check the operator logs."
     exit 1
   else
-    echo "CCS Status: ${CCS_STATUS:-Initializing...} (checking again in 30 seconds)"
+    echo "CCS Status: ${CCS_STATUS:-Initializing...} (checking again in 2 minutes)"
   fi
-  sleep 30
+  sleep 120
 done
 
 echo "=========================================="
