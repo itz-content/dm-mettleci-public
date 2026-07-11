@@ -17,6 +17,9 @@ bash deploy-cp4d-subscription.sh
 # 4. Deploy Control Plane Instance
 bash deploy-cp4d-instance.sh
 
+# 5. Deploy Datastage
+bash deploy-cp4d-datastage.sh
+
 echo "=========================================="
 echo "Deployment Pipeline Completed Successfully."
 echo "=========================================="
