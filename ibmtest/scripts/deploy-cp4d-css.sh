@@ -5,7 +5,7 @@ export KUBECONFIG=/home/itzuser/kubeconfig
 echo "=========================================="
 echo "Installing Common Core Services Operator..."
 echo "=========================================="
-oc apply -f ccs-operator.yml
+oc apply -f cp4d-ccs-operator.yml
 
 echo "Waiting for CCS Operator to initialize (45 seconds)..."
 sleep 45
@@ -13,7 +13,7 @@ sleep 45
 echo "=========================================="
 echo "Deploying Common Core Services (CCS)..."
 echo "=========================================="
-oc apply -f ccs-cr.yml
+oc apply -f cp4d-ccs-cr.yml
 
 echo "=========================================="
 echo "Monitoring CCS Installation (takes 10-15 mins)..."
