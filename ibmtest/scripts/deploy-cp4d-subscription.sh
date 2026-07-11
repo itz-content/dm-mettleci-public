@@ -45,7 +45,7 @@ while true; do
   elif [ -z "$PHASE" ]; then
     echo "Current status: Initializing..."
   else
-    echo "Current status: $PHASE... (checking again in 10 seconds)"
+    echo "Current status: $PHASE... (checking again in 30 seconds)"
   fi
-  sleep 10
+  sleep 30
 done
