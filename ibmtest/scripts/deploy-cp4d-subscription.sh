@@ -6,9 +6,9 @@ echo "Installing Cloud Pak for Data Platform Operator..."
 echo "=========================================="
 
 # Ensure the required namespace-scope ConfigMap exists before creating the subscription
-if ! oc get configmap namespace-scope -n cp4d-operators --kubeconfig=/home/itzuser/kubeconfig >/dev/null 2>&1; then
+if ! oc get configmap namespace-scope -n cp4d-operators --kubeconfig=$KUBECONFIG >/dev/null 2>&1; then
     echo "Required ConfigMap 'namespace-scope' not found. Creating it now..."
-    oc create configmap namespace-scope -n cp4d-operators --from-literal=namespaces=cp4d-operators --kubeconfig=/home/itzuser/kubeconfig
+    oc create configmap namespace-scope -n cp4d-operators --from-literal=namespaces=cp4d-operators --kubeconfig=$KUBECONFIG
 else
     echo "ConfigMap 'namespace-scope' already exists. Proceeding..."
 fi
