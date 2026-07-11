@@ -2,10 +2,10 @@ apiVersion: cpd.ibm.com/v1
 kind: Ibmcpd
 metadata:
   name: ibmcpd-cr
-  namespace: cp4d-instance
+  namespace: cpd
 spec:
   license:
     accept: true
     license: "Enterprise"
-  storageClass: "managed-nfs-storage"
+  storageClass: "ocs-storagecluster-cephfs"
   version: "4.4.0"

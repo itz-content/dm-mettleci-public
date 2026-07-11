@@ -6,7 +6,7 @@ echo "Initializing Operator Infrastructure..."
 echo "=========================================="
 
 # 1. Create namespaces
-for ns in cp4d-operators cp4d-instance; do
+for ns in cp4d-operators cpd; do
     if ! oc get namespace $ns >/dev/null 2>&1; then
         echo "Creating namespace: $ns"
         oc create namespace $ns
@@ -19,7 +19,7 @@ done
 if ! oc get configmap namespace-scope -n cp4d-operators >/dev/null 2>&1; then
     echo "Creating namespace-scope ConfigMap..."
     oc create configmap namespace-scope -n cp4d-operators \
-      --from-literal=namespaces=cp4d-operators,cp4d-instance --kubeconfig=$KUBECONFIG
+      --from-literal=namespaces=cp4d-operators,cpd --kubeconfig=$KUBECONFIG
 else
     echo "ConfigMap 'namespace-scope' already exists. Skipping."
 fi
