@@ -15,6 +15,6 @@ while true; do
         break
     else
         echo "Catalog status: $CATALOG_STATE (waiting)..."
-        sleep 10
+        sleep 20
     fi
 done
