@@ -17,7 +17,10 @@ bash deploy-cp4d-subscription.sh
 # 4. Deploy Control Plane Instance
 bash deploy-cp4d-instance.sh
 
-# 5. Deploy Datastage
+# 5. Deploy CCS (required by Datastage)
+bash deploy-cp4d-ccs.sh
+
+# 6. Deploy Datastage
 bash deploy-cp4d-datastage.sh
 
 echo "=========================================="
