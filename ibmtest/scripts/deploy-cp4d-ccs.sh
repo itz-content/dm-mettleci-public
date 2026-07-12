@@ -11,14 +11,14 @@ echo "=========================================="
 echo "Waiting for CCS Operator Pod to be Ready..."
 echo "=========================================="
 # Step 1: Wait for OLM to create the CCS deployment
-while ! oc get deployment ibm-cpd-ccs-operator -n cp4d-operators --kubeconfig=$KUBECONFIG >/dev/null 2>&1; do
+while ! oc get deployment ibm-cpd-ccs -n cp4d-operators --kubeconfig=$KUBECONFIG >/dev/null 2>&1; do
   echo "Waiting for OLM to provision the CCS operator... (checking again in 15s)"
   sleep 15
 done
 
 # Step 2: Wait for the pod to become Ready
 echo "CCS Operator deployment found! Waiting for the pod to become fully Ready..."
-oc rollout status deployment/ibm-cpd-ccs-operator -n cp4d-operators --kubeconfig=$KUBECONFIG --timeout=5m
+oc rollout status deployment/ibm-cpd-ccs -n cp4d-operators --kubeconfig=$KUBECONFIG --timeout=5m
 
 echo "Operator is Ready! Letting webhooks settle for 60 seconds..."
 sleep 60
