@@ -49,3 +49,20 @@ while true; do
   fi
   sleep 30
 done
+
+echo "=========================================="
+echo "Ensuring Operator Pod is Fully Ready..."
+echo "=========================================="
+# Step 1: Wait for OLM to actually create the deployment object
+while ! oc get deployment ibmcpd-operator -n cp4d-operators --kubeconfig=$KUBECONFIG >/dev/null 2>&1; do
+  echo "Waiting for the deployment object... (checking again in 15s)"
+  sleep 15
+done
+
+# Step 2: Wait for the pod to become fully Ready
+echo "Operator deployment found! Waiting for the pod to pass health checks..."
+oc rollout status deployment/ibmcpd-operator -n cp4d-operators --kubeconfig=$KUBECONFIG --timeout=5m
+
+# Step 3: Buffer for internal Ansible runner webhooks to settle
+echo "Operator is Ready! Letting webhooks settle for 15 seconds..."
+sleep 60

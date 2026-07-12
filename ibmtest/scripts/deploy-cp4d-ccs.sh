@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 export KUBECONFIG=/home/itzuser/kubeconfig
 
 echo "=========================================="
@@ -10,17 +8,20 @@ echo "=========================================="
 oc apply -f cp4d-ccs-operator.yml --kubeconfig=$KUBECONFIG
 
 echo "=========================================="
-echo "Waiting for CCS API to register..."
+echo "Waiting for CCS Operator Pod to be Ready..."
 echo "=========================================="
-# Dynamically poll the API instead of a hardcoded sleep
-while ! oc api-resources --kubeconfig=$KUBECONFIG | grep -q "ccs.cpd.ibm.com"; do
-  echo "CCS API not ready yet. Checking again in 2 minutes..."
-  sleep 120
+# Step 1: Wait for OLM to create the CCS deployment
+while ! oc get deployment ibm-cpd-ccs-operator -n cp4d-operators --kubeconfig=$KUBECONFIG >/dev/null 2>&1; do
+  echo "Waiting for OLM to provision the CCS operator... (checking again in 15s)"
+  sleep 15
 done
 
-# Add a tiny buffer to ensure the operator's backend webhooks are fully awake
-echo "API registered! Giving the controller 30 seconds to stabilize..."
-sleep 30
+# Step 2: Wait for the pod to become Ready
+echo "CCS Operator deployment found! Waiting for the pod to become fully Ready..."
+oc rollout status deployment/ibm-cpd-ccs-operator -n cp4d-operators --kubeconfig=$KUBECONFIG --timeout=5m
+
+echo "Operator is Ready! Letting webhooks settle for 60 seconds..."
+sleep 60
 
 echo "=========================================="
 echo "Deploying Common Core Services (CCS)..."
