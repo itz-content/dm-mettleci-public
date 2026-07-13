@@ -5,4 +5,4 @@ metadata:
   namespace: cp4d-operators
 spec:
   targetNamespaces:
-    - cpd
+    - cp4d-operator
