@@ -2,6 +2,13 @@
 
 export KUBECONFIG=/home/itzuser/kubeconfig
 
+echo "Waiting for the platform operator to register the CCS CRD..."
+until oc get crd ccs.ccs.cpd.ibm.com >/dev/null 2>&1; do
+  echo "CCS CRD not found yet. Waiting 30 seconds..."
+  sleep 30
+done
+echo "CCS CRD is ready! Proceeding with deployment..."
+
 echo "=========================================="
 echo "Deploying Common Core Services (CCS)..."
 echo "=========================================="
