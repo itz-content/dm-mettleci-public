@@ -1,9 +1,28 @@
 #!/bin/bash
 
 export KUBECONFIG=/home/itzuser/kubeconfig
+echo "=========================================="
+echo "Installing Common Core Services Operator..."
+echo "=========================================="
+oc apply -f cp4d-ccs-operator.yml --kubeconfig=$KUBECONFIG
 
+echo "=========================================="
+echo "Waiting for CCS Operator Pod to be Ready..."
+echo "=========================================="
+# Step 1: Wait for OLM to create the CCS deployment
+while ! oc get deployment ibm-cpd-ccs -n cp4d-operators --kubeconfig=$KUBECONFIG >/dev/null 2>&1; do
+  echo "Waiting for OLM to provision the CCS operator... (checking again in 15s)"
+  sleep 15
+done
+
+# Step 2: Wait for the pod to become Ready
+echo "CCS Operator deployment found! Waiting for the pod to become fully Ready..."
+oc rollout status deployment/ibm-cpd-ccs -n cp4d-operators --kubeconfig=$KUBECONFIG --timeout=5m
+
+echo "Operator is Ready! Letting webhooks settle for 60 seconds..."
+sleep 60
 echo "Waiting for the platform operator to register the CCS CRD..."
-until oc get crd ccs.ccs.cpd.ibm.com >/dev/null 2>&1; do
+until oc get crd --kubeconfig=$KUBECONFIG | grep -q "ccs.cpd.ibm.com"; do
   echo "CCS CRD not found yet. Waiting 30 seconds..."
   sleep 30
 done
