@@ -6,7 +6,7 @@ echo "Initializing Operator Infrastructure..."
 echo "=========================================="
 
 # 1. Create namespaces
-for ns in cp4d-operators cpd; do
+for ns in cp4d-operators cpd ibm-common-services; do
     if ! oc get namespace $ns >/dev/null 2>&1; then
         echo "Creating namespace: $ns"
         oc create namespace $ns
