@@ -1,7 +1,5 @@
 #!/bin/bash
 set -e
-
-# Tell cpd-cli how to authenticate with the cluster
 export KUBECONFIG=~/.kube/config
 
 # Force cpd-cli to use the CPD 4.x compatible utility image
