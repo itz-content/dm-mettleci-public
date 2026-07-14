@@ -2,6 +2,7 @@
 
 # Exit immediately on any error
 set -e
+export KUBECONFIG=~/.kube/config
 
 echo "Starting Full CP4D Deployment Pipeline..."
 

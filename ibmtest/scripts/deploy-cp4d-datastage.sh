@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KUBECONFIG=/home/itzuser/kubeconfig
+export KUBECONFIG=~/.kube/config
 
 echo "=========================================="
 echo "Installing DataStage Operator..."
