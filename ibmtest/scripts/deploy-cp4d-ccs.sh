@@ -2,9 +2,6 @@
 #!/bin/bash
 set -e
 
-# Use the v1 container which holds the 4.4.0 playbooks
-export OLM_UTILS_IMAGE="icr.io/cpopen/cpd/olm-utils:latest"
-
 CPD_VERSION="4.4.0"
 OPERATOR_NS="cpd-operators"
 INSTANCE_NS="cpd"
