@@ -8,9 +8,9 @@ cp4d.readme
 3.5. Create environment value from Bastion SSH Connection [info from Request]
 example:    export ITZ_API_ENDPOINT="itzuser@api.itz-b90yaa.infra02-lb.dal12.techzone.ibm.com"
 
-4. Copy conf_kubeconfig_download.conf to Bastion home directory as kubeconfig
+4. Copy conf_kubeconfig_download.conf to Bastion home .kube directory as config
 
-scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ~/Downloads/conf_kubeconfig_download.conf $ITZ_API_ENDPOINT:~/kubeconfig
+scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ~/Downloads/conf_kubeconfig_download.conf $ITZ_API_ENDPOINT:~/.kube/config
 
 5. Navigate to directory containing the .yml files.  Copy cp4d*.yaml files to Bastion home directory
 
@@ -30,7 +30,7 @@ scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./deploy-cp4d*
 
 10. Get Web Console URL
 
-replace "api" with "cpd-cpd.apps" and omit the port number in the API URL provided with your reservation.
+Using the API URL provided with your reservation, replace "api" with "cpd-cpd.apps" and omit the port number .
 
 example: 
 	https://api.itz-sfafqp.infra02-lb.dal12.techzone.ibm.com:6443
@@ -39,7 +39,7 @@ becomes
 
 Alternatively run the following commnad from the terminal in the bastion server:
 
-oc get route cpd -n cpd -o jsonpath='https://{.spec.host}\n' --kubeconfig=/home/itzuser/kubeconfig
+oc get route cpd -n cpd -o jsonpath='https://{.spec.host}\n' --kubeconfig=~/.kube/config
 
 11. Enter Web Console URL into your browser.  Choose "OpenShift authentication".  Log in with "kube:admin".  
 

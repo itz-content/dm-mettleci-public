@@ -1,17 +1,21 @@
 #!/bin/bash
 
-# Exit immediately on any error
-set -e
-export KUBECONFIG=~/.kube/config
-
-echo "Starting Full CP4D Deployment Pipeline..."
-
 echo "----------------------------------------------------"
-echo "System Pre-flight Checks..."
+echo "0. System Pre-flight Checks..."
 echo "----------------------------------------------------"
-# 0. Enable rootless podman namespaces for cpd-cli
+# 1. Enable rootless podman namespaces for cpd-cli
 echo "user.max_user_namespaces=28633" | sudo tee /etc/sysctl.d/99-userns.conf > /dev/null
 sudo sysctl -p /etc/sysctl.d/99-userns.conf > /dev/null
+
+# 2. Defensive measure: Ensure all child processes inherit the kubeconfig path
+export KUBECONFIG="${HOME}/.kube/config"
+
+# 3. Verify cluster connection before running any deployment steps
+if ! oc whoami >/dev/null 2>&1; then
+  echo "ERROR: Cannot connect to OpenShift. Please ensure you are logged in and ${KUBECONFIG} exists."
+  exit 1
+fi
+echo "Cluster connection verified. Proceeding with deployment..."
 
 
 # 1. Deploy CLI

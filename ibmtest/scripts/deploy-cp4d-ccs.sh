@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-export KUBECONFIG=~/.kube/config
+export KUBECONFIG="${HOME}/.kube/config"
 
 # Force cpd-cli to use the CPD 4.x compatible utility image
 export OLM_UTILS_IMAGE="icr.io/cpopen/cpd/olm-utils-v2:latest"

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export KUBECONFIG=~/.kube/config
+export KUBECONFIG="${HOME}/.kube/config"
 CPD_CLI_VERSION="12.0.4"
 TOOL_DIR="$HOME/cpd-cli-tool"
 
