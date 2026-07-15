@@ -6,6 +6,14 @@ export KUBECONFIG=~/.kube/config
 
 echo "Starting Full CP4D Deployment Pipeline..."
 
+echo "----------------------------------------------------"
+echo "System Pre-flight Checks..."
+echo "----------------------------------------------------"
+# 0. Enable rootless podman namespaces for cpd-cli
+echo "user.max_user_namespaces=28633" | sudo tee /etc/sysctl.d/99-userns.conf > /dev/null
+sudo sysctl -p /etc/sysctl.d/99-userns.conf > /dev/null
+
+
 # 1. Deploy CLI
 bash deploy-cp4d-cli.sh
 # Explicitly load the CLI path into this running script
