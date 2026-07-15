@@ -6,7 +6,7 @@ export KUBECONFIG="${HOME}/.kube/config"
 export OLM_UTILS_IMAGE="icr.io/cpopen/cpd/olm-utils-v2:latest"
 
 CPD_VERSION="4.4.0"
-OPERATOR_NS="cp4-operators"
+OPERATOR_NS="cpd-operators"
 INSTANCE_NS="cpd"
 
 echo "----------------------------------------------------"
