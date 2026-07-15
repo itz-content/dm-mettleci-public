@@ -3,9 +3,9 @@ set -e
 export KUBECONFIG="${HOME}/.kube/config"
 
 # Force cpd-cli to use the CPD 4.x compatible utility image
-export OLM_UTILS_IMAGE="icr.io/cpopen/cpd/olm-utils:latest"
+export OLM_UTILS_IMAGE="icr.io/cpopen/cpd/olm-utils-v2:latest"
 
-CPD_VERSION="4.4.0"
+CPD_VERSION="6.4.7"
 OPERATOR_NS="cpd-operators"
 INSTANCE_NS="cpd"
 
