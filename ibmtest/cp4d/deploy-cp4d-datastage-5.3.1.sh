@@ -36,7 +36,7 @@ echo "==> Installing Operators for ${COMPONENTS}..."
 cpd-cli manage apply-olm \
     --release=${CPD_VERSION} \
     --components=${COMPONENTS} \
-    --cpd_operator_ns=cpd-operators
+    --cpd_operator_ns=${PROJECT_CPD_INST_OPERATORS}
 
 # 1. Install Unified Components (Operators + Custom Resources)
 echo "==> Installing components: $COMPONENTS..."

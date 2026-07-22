@@ -1,0 +1,45 @@
+---
+- name: Deploy CP4D CLI and DataStage
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Ensure all deployment scripts are executable
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/{{ item }}"
+        mode: '0755'
+      loop:
+        - deploy-cp4d-cpd-cli.sh
+        - deploy-cp4d-datastage-5.3.1.sh
+
+    - name: 1. Execute the cpd-cli setup script
+      shell: >
+        source deploy-cp4d-cluster-vars.env && 
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}" 
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}" 
+        ./deploy-cp4d-cpd-cli.sh
+      args:
+        chdir: "{{ playbook_dir }}"
+        executable: /bin/bash
+      no_log: true
+      register: cli_output
+
+    - name: 2. Verify cpd-cli is installed and responsive
+      ansible.builtin.shell: "source .env && cpd-cli version"
+      args:
+        chdir: "{{ playbook_dir }}"
+        executable: /bin/bash
+      register: cli_verify
+      failed_when: cli_verify.rc != 0
+
+    - name: 3. Execute the DataStage deployment script
+      ansible.builtin.shell: "source .env && ./deploy-cp4d-datastage-5.3.1.sh"
+      args:
+        chdir: "{{ playbook_dir }}"
+        executable: /bin/bash
+      register: ds_output
+      async: 7200
+      poll: 60
+
+    - name: Display final DataStage script output
+      ansible.builtin.debug:
+        var: ds_output.stdout_lines

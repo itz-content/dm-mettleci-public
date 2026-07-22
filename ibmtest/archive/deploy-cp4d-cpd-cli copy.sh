@@ -25,34 +25,7 @@ sudo sysctl -w user.max_user_namespaces=65536
 # Make it persistent across bastion reboots
 echo "user.max_user_namespaces=65536" | sudo tee /etc/sysctl.d/99-userns.conf > /dev/null
 
-# ==============================================================================
-# Fetch CPD CLI from S3 / IBM Cloud Object Storage
-# ==============================================================================
-echo "==> Checking for AWS CLI..."
-if ! command -v aws &> /dev/null; then
-    echo "[INFO] AWS CLI not found. Installing official AWS CLI v2 via curl..."
-    
-    # Ensure unzip is available to extract the AWS package
-    if ! command -v unzip &> /dev/null; then
-        sudo dnf install -y unzip
-    fi
-
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-    unzip -q awscliv2.zip
-    sudo ./aws/install
-    rm -rf awscliv2.zip ./aws
-    echo "[INFO] AWS CLI installation complete."
-fi
-
-echo "==> Downloading ${CPD_CLI_BINARY} from S3 bucket ${AWS_BUCKET_NAME}/binaries..."
-# Pass credentials inline so they don't get written to disk in a ~/.aws/credentials file
-AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
-AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
-/usr/local/bin/aws --endpoint-url="${AWS_ENDPOINT_URL}" s3 cp "s3://${AWS_BUCKET_NAME}/binaries/${CPD_CLI_BINARY}" "${DOWNLOAD_DIR}/${CPD_CLI_BINARY}"
-
-# ==============================================================================
-# Extract and Configure Binary
-# ==============================================================================
+# Extract Binary
 echo "[INFO] Extracting ${CPD_CLI_BINARY} from ${DOWNLOAD_DIR} to ${INSTALL_DIR}..."
 mkdir -p "${INSTALL_DIR}"
 
