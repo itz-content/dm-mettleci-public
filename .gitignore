@@ -9,7 +9,13 @@
 **/*.key
 **/ansible.log
 *secrets.yml
+.env
 
 # Mac system junk
 .DS_Store
 vm_map_string*
+custom_values*
+
+# tar files
+*.tar
+*.tgz
