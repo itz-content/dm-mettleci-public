@@ -22,9 +22,9 @@ echo "==> Downloading CASE metadata for release ${CPD_VERSION} patch ${PATCH_ID}
 # Ensure the CLI knows exactly where to drop the files
 export CPD_CLI_MANAGE_WORKSPACE="/home/itzuser/cpd-cli-workspace"
 
+#later 5.3.1 versions may require --patch_id= reference for case-download and apply-olm
 cpd-cli manage case-download \
     --release=${CPD_VERSION} \
-    --patch_id=${PATCH_ID} \
     --components=${COMPONENTS} \
     --cluster_resources=true
 
@@ -42,7 +42,6 @@ cpd-cli manage apply-olm \
 echo "==> Installing components: $COMPONENTS..."
 cpd-cli manage install-components \
     --release=${CPD_VERSION} \
-    --patch_id=${PATCH_ID} \
     --components=${COMPONENTS} \
     --operator_ns=${PROJECT_CPD_INST_OPERATORS} \
     --instance_ns=${PROJECT_CPD_INST_OPERANDS} \
