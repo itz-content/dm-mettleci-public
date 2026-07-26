@@ -1,7 +1,7 @@
 #!/bin/bash
 # ==============================================================================
-# Script: deploy-cp4d-datastage-5.3.1.sh
-# Purpose: Deploys CCS and DataStage onto a CP4D 5.3.1 Cluster
+# Script: deploy-cp4d-datastage-5.3.0.sh
+# Purpose: Deploys CCS and DataStage onto a CP4D 5.3.0 Cluster
 # ==============================================================================
 
 # 0. Source the environment variables
