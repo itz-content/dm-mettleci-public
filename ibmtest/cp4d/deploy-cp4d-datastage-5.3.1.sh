@@ -1,7 +1,7 @@
 #!/bin/bash
 # ==============================================================================
-# Script: deploy-cp4d-datastage-5.3.0.sh
-# Purpose: Deploys CCS and DataStage onto a CP4D 5.3.0 Cluster
+# Script: deploy-cp4d-datastage-5.3.1.sh
+# Purpose: Deploys CCS and DataStage onto a CP4D 5.3.1 Cluster
 # ==============================================================================
 
 # 0. Source the environment variables
@@ -25,6 +25,7 @@ export CPD_CLI_MANAGE_WORKSPACE="/home/itzuser/cpd-cli-workspace"
 #later 5.3.1 versions may require --patch_id= reference for case-download and apply-olm
 cpd-cli manage case-download \
     --release=${CPD_VERSION} \
+    --patch_id=${PATCH_ID} \
     --components=${COMPONENTS} \
     --cluster_resources=true
 
@@ -35,6 +36,7 @@ oc apply -f ${CPD_CLI_MANAGE_WORKSPACE}/work/cluster_scoped_resources.yaml \
 echo "==> Installing Operators for ${COMPONENTS}..."
 cpd-cli manage apply-olm \
     --release=${CPD_VERSION} \
+    --patch_id=${PATCH_ID} \
     --components=${COMPONENTS} \
     --cpd_operator_ns=${PROJECT_CPD_INST_OPERATORS}
 

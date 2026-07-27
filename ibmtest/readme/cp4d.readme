@@ -32,7 +32,7 @@ scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./*.tgz $ITZ_A
 
 7. Install datastage
 
-[itzuser@bastion-1 ~]$ bash deploy-cp4d-datastage-5.4.sh
+[itzuser@bastion-1 ~]$ bash deploy-cp4d-datastage-5.3.0.sh
 
 8. Get Web Console URL
 
