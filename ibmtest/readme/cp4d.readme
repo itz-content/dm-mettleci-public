@@ -14,11 +14,15 @@ scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ~/Downloads/co
 
 5. Navigate to the directory containing the cp4d install files. Copy files to Bastion home directory
 
-scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./deploy-cp4d*.* $ITZ_API_ENDPOINT:~/
-scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./*.tgz $ITZ_API_ENDPOINT:~/
+#superceded by repo cloned directly to bastion in later step
+#scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./deploy-cp4d*.* $ITZ_API_ENDPOINT:~/
+
+#superceded by aws download contained within deploy-cp4d-cpd-cli.sh
+#scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./*.tgz $ITZ_API_ENDPOINT:~/
 
 6.  Click on VM Remote Console link. Connect with RDP. Login to Bastion server using Bastion Password provide with the reservation. Open a Terminial Window.
 
+#//superceded by cloned repo.  then run of [deploy-cp4d-master.sh]
 7.  Use ls command to verify existence of sh files and the env file copied from previous step.
 [itzuser@bastion-1 ~]$ ls
 
@@ -33,6 +37,7 @@ scp -P 10022 -o IdentitiesOnly=yes -i ~/Downloads/cp4d_ssh_key.vm ./*.tgz $ITZ_A
 7. Install datastage
 
 [itzuser@bastion-1 ~]$ bash deploy-cp4d-datastage-5.3.0.sh
+//
 
 8. Get Web Console URL
 

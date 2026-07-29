@@ -44,10 +44,22 @@ if ! command -v aws &> /dev/null; then
     echo "[INFO] AWS CLI installation complete."
 fi
 
+# Add permissions for itzuser
+sudo chmod -R 755 /usr/local/aws-cli
+sudo chmod 755 /usr/local/bin/aws
+
+# Setup AWS credentials from the securely transferred file
+echo "Configuring AWS credentials..."
+mkdir -p ~/.aws
+if [ -f ~/secrets.aws ]; then
+    mv ~/secrets.aws ~/.aws/credentials
+    chmod 600 ~/.aws/credentials
+else
+    echo "[ERROR] secrets.aws not found in home directory! Cannot download cpd-cli."
+    exit 1
+fi
+
 echo "==> Downloading ${CPD_CLI_BINARY} from S3 bucket ${AWS_BUCKET_NAME}/binaries..."
-# Pass credentials inline so they don't get written to disk in a ~/.aws/credentials file
-AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
-AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
 /usr/local/bin/aws --endpoint-url="${AWS_ENDPOINT_URL}" s3 cp "s3://${AWS_BUCKET_NAME}/binaries/${CPD_CLI_BINARY}" "${DOWNLOAD_DIR}/${CPD_CLI_BINARY}"
 
 # ==============================================================================
