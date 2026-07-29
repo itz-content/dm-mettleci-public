@@ -27,7 +27,8 @@ cpd-cli manage case-download \
     --release=${CPD_VERSION} \
     --patch_id=${PATCH_ID} \
     --components=${COMPONENTS} \
-    --cluster_resources=true
+    --cluster_resources=true \
+    --operator_ns=${PROJECT_CPD_INST_OPERATORS}
 
 oc apply -f ${CPD_CLI_MANAGE_WORKSPACE}/work/cluster_scoped_resources.yaml \
     --server-side \
@@ -44,6 +45,7 @@ cpd-cli manage apply-olm \
 echo "==> Installing components: $COMPONENTS..."
 cpd-cli manage install-components \
     --release=${CPD_VERSION} \
+    --patch_id=${PATCH_ID} \
     --components=${COMPONENTS} \
     --operator_ns=${PROJECT_CPD_INST_OPERATORS} \
     --instance_ns=${PROJECT_CPD_INST_OPERANDS} \
