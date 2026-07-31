@@ -13,8 +13,11 @@
     
     main_tar: "binaries/IS_V11716_Linux_x86_multi.tar.gz"
     spec_zip: "binaries/IS_V11716.bundle_spec_file_mult.zip"
-    # Added Db2 target (adjust the "binaries/" prefix if you uploaded it to the root bucket level)
     db2_tar: "binaries/v11.5.8_linuxx64_server_dec.tar.gz"
+    
+    # Updated: S3 paths for the repository zip files pointing to the dm_software directory
+    compliance_zip_s3: "{{ dm_software }}/dm-compliance-rules-278.zip"
+    electromart_zip_s3: "{{ dm_software }}/mettleci-repo-template-73.zip"
 
   tasks:
     - name: 1. Check if AWS CLI is installed
@@ -88,6 +91,17 @@
         owner: itzuser
         group: itzuser
         recurse: yes
+
+    - name: 6.3. Copy Repository Zips to itzuser Home using AWS CLI
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/{{ item.s3_path }} /home/itzuser/{{ item.filename }}
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true
+      loop:
+        - { s3_path: "{{ compliance_zip_s3 }}", filename: "dm-compliance-rules-278.zip" }
+        - { s3_path: "{{ electromart_zip_s3 }}", filename: "mettleci-repo-template-73.zip" }
 
     - name: 7. Extract Main Tarball via Native Shell
       ansible.builtin.shell: "tar -xzf IS_V11716_Linux_x86_multi.tar.gz"
