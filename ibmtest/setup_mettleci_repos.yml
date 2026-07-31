@@ -1,0 +1,43 @@
+---
+- name: Setup IIS Local Git Repositories
+  hosts: all  # Update this to match your RHEL9 target group
+  become: no  # Assuming this runs as the standard user (e.g., itzuser)
+  
+  vars:
+    base_dir: "~/LocalRepos"
+    git_email: "itzuser@example.com"
+    git_user: "ITZ User"
+    repos:
+      - name: compliance
+        zip: "~/dm-compliance-rules-278.zip"
+      - name: electromart
+        zip: "~/mettleci-repo-template-73.zip"
+
+  tasks:
+    - name: Ensure target repository directories exist
+      ansible.builtin.file:
+        path: "{{ base_dir }}/{{ item.name }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ repos }}"
+
+    - name: Extract zip archives into repositories
+      ansible.builtin.unarchive:
+        src: "{{ item.zip }}"
+        dest: "{{ base_dir }}/{{ item.name }}"
+        remote_src: yes
+      loop: "{{ repos }}"
+
+    - name: Initialize Git, configure, and commit extracted files
+      ansible.builtin.shell: |
+        git init
+        git config --local user.email "{{ git_email }}"
+        git config --local user.name "{{ git_user }}"
+        git add .
+        git commit -m "Initial commit: Extracted base files for {{ item.name }}"
+      args:
+        chdir: "{{ base_dir }}/{{ item.name }}"
+        # The creates argument makes this task idempotent. 
+        # It will skip the Git commands if the repository is already initialized.
+        creates: "{{ base_dir }}/{{ item.name }}/.git"
+      loop: "{{ repos }}"
