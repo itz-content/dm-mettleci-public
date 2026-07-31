@@ -16,8 +16,8 @@
     db2_tar: "binaries/v11.5.8_linuxx64_server_dec.tar.gz"
     
     # S3 paths for the repository zip files pointing to the dm_software directory
-    compliance_zip: "dm-compliance-rules-278.zip"
-    electromart_zip: "mettleci-repo-template-73.zip"
+    compliance_zip: "dm-compliance-rules-325.zip"
+    electromart_zip: "mettleci-repo-template-102.zip"
 
   tasks:
     - name: 1. Check if AWS CLI is installed
