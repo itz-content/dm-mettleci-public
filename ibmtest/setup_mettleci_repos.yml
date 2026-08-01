@@ -6,12 +6,15 @@
   vars:
     base_dir: "~/LocalRepos"
     git_email: "itzuser@example.com"
-    git_user: "ITZ User"
+    git_user: "itzuser"
+    compliance_zip: "~/dm-compliance-rules-325.zip"
+    repo_template_zip: "~/mettleci-repo-template-102.zip"
+ 
     repos:
       - name: compliance
-        zip: "~/dm-compliance-rules-278.zip"
+        zip: "{{ compliance_zip }}"
       - name: electromart
-        zip: "~/mettleci-repo-template-73.zip"
+        zip: "{{ repo_template_zip }}"
 
   tasks:
     - name: Ensure target repository directories exist
