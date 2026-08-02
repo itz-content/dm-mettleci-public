@@ -1,0 +1,70 @@
+---
+- name: Install and Configure MettleCI Workbench on RHEL9
+  hosts: localhost
+  become: yes # Requires root privileges
+
+  vars:
+    # Source directory populated by transfer_binaries.yml
+    source_dir: "/home/itzuser"
+    
+    # We only hardcode the license since its name doesn't change with versions
+    license_file: "mettleci_noexp.lic"
+    
+    # Default installation directory for MettleCI Workbench
+    mci_install_dir: "/opt/dm/mci"
+
+  tasks:
+    - name: 1. Find the MettleCI Workbench RPM dynamically
+      ansible.builtin.find:
+        paths: "{{ source_dir }}"
+        patterns: "dm-mettleci-workbench-*.rpm"
+      register: found_rpm
+
+    - name: 1.1. Safety Check - Ensure exactly one RPM was found
+      ansible.builtin.fail:
+        msg: "Expected exactly 1 MettleCI RPM in {{ source_dir }}, but found {{ found_rpm.matched }}."
+      when: found_rpm.matched != 1
+
+    - name: 2. Ensure Java is installed (MettleCI Prerequisite)
+      ansible.builtin.dnf:
+        name: java-11-openjdk # Adjust to java-1.8.0-openjdk if required by your environment
+        state: present
+
+    - name: 3. Install MettleCI Workbench via local RPM
+      ansible.builtin.dnf:
+        name: "{{ found_rpm.files[0].path }}"
+        state: present
+        disable_gpg_check: yes # Standard for custom third-party RPMs
+
+    - name: 4. Ensure Installation Directory Exists
+      ansible.builtin.file:
+        path: "{{ mci_install_dir }}"
+        state: directory
+        owner: mciworkb
+        group: dstage
+        mode: '0755'
+
+    - name: 5. Deploy License File from itzuser home directory
+      ansible.builtin.copy:
+        src: "{{ source_dir }}/{{ license_file }}"
+        dest: "{{ mci_install_dir }}/mettleci.lic"
+        remote_src: yes # Tells Ansible the file is already on the RHEL9 target
+        owner: mciworkb
+        group: dstage
+        mode: '0644'
+      notify: restart mettleci
+
+    - name: 6. Ensure MettleCI Service is Started (Legacy Init)
+      ansible.builtin.shell: service dm-mettleci-workbench start
+      register: service_status
+      changed_when: service_status.rc == 0
+      failed_when: 
+        - service_status.rc != 0
+        - "'already running' not in service_status.stdout" # Prevents failure if it's already on
+
+  handlers:
+    - name: restart mettleci
+      ansible.builtin.shell: |
+        service dm-mettleci-workbench stop
+        sleep 2
+        service dm-mettleci-workbench start

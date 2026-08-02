@@ -22,4 +22,7 @@
 
 - name: Setup MettleCI Repositories
   import_playbook: setup_mettleci_repos.yml
+
+- name: Execute Workbench Installation
+  import_playbook: install_mettleci.yml
   
