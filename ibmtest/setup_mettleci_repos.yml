@@ -1,6 +1,6 @@
 ---
 - name: Setup IIS Local Git Repositories
-  hosts: localhost  # Updated to localhost based on previous local executions
+  hosts: localhost
   become: no  
   
   vars:
@@ -38,8 +38,10 @@
         repos:
           - name: compliance
             zip: "{{ found_compliance.files[0].path }}"
+            copy_path: "*/."  # Copies everything inside the first intermediate folder
           - name: electromart
             zip: "{{ found_template.files[0].path }}"
+            copy_path: "*/mettleci-repo-template/." # Drills down to skip the shared-libraries folder
 
     - name: 4. Ensure target repository directories exist
       ansible.builtin.file:
@@ -48,14 +50,31 @@
         mode: '0755'
       loop: "{{ repos }}"
 
-    - name: 5. Extract zip archives into repositories
+    - name: 5. Ensure temporary staging directories exist
+      ansible.builtin.file:
+        path: "/tmp/{{ item.name }}_staging"
+        state: directory
+      loop: "{{ repos }}"
+
+    - name: 6. Extract zip archives to temporary staging directories
       ansible.builtin.unarchive:
         src: "{{ item.zip }}"
-        dest: "{{ base_dir }}/{{ item.name }}"
+        dest: "/tmp/{{ item.name }}_staging"
         remote_src: yes
       loop: "{{ repos }}"
 
-    - name: 6. Initialize Git, configure, and commit extracted files
+    - name: 7. Copy exact nested contents to target repositories
+      ansible.builtin.shell: |
+        cp -a /tmp/{{ item.name }}_staging/{{ item.copy_path }} "{{ base_dir }}/{{ item.name }}/"
+      loop: "{{ repos }}"
+
+    - name: 8. Clean up temporary staging directories
+      ansible.builtin.file:
+        path: "/tmp/{{ item.name }}_staging"
+        state: absent
+      loop: "{{ repos }}"
+
+    - name: 9. Initialize Git, configure, and commit extracted files
       ansible.builtin.shell: |
         # 1. Strip out any hidden .git folders that were extracted from the zip file
         find . -type d -name ".git" -exec rm -rf {} +
