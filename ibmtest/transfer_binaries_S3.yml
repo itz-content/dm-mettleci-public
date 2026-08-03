@@ -11,9 +11,9 @@
     remote_staging_path: "/opt/IBM/InformationServer"
     dm_software: "binaries/dm_software"
     
-    main_tar: "binaries/IS_V11716_Linux_x86_multi.tar.gz"
-    spec_zip: "binaries/IS_V11716.bundle_spec_file_mult.zip"
-    db2_tar: "binaries/v11.5.8_linuxx64_server_dec.tar.gz"
+    main_tar: "IS_V11716_Linux_x86_multi.tar.gz"
+    spec_zip: "IS_V11716.bundle_spec_file_mult.zip"
+    db2_tar: "v11.5.8_linuxx64_server_dec.tar.gz"
 
   tasks:
     - name: 1. Check if AWS CLI is installed
@@ -44,7 +44,7 @@
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
-        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/{{ main_tar }} {{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ main_tar }} {{ remote_staging_path }}/{{ main_tar }}
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true  
 
@@ -52,7 +52,7 @@
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
-        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/{{ db2_tar }} {{ remote_staging_path }}/v11.5.8_linuxx64_server_dec.tar.gz
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ db2_tar }} {{ remote_staging_path }}/{{ db2_tar }}
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true 
 
@@ -60,7 +60,7 @@
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
-        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/{{ spec_zip }} {{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ spec_zip }} {{ remote_staging_path }}/{{ spec_zip }}
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
 
@@ -89,14 +89,14 @@
         recurse: yes
 
     - name: 7. Extract Main Tarball via Native Shell
-      ansible.builtin.shell: "tar -xzf IS_V11716_Linux_x86_multi.tar.gz"
+      ansible.builtin.shell: "tar -xzf {{ main_tar }}"
       args:
         chdir: "{{ remote_staging_path }}"
 
     - name: 7.1. Extract Db2 Tarball into Isolated Folder
       ansible.builtin.shell: |
         mkdir -p db2_extracted
-        tar -xzf v11.5.8_linuxx64_server_dec.tar.gz -C db2_extracted
+        tar -xzf {{ db2_tar }} -C db2_extracted
       args:
         chdir: "{{ remote_staging_path }}"
 
@@ -109,7 +109,7 @@
         mode: '0777'
 
     - name: 9. Extract Bundle Spec Zip via Native Shell
-      ansible.builtin.shell: "unzip -q IS_V11716.bundle_spec_file_mult.zip -d is-suite"
+      ansible.builtin.shell: "unzip -q {{ spec_zip }} -d is-suite"
       args:
         chdir: "{{ remote_staging_path }}"
 
@@ -134,6 +134,6 @@
         path: "{{ item }}"
         state: absent
       loop:
-        - "{{ remote_staging_path }}/IS_V11716_Linux_x86_multi.tar.gz"
-        - "{{ remote_staging_path }}/IS_V11716.bundle_spec_file_mult.zip"
-        - "{{ remote_staging_path }}/v11.5.8_linuxx64_server_dec.tar.gz"
+        - "{{ remote_staging_path }}/{{ main_tar }}"
+        - "{{ remote_staging_path }}/{{ spec_zip }}"
+        - "{{ remote_staging_path }}/{{ db2_tar }}"
