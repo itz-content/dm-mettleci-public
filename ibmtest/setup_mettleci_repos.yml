@@ -1,46 +1,71 @@
 ---
 - name: Setup IIS Local Git Repositories
-  hosts: all  # Update this to match your RHEL9 target group
-  become: no  # Assuming this runs as the standard user (e.g., itzuser)
+  hosts: localhost  # Updated to localhost based on previous local executions
+  become: no  
   
   vars:
-    base_dir: "~/LocalRepos"
+    # Use absolute paths to avoid issues with ~ in shell commands
+    source_dir: "/home/itzuser"
+    base_dir: "/home/itzuser/LocalRepos"
     git_email: "itzuser@example.com"
     git_user: "itzuser"
-    compliance_zip: "~/dm-compliance-rules-325.zip"
-    repo_template_zip: "~/mettleci-repo-template-102.zip"
- 
-    repos:
-      - name: compliance
-        zip: "{{ compliance_zip }}"
-      - name: electromart
-        zip: "{{ repo_template_zip }}"
 
   tasks:
-    - name: Ensure target repository directories exist
+    - name: 1. Find the Compliance Rules zip dynamically
+      ansible.builtin.find:
+        paths: "{{ source_dir }}"
+        patterns: "dm-compliance-rules-*.zip"
+      register: found_compliance
+
+    - name: 1.1. Safety Check - Ensure exactly one Compliance zip was found
+      ansible.builtin.fail:
+        msg: "Expected exactly 1 compliance zip, but found {{ found_compliance.matched }}."
+      when: found_compliance.matched != 1
+
+    - name: 2. Find the Repo Template zip dynamically
+      ansible.builtin.find:
+        paths: "{{ source_dir }}"
+        patterns: "mettleci-repo-template-*.zip"
+      register: found_template
+
+    - name: 2.1. Safety Check - Ensure exactly one Repo Template zip was found
+      ansible.builtin.fail:
+        msg: "Expected exactly 1 repo template zip, but found {{ found_template.matched }}."
+      when: found_template.matched != 1
+
+    - name: 3. Dynamically define the repositories list
+      ansible.builtin.set_fact:
+        repos:
+          - name: compliance
+            zip: "{{ found_compliance.files[0].path }}"
+          - name: electromart
+            zip: "{{ found_template.files[0].path }}"
+
+    - name: 4. Ensure target repository directories exist
       ansible.builtin.file:
         path: "{{ base_dir }}/{{ item.name }}"
         state: directory
         mode: '0755'
       loop: "{{ repos }}"
 
-    - name: Extract zip archives into repositories
+    - name: 5. Extract zip archives into repositories
       ansible.builtin.unarchive:
         src: "{{ item.zip }}"
         dest: "{{ base_dir }}/{{ item.name }}"
         remote_src: yes
       loop: "{{ repos }}"
 
-    - name: Initialize Git, configure, and commit extracted files
+    - name: 6. Initialize Git, configure, and commit extracted files
       ansible.builtin.shell: |
+        # 1. Strip out any hidden .git folders that were extracted from the zip file
+        find . -type d -name ".git" -exec rm -rf {} +
+        
+        # 2. Proceed with the standard initialization
         git init
         git config --local user.email "{{ git_email }}"
         git config --local user.name "{{ git_user }}"
         git add .
         git commit -m "Initial commit: Extracted base files for {{ item.name }}"
       args:
-        chdir: "{{ base_dir }}/{{ item.name }}"
-        # The creates argument makes this task idempotent. 
-        # It will skip the Git commands if the repository is already initialized.
-        creates: "{{ base_dir }}/{{ item.name }}/.git"
+        chdir: "{{ base_dir }}/{{ item.name }}" 
       loop: "{{ repos }}"

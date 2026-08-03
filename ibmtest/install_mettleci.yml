@@ -62,6 +62,40 @@
         - service_status.rc != 0
         - "'already running' not in service_status.stdout" # Prevents failure if it's already on
 
+    - name: 7. Find the MettleCI Unit Test Harness RPM dynamically
+      ansible.builtin.find:
+        paths: "{{ source_dir }}"
+        patterns: "dm-mettleci-unittest-*.rpm"
+      register: found_unittest_rpm
+
+    - name: 7.1. Safety Check - Ensure exactly one Unit Test RPM was found
+      ansible.builtin.fail:
+        msg: "Expected exactly 1 Unit Test RPM in {{ source_dir }}, but found {{ found_unittest_rpm.matched }}."
+      when: found_unittest_rpm.matched != 1
+
+    - name: 8. Install MettleCI Unit Test Harness via local RPM
+      ansible.builtin.dnf:
+        name: "{{ found_unittest_rpm.files[0].path }}"
+        state: present
+        disable_gpg_check: yes
+  
+    - name: 9. Find the MettleCI Command Shell RPM dynamically
+      ansible.builtin.find:
+        paths: "{{ source_dir }}"
+        patterns: "dm-mettleci-command-shell-*.rpm"
+      register: found_cli_rpm
+
+    - name: 9.1. Safety Check - Ensure exactly one CLI RPM was found
+      ansible.builtin.fail:
+        msg: "Expected exactly 1 Command Shell RPM in {{ source_dir }}, but found {{ found_cli_rpm.matched }}."
+      when: found_cli_rpm.matched != 1
+
+    - name: 10. Install MettleCI Command Shell via local RPM
+      ansible.builtin.dnf:
+        name: "{{ found_cli_rpm.files[0].path }}"
+        state: present
+        disable_gpg_check: yes
+
   handlers:
     - name: restart mettleci
       ansible.builtin.shell: |
