@@ -65,7 +65,7 @@
     - name: 7. Find the MettleCI Unit Test Harness RPM dynamically
       ansible.builtin.find:
         paths: "{{ source_dir }}"
-        patterns: "dm-mettleci-unittest-*.rpm"
+        patterns: "dm-unittest-harness-*.rpm"
       register: found_unittest_rpm
 
     - name: 7.1. Safety Check - Ensure exactly one Unit Test RPM was found
