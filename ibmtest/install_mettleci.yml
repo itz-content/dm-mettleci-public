@@ -8,7 +8,7 @@
     source_dir: "/home/itzuser"
     
     # We only hardcode the license since its name doesn't change with versions
-    license_file: "mettleci_noexp.lic"
+    license_file: "mettleci.lic"
     
     # Default installation directory for MettleCI Workbench
     mci_install_dir: "/opt/dm/mci"
