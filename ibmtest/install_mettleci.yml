@@ -42,11 +42,13 @@
       register: java_extracted_path
       changed_when: false
 
-    - name: 2.3 Register and set Java 11 as the system default
-      community.general.alternatives:
-        name: java
-        link: /usr/bin/java
-        path: "{{ java_extracted_path.stdout }}/bin/java"
+    - name: 2.3 Register Java 11 in the alternatives system
+      ansible.builtin.command: >
+        alternatives --install /usr/bin/java java "{{ java_extracted_path.stdout }}/bin/java" 10000
+
+    - name: 2.4 Set Java 11 as the system default
+      ansible.builtin.command: >
+        alternatives --set java "{{ java_extracted_path.stdout }}/bin/java"
 
     - name: 3. Install MettleCI Workbench via local RPM
       ansible.builtin.dnf:
