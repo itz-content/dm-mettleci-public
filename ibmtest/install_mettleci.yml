@@ -25,10 +25,28 @@
         msg: "Expected exactly 1 MettleCI RPM in {{ source_dir }}, but found {{ found_rpm.matched }}."
       when: found_rpm.matched != 1
 
-    - name: 2. Ensure Java is installed (MettleCI Prerequisite)
-      ansible.builtin.dnf:
-        name: java-11-openjdk # Adjust to java-1.8.0-openjdk if required by your environment
-        state: present
+    - name: 2. Ensure the Linux JVM directory exists
+      ansible.builtin.file:
+        path: /usr/lib/jvm
+        state: directory
+        mode: '0755'
+
+    - name: 2.1 Extract the Java tarball
+      ansible.builtin.unarchive:
+        src: "/home/itzuser/{{ java_tar }}"
+        dest: "/usr/lib/jvm"
+        remote_src: true
+
+    - name: 2.2 Find the exact name of the extracted Java folder
+      ansible.builtin.shell: "ls -d /usr/lib/jvm/jdk-11* | head -n 1"
+      register: java_extracted_path
+      changed_when: false
+
+    - name: 2.3 Register and set Java 11 as the system default
+      community.general.alternatives:
+        name: java
+        link: /usr/bin/java
+        path: "{{ java_extracted_path.stdout }}/bin/java"
 
     - name: 3. Install MettleCI Workbench via local RPM
       ansible.builtin.dnf:
