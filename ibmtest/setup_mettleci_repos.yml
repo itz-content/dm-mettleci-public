@@ -41,7 +41,7 @@
             copy_path: "*/."  # Copies everything inside the first intermediate folder
           - name: electromart
             zip: "{{ found_template.files[0].path }}"
-            copy_path: "*/mettleci-repo-template/." # Drills down to skip the shared-libraries folder
+            copy_path: "mettleci-repo-template/." # Drills down to skip the shared-libraries folder
 
     - name: 4. Ensure target repository directories exist
       ansible.builtin.file:
