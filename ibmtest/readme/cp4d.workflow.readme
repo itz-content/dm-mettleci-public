@@ -1,3 +1,0 @@
-git clone -b main https://github.com/itz-content/dm-mettleci-public.git
-cd dm-mettleci-public/ibmtest/cp4d
-bash deploy-cp4d-main.sh
