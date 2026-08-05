@@ -31,22 +31,27 @@
         state: directory
         mode: '0755'
 
-    - name: 2.1 Extract the Java tarball
+    - name: 2.1 Find the downloaded OpenJDK tarball
+      ansible.builtin.shell: "ls /home/itzuser/OpenJDK*.tar.gz | head -n 1"
+      register: downloaded_java_tar
+      changed_when: false
+
+    - name: 2.2 Extract the Java tarball
       ansible.builtin.unarchive:
-        src: "/home/itzuser/{{ java_tar }}"
+        src: "{{ downloaded_java_tar.stdout }}"
         dest: "/usr/lib/jvm"
         remote_src: true
 
-    - name: 2.2 Find the exact name of the extracted Java folder
+    - name: 2.3 Find the exact name of the extracted Java folder
       ansible.builtin.shell: "ls -d /usr/lib/jvm/jdk-11* | head -n 1"
       register: java_extracted_path
       changed_when: false
 
-    - name: 2.3 Register Java 11 in the alternatives system
+    - name: 2.4 Register Java 11 in the alternatives system
       ansible.builtin.command: >
         alternatives --install /usr/bin/java java "{{ java_extracted_path.stdout }}/bin/java" 10000
 
-    - name: 2.4 Set Java 11 as the system default
+    - name: 2.5 Set Java 11 as the system default
       ansible.builtin.command: >
         alternatives --set java "{{ java_extracted_path.stdout }}/bin/java"
 
