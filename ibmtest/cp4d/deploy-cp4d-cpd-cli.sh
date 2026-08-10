@@ -93,3 +93,49 @@ source ~/.bashrc || true
 # Verify Engine
 echo "[INFO] Verifying installed CLI binary version..."
 cpd-cli version
+
+# ==============================================================================
+# PHASE: Cluster Preparation & OLM Installation
+# ==============================================================================
+echo "[INFO] Starting Cluster Preparation for OpenShift..."
+
+# Define your deployment variables
+export CPD_VERSION="5.0.0" # Update this to match your target version
+export OLM_NAMESPACE="cpd-operators"
+export INSTANCE_NAMESPACE="cpd-instance"
+export COMPONENTS="cpfs,zen,datastage" # Update with your specific component IDs
+
+echo "==> 1. Ensuring IBM Operator Catalog is present in the cluster..."
+cat <<EOF | oc apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Operator Catalog
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-operator-catalog:latest
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+EOF
+
+echo "==> Waiting for ibm-operator-catalog to become READY..."
+sleep 10
+oc wait --for=condition=Ready catalogsource/ibm-operator-catalog -n openshift-marketplace --timeout=300s
+
+echo "==> 2. Setting up instance topology (Namespaces and RBAC)..."
+cpd-cli manage setup-instance-topology \
+  --cpd_operator_ns="${OLM_NAMESPACE}" \
+  --cpd_instance_ns="${INSTANCE_NAMESPACE}" \
+  --license_acceptance=true
+
+echo "==> 3. Applying OLM (Deploying Operators into ${OLM_NAMESPACE})..."
+cpd-cli manage apply-olm \
+  --release="${CPD_VERSION}" \
+  --cpd_operator_ns="${OLM_NAMESPACE}" \
+  --components="${COMPONENTS}"
+
+echo "[SUCCESS] Cluster preparation complete! Operators are standing by."
