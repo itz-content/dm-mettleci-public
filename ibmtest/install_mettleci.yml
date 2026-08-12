@@ -69,7 +69,15 @@
         group: dstage
         mode: '0755'
 
-    - name: 5. Deploy License File from itzuser home directory
+    - name: 5. Deploy setupENV.sh script from repository
+      ansible.builtin.copy:
+        src: setupENV.sh
+        dest: "{{ mci_install_dir }}/setupENV.sh"
+        owner: mciworkb
+        group: dstage
+        mode: '0755'  
+
+    - name: 5.1 Deploy License File from itzuser home directory
       ansible.builtin.copy:
         src: "{{ source_dir }}/{{ license_file }}"
         dest: "{{ mci_install_dir }}/mettleci.lic"
