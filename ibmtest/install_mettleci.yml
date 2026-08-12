@@ -72,7 +72,7 @@
     - name: 5. Deploy setupENV.sh script from repository
       ansible.builtin.copy:
         src: setupENV.sh
-        dest: "{{ mci_install_dir }}/setupENV.sh"
+        dest: "{{ mci_install_dir }}/setupEnv.sh"
         owner: mciworkb
         group: dstage
         mode: '0755'  
