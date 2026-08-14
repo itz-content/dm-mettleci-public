@@ -25,4 +25,7 @@
 
 - name: Execute Mettleci Installation
   import_playbook: install_mettleci.yml
+
+- name: Execute PostgreSQL Installation
+  import_playbook: install_postgresql.yml
     
