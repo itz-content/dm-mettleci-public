@@ -1,1 +1,6 @@
 open at 10.10.10.201:58081
+
+git_user: "itzuser"
+gitea_password: "G1t3a00!"
+gitea_host: "10.10.10.201" # RHEL 9 IP
+gitea_port: "53000"

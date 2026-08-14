@@ -9,6 +9,8 @@ $ZipFile            = "C:\is_temp\IS_V11.7.1.6_WINDOWS_CLIENT.zip"
 $ExtractDir         = "C:\is_temp\IS_Client_Extract"
 $WinScpObjKey       = "binaries/WinSCP-6.5.6-Setup.exe"
 $WinScpDownloadPath = "C:\is_temp\WinSCP-6.5.6-Setup.exe"
+$PgAdminObjKey       = "binaries/pgadmin4-8.11-x64.exe" # Update filename if different in S3
+$PgAdminDownloadPath = "C:\is_temp\pgadmin4-installer.exe"
 
 # --- Exact Path Rules matching your is-client layout ---
 $TargetClientDir    = "$ExtractDir\is-client"
@@ -81,11 +83,29 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 
 # 2b. WinSCP Installation
 $WinScpPath = "C:\Program Files (x86)\WinSCP\WinSCP.exe"
-if (-not (Test-Path -Path $WinScpPath)) {
+if (-not (Test-Path -Path $WinScpPath)) { 
     aws s3 cp "s3://$env:AWS_BUCKET_NAME/$WinScpObjKey" "$WinScpDownloadPath" --endpoint-url $env:AWS_ENDPOINT_URL
     $OuterArguments = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCLOSEAPPLICATIONS /ALLUSERS'
     Start-Process -FilePath $WinScpDownloadPath -ArgumentList $OuterArguments -Wait -NoNewWindow | Out-Null
     if (Test-Path $WinScpDownloadPath) { Remove-Item $WinScpDownloadPath -Force }
+}
+
+# 2c. pgAdmin 4 Installation
+$PgAdminInstallDir = "C:\Program Files\pgAdmin 4"
+if (-not (Test-Path -Path $PgAdminInstallDir)) { 
+    Write-Host "pgAdmin 4 not found. Downloading from S3..." -ForegroundColor Cyan
+    aws s3 cp "s3://$env:AWS_BUCKET_NAME/$PgAdminObjKey" "$PgAdminDownloadPath" --endpoint-url $env:AWS_ENDPOINT_URL
+    
+    Write-Host "Executing silent install for pgAdmin 4..." -ForegroundColor Cyan
+    $PgAdminArgs = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLUSERS'
+    Start-Process -FilePath $PgAdminDownloadPath -ArgumentList $PgAdminArgs -Wait -NoNewWindow | Out-Null
+    
+    if (Test-Path $PgAdminDownloadPath) { 
+        Remove-Item $PgAdminDownloadPath -Force 
+    }
+    Write-Host "[SUCCESS] pgAdmin 4 installed successfully." -ForegroundColor Green
+} else {
+    Write-Host "[INFO] pgAdmin 4 is already installed. Skipping." -ForegroundColor Gray
 }
 
 # --- 3. Download from IBM COS (S3) via AWS CLI ---
