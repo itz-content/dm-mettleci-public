@@ -1,0 +1,119 @@
+---
+- name: Install and Configure Gitea Natively on RHEL 9
+  hosts: localhost 
+  become: yes
+
+  vars:
+    gitea_binary_src: "/home/itzuser/binaries/gitea" 
+    gitea_port: "53000" 
+    gitea_user: "itzuser"
+    gitea_password: "G1t3a00"  # Your standard lab password
+    gitea_email: "itzuser@example.com"
+
+  tasks:
+    - name: 1. Ensure the git package is installed
+      ansible.builtin.dnf:
+        name: git
+        state: present
+
+    - name: 2. Create the system git user for Gitea
+      ansible.builtin.user:
+        name: git
+        system: yes
+        shell: /bin/bash
+        home: /home/git
+        create_home: yes
+
+    - name: 3. Create required Gitea directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: git
+        group: git
+        mode: '0750'
+      loop:
+        - /var/lib/gitea
+        - /var/lib/gitea/custom
+        - /var/lib/gitea/data
+        - /var/lib/gitea/log
+        - /etc/gitea
+
+    - name: 4. Copy the local Gitea binary to the executable path
+      ansible.builtin.copy:
+        src: "{{ gitea_binary_src }}"
+        dest: /usr/local/bin/gitea
+        owner: root
+        group: root
+        mode: '0755'
+        remote_src: yes 
+
+    - name: 5. Seed minimal app.ini to bypass web installer
+      ansible.builtin.copy:
+        dest: /etc/gitea/app.ini
+        owner: git
+        group: git
+        mode: '0640'
+        content: |
+          [database]
+          DB_TYPE = sqlite3
+          PATH = /var/lib/gitea/data/gitea.db
+
+          [server]
+          HTTP_PORT = {{ gitea_port }}
+          DOMAIN = localhost
+          ROOT_URL = http://localhost:{{ gitea_port }}/
+
+          [security]
+          INSTALL_LOCK = true
+
+    - name: 6. Create the Gitea systemd service file
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/gitea.service
+        content: |
+          [Unit]
+          Description=Gitea (Git with a cup of tea)
+          After=network.target
+
+          [Service]
+          RestartSec=2s
+          Type=simple
+          User=git
+          Group=git
+          WorkingDirectory=/var/lib/gitea/
+          ExecStart=/usr/local/bin/gitea web --config /etc/gitea/app.ini
+          Restart=always
+          Environment=USER=git HOME=/home/git GITEA_WORK_DIR=/var/lib/gitea
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: 7. Start and enable the Gitea service
+      ansible.builtin.systemd:
+        name: gitea
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: 8. Wait for Gitea web service to come online
+      ansible.builtin.uri:
+        url: "http://localhost:{{ gitea_port }}"
+        status_code: [200, 404]
+      register: result
+      until: result.status == 200 or result.status == 404
+      retries: 15
+      delay: 5
+
+    - name: 9. Bootstrap the initial Gitea Admin User via CLI
+      ansible.builtin.shell: |
+        sudo -u git GITEA_WORK_DIR=/var/lib/gitea /usr/local/bin/gitea admin user create \
+          --admin \
+          --username "{{ gitea_user }}" \
+          --password "{{ gitea_password }}" \
+          --email "{{ gitea_email }}" \
+          --must-change-password=false \
+          --config /etc/gitea/app.ini
+      register: bootstrap_user
+      changed_when: "'created' in bootstrap_user.stdout"
+      failed_when: 
+        - bootstrap_user.rc != 0
+        - "'already exists' not in bootstrap_user.stderr"

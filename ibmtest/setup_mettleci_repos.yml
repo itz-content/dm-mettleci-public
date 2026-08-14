@@ -9,6 +9,10 @@
     base_dir: "/home/itzuser/LocalRepos"
     git_email: "itzuser@example.com"
     git_user: "itzuser"
+    gitea_password: "G1t3a00"
+    gitea_host: "10.10.10.201" # RHEL 9 IP
+    gitea_port: "53000"
+    gitea_url: "http://{{ gitea_host }}:{{ gitea_port }}"
 
   tasks:
     - name: 1. Find the Compliance Rules zip dynamically
@@ -84,7 +88,32 @@
         git config --local user.email "{{ git_email }}"
         git config --local user.name "{{ git_user }}"
         git add .
-        git commit -m "Initial commit: Extracted base files for {{ item.name }}"
+        git commit -m "Initial commit: Extracted base files for {{ item.name }}" || true
       args:
         chdir: "{{ base_dir }}/{{ item.name }}" 
+      loop: "{{ repos }}"
+
+    - name: 10. Create empty repositories in Gitea via REST API
+      ansible.builtin.uri:
+        url: "{{ gitea_url }}/api/v1/user/repos"
+        method: POST
+        url_username: "{{ git_user }}"
+        url_password: "{{ gitea_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body:
+          name: "{{ item.name }}"
+          description: "MettleCI {{ item.name }} repository"
+          private: true
+        status_code: [201, 409] 
+      loop: "{{ repos }}"
+
+    - name: 11. Push local repositories to Gitea
+      ansible.builtin.shell: |
+        git remote remove origin || true
+        git remote add origin "http://{{ git_user }}:{{ gitea_password }}@{{ gitea_host }}:{{ gitea_port }}/{{ git_user }}/{{ item.name }}.git"
+        git branch -M main
+        git push -u origin main
+      args:
+        chdir: "{{ base_dir }}/{{ item.name }}"
       loop: "{{ repos }}"
