@@ -1,6 +1,6 @@
 ---
 - name: Install and Configure PostgreSQL on RHEL9 for DataStage
-  hosts: all  # Update this to match your RHEL9 target group
+  hosts: localhost
   become: yes # Requires root privileges
 
   vars:
@@ -16,27 +16,52 @@
       args:
         creates: /var/lib/pgsql/data/postgresql.conf # Ensures this only runs once
 
-    - name: 3. Enable and Start PostgreSQL Service
+    - name: 3. Configure PostgreSQL to listen on all network interfaces
+      ansible.builtin.lineinfile:
+        path: /var/lib/pgsql/data/postgresql.conf
+        regexp: "^#?listen_addresses"
+        line: "listen_addresses = '*'"
+        state: present
+      notify: restart postgresql
+
+    - name: 4. Allow Windows host to connect via pg_hba.conf
+      ansible.builtin.lineinfile:
+        path: /var/lib/pgsql/data/pg_hba.conf
+        # It's good practice to use variables, but hardcoding your specific IP works too:
+        line: "host    all             all             10.10.10.202/32         scram-sha-256"
+        insertafter: EOF
+        state: present
+      notify: restart postgresql
+
+    - name: 5. Open RHEL 9 internal OS firewall for PostgreSQL
+      ansible.posix.firewalld:
+        service: postgresql
+        permanent: yes
+        state: enabled
+        immediate: yes
+      ignore_errors: yes # Fails safely if firewalld isn't running on the VM    
+
+    - name: 6. Enable and Start PostgreSQL Service
       ansible.builtin.systemd:
         name: postgresql
         state: started
         enabled: yes
     
-    - name: 4. Check if target database already exists #Start Restore Phase
+    - name: 7. Check if target database already exists #Start Restore Phase
       ansible.builtin.shell: |
         psql -tAc "SELECT 1 FROM pg_database WHERE datname='demo';"
       become_user: postgres
       register: db_exists
       changed_when: false
 
-    - name: 5. Create the empty target database
+    - name: 8. Create the empty target database
       ansible.builtin.command: createdb demo
       become_user: postgres
       when: db_exists.stdout != "1"
 
-    - name: 6. Restore schemas and data from S3 dump
+    - name: 9. Restore schemas and data from S3 dump
       ansible.builtin.command: >
-        pg_restore -d target_db_name -1 /home/itzuser/electromart_demo.backup
+        pg_restore -d demo -1 /home/itzuser/electromart_demo.backup
       become_user: postgres
       when: db_exists.stdout != "1"
 
