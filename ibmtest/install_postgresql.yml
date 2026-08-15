@@ -34,12 +34,11 @@
       notify: restart postgresql
 
     - name: 5. Open RHEL 9 internal OS firewall for PostgreSQL
-      ansible.posix.firewalld:
-        service: postgresql
-        permanent: yes
-        state: enabled
-        immediate: yes
-      ignore_errors: yes # Fails safely if firewalld isn't running on the VM    
+      ansible.builtin.shell: |
+        firewall-cmd --add-service=postgresql --permanent
+        firewall-cmd --reload
+      ignore_errors: yes
+      changed_when: false   
 
     - name: 6. Enable and Start PostgreSQL Service
       ansible.builtin.systemd:
