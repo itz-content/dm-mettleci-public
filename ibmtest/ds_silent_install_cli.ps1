@@ -1,3 +1,6 @@
+# Start recording everything that happens in the console
+Start-Transcript -Path "C:\is_temp\master_deployment_script.log" -Append
+
 # ==============================================================================
 # Techzone postDeploy Script: Pull IBM Client via AWS CLI
 # ==============================================================================
@@ -85,7 +88,7 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 $WinScpPath = "C:\Program Files (x86)\WinSCP\WinSCP.exe"
 if (-not (Test-Path -Path $WinScpPath)) { 
     aws s3 cp "s3://$env:AWS_BUCKET_NAME/$WinScpObjKey" "$WinScpDownloadPath" --endpoint-url $env:AWS_ENDPOINT_URL
-    $OuterArguments = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCLOSEAPPLICATIONS /ALLUSERS'
+    $OuterArguments = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCLOSEAPPLICATIONS /ALLUSERS /LOG="C:\is_temp\winscp_install.log"'
     Start-Process -FilePath $WinScpDownloadPath -ArgumentList $OuterArguments -Wait -NoNewWindow | Out-Null
     if (Test-Path $WinScpDownloadPath) { Remove-Item $WinScpDownloadPath -Force }
 }
@@ -97,7 +100,7 @@ if (-not (Test-Path -Path $PgAdminInstallDir)) {
     aws s3 cp "s3://$env:AWS_BUCKET_NAME/$PgAdminObjKey" "$PgAdminDownloadPath" --endpoint-url $env:AWS_ENDPOINT_URL
     
     Write-Host "Executing silent install for pgAdmin 4..." -ForegroundColor Cyan
-    $PgAdminArgs = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLUSERS'
+    $PgAdminArgs = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLUSERS /LOG="C:\is_temp\pgadmin_install.log"'
     Start-Process -FilePath $PgAdminDownloadPath -ArgumentList $PgAdminArgs -Wait -NoNewWindow | Out-Null
     
     if (Test-Path $PgAdminDownloadPath) { 
@@ -181,3 +184,6 @@ if ($fileContent -match "dsrpc") {
 
 Write-Host "All installation processing threads have finished cleanly!" -ForegroundColor Green
 Write-Host "Automation phase concluded! Target ZIP payload preserved at $ZipFile" -ForegroundColor Green
+
+# Stop recording
+Stop-Transcript
