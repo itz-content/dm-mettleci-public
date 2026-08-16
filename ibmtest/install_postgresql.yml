@@ -6,11 +6,11 @@
   vars:
     
   tasks:
-    - name: 0. Reset stream and enable PostgreSQL 16
-      ansible.builtin.shell: dnf module reset postgresql -y && dnf module enable postgresql:16 -y
+    - name: 0. Reset stream and enable PostgreSQL 18
+      ansible.builtin.shell: dnf module reset postgresql -y && dnf module enable postgresql:18 -y
       changed_when: false
       
-    - name: 1. Install PostgreSQL 16 Server and Client (Forces upgrade)
+    - name: 1. Install PostgreSQL 18 Server and Client (Forces upgrade)
       ansible.builtin.dnf:
         name: 
           - postgresql         # The client tool (pg_restore)
