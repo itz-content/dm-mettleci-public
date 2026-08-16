@@ -35,7 +35,7 @@
       ansible.builtin.lineinfile:
         path: /var/lib/pgsql/data/pg_hba.conf
         # It's good practice to use variables, but hardcoding your specific IP works too:
-        line: "host    all             all             10.10.10.202/32         scram-sha-256"
+        line: "host    all             all             10.10.10.202/32         md5"
         insertafter: EOF
         state: present
       notify: restart postgresql
