@@ -16,6 +16,13 @@
       args:
         creates: /var/lib/pgsql/data/postgresql.conf # Ensures this only runs once
 
+    - name: 2.1 Set password for the default postgres user
+      ansible.builtin.shell: |
+        psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+      become: yes
+      become_user: postgres
+      # This task is naturally idempotent; running it twice just overwrites the password with the same string.
+
     - name: 3. Configure PostgreSQL to listen on all network interfaces
       ansible.builtin.lineinfile:
         path: /var/lib/pgsql/data/postgresql.conf
