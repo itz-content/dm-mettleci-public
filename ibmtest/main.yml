@@ -14,17 +14,17 @@
   import_playbook: transfer_binaries_S3.yml
   
 - name: Execute Standalone Db2 Installation
-  import_playbook: execute_install_db2.yml
+  import_playbook: install_db2.yml
   
 - name: Execute IIS Installation
-  import_playbook: execute_install_iis_tiers.yml
+  import_playbook: install_iis_tiers.yml
 
 #Build Infrastructure
 - name: Execute PostgreSQL Installation
   import_playbook: install_postgresql.yml 
 
 - name: Execute GiteaInstallation
-  import_playbook: execute_install_gitea.yml  
+  import_playbook: install_gitea.yml  
 
 - name: Setup MettleCI Repositories
   import_playbook: setup_mettleci_repos.yml
