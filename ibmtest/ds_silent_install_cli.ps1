@@ -12,7 +12,7 @@ $ZipFile            = "C:\is_temp\IS_V11.7.1.6_WINDOWS_CLIENT.zip"
 $ExtractDir         = "C:\is_temp\IS_Client_Extract"
 $WinScpObjKey       = "binaries/WinSCP-6.5.6-Setup.exe"
 $WinScpDownloadPath = "C:\is_temp\WinSCP-6.5.6-Setup.exe"
-$PgAdminObjKey       = "binaries/pgadmin4-8.11-x64.exe" # Update filename if different in S3
+$PgAdminObjKey       = "binaries/pgadmin4-9.17-x64.exe" # Update filename if different in S3
 $PgAdminDownloadPath = "C:\is_temp\pgadmin4-installer.exe"
 
 # --- Exact Path Rules matching your is-client layout ---
