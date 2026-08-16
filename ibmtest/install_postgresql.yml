@@ -6,6 +6,10 @@
   vars:
     
   tasks:
+    - name: Enable PostgreSQL 16 module stream
+      ansible.builtin.shell: dnf module enable postgresql:16 -y
+      changed_when: false
+      
     - name: 1. Install PostgreSQL Server #Start Installation Phase
       ansible.builtin.dnf:
         name: postgresql-server
@@ -67,7 +71,7 @@
 
     - name: 9. Restore schemas and data from S3 dump
       ansible.builtin.command: >
-        pg_restore -d demo -1 /home/itzuser/electromart_demo.backup
+        pg_restore -d demo -1 --no-owner --no-privileges /home/itzuser/electromart_demo.backup
       become_user: postgres
       when: db_exists.stdout != "1"
 
