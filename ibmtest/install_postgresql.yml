@@ -39,6 +39,22 @@
         state: present
       notify: restart postgresql
 
+    - name: 4. Allow Windows host to connect via pg_hba.conf
+      ansible.builtin.lineinfile:
+        path: /var/lib/pgsql/data/pg_hba.conf
+        line: "host    all             all             10.10.10.202/32         md5"
+        insertafter: EOF
+        state: present
+      notify: restart postgresql
+
+    - name: 4.1. Change default local authentication from ident to md5
+      ansible.builtin.replace:
+        path: /var/lib/pgsql/data/pg_hba.conf
+        # This looks for the word 'ident' at the end of the line and swaps it to 'md5'
+        regexp: 'ident$'
+        replace: 'md5'
+      notify: restart postgresql  
+
     - name: 5. Open RHEL 9 internal OS firewall for PostgreSQL
       ansible.builtin.shell: |
         firewall-cmd --add-service=postgresql --permanent
