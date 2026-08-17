@@ -61,8 +61,14 @@ New-Item -ItemType File -Path $TargetSshFile -Value "" -Force | Out-Null
 
 # --- 1c. Create Desktop Shortcut to the SSH Key ---
 Write-Host "Creating Desktop shortcut for the SSH key..." -ForegroundColor Cyan
-$DesktopPath = [Environment]::GetFolderPath('Desktop')
-$ShortcutPath = Join-Path -Path $DesktopPath -ChildPath "VM_SSH_Key.lnk"
+$DesktopPath = "C:\Users\itzuser\Desktop"
+
+# Safety net: Ensure the Desktop folder exists just in case itzuser hasn't logged in yet
+if (-not (Test-Path -Path $DesktopPath)) {
+    New-Item -ItemType Directory -Force -Path $DesktopPath | Out-Null
+}
+
+$ShortcutPath = Join-Path -Path $DesktopPath -ChildPath "vm_ssh_key.lnk"
 
 # Use the WScript.Shell COM object to generate the shortcut
 $WshShell = New-Object -ComObject WScript.Shell
@@ -70,8 +76,6 @@ $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
 $Shortcut.TargetPath = $TargetSshFile
 $Shortcut.Description = "Edit the VM SSH Key"
 $Shortcut.Save()
-
-Write-Host "Shortcut created at: $ShortcutPath" -ForegroundColor Green
 
 # --- 2. Install AWS CLI v2 Silently ---
 $AwsCliPath = "C:\Program Files\Amazon\AWSCLIV2\aws.exe"
