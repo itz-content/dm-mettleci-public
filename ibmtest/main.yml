@@ -23,7 +23,7 @@
 - name: Execute PostgreSQL Installation
   import_playbook: install_postgresql.yml 
 
-- name: Execute GiteaInstallation
+- name: Execute Gitea Installation
   import_playbook: install_gitea.yml  
 
 - name: Setup MettleCI Repositories
