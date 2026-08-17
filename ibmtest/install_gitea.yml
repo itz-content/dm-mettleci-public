@@ -4,13 +4,28 @@
   become: yes
 
   vars:
-    gitea_binary_src: "/home/itzuser/binaries/gitea" 
+    gitea_binary_src: "/home/itzuser/gitea-1.27.0-linux-amd64" 
     gitea_port: "53000" 
     gitea_user: "itzuser"
-    gitea_password: "G1t3a00"  # Your standard lab password
+    gitea_password: "giteapwd"  # Your standard lab password
     gitea_email: "itzuser@example.com"
+    gitea_db_pass: "postgres" # Internal database password
 
   tasks:
+    - name: 0.1 Create Gitea PostgreSQL user
+      ansible.builtin.shell: |
+        /usr/pgsql-18/bin/psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='gitea';" | grep -q 1 || \
+        /usr/pgsql-18/bin/psql -c "CREATE USER gitea WITH PASSWORD '{{ gitea_db_pass }}';"
+      become_user: postgres
+      changed_when: false
+
+    - name: 0.2 Create Gitea PostgreSQL database
+      ansible.builtin.shell: |
+        /usr/pgsql-18/bin/psql -tAc "SELECT 1 FROM pg_database WHERE datname='gitea';" | grep -q 1 || \
+        /usr/pgsql-18/bin/psql -c "CREATE DATABASE gitea OWNER gitea;"
+      become_user: postgres
+      changed_when: false
+
     - name: 1. Ensure the git package is installed
       ansible.builtin.dnf:
         name: git
@@ -55,8 +70,12 @@
         mode: '0640'
         content: |
           [database]
-          DB_TYPE = sqlite3
-          PATH = /var/lib/gitea/data/gitea.db
+          DB_TYPE = postgres
+          HOST = 127.0.0.1:5432
+          NAME = gitea
+          USER = gitea
+          PASSWD = {{ gitea_db_pass }}
+          SCHEMA = public
 
           [server]
           HTTP_PORT = {{ gitea_port }}
@@ -72,7 +91,7 @@
         content: |
           [Unit]
           Description=Gitea (Git with a cup of tea)
-          After=network.target
+          After=network.target postgresql-18.service
 
           [Service]
           RestartSec=2s
@@ -86,6 +105,13 @@
 
           [Install]
           WantedBy=multi-user.target
+
+    - name: 6.5 Open RHEL 9 internal OS firewall for Gitea port
+      ansible.builtin.shell: |
+        firewall-cmd --add-port={{ gitea_port }}/tcp --permanent
+        firewall-cmd --reload
+      ignore_errors: yes
+      changed_when: false
 
     - name: 7. Start and enable the Gitea service
       ansible.builtin.systemd:
