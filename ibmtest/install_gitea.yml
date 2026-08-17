@@ -14,15 +14,15 @@
   tasks:
     - name: 0.1 Create Gitea PostgreSQL user
       ansible.builtin.shell: |
-        /usr/pgsql-18/bin/psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='gitea';" | grep -q 1 || \
-        /usr/pgsql-18/bin/psql -c "CREATE USER gitea WITH PASSWORD '{{ gitea_db_pass }}';"
+        /bin/psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='gitea';" | grep -q 1 || \
+        /bin/psql -c "CREATE USER gitea WITH PASSWORD '{{ gitea_db_pass }}';"
       become_user: postgres
       changed_when: false
 
     - name: 0.2 Create Gitea PostgreSQL database
       ansible.builtin.shell: |
-        /usr/pgsql-18/bin/psql -tAc "SELECT 1 FROM pg_database WHERE datname='gitea';" | grep -q 1 || \
-        /usr/pgsql-18/bin/psql -c "CREATE DATABASE gitea OWNER gitea;"
+        /bin/psql -tAc "SELECT 1 FROM pg_database WHERE datname='gitea';" | grep -q 1 || \
+        /bin/psql -c "CREATE DATABASE gitea OWNER gitea;"
       become_user: postgres
       changed_when: false
 
