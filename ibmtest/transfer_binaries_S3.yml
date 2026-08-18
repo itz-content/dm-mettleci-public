@@ -14,7 +14,6 @@
     main_tar: "IS_V11716_Linux_x86_multi.tar.gz"
     spec_zip: "IS_V11716.bundle_spec_file_mult.zip"
     db2_tar: "v11.5.8_linuxx64_server_dec.tar.gz"
-    java_tar: "OpenJDK11U-jdk_x64_linux_hotspot_11.0.32_9.tar.gz"
     gitea_bin: "gitea-1.27.0-linux-amd64"
 
   tasks:
@@ -83,15 +82,7 @@
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
 
-    - name: 6.2 Copy OpenJDK tarball to itzuser Home using AWS CLI
-      shell: >
-        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
-        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
-        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/{{ dm_software }}/{{ java_tar }} /home/itzuser/
-        --endpoint-url {{ aws_endpoint_url }}
-      no_log: true
-
-    - name: 6.3. Copy Gitea binary to itzuser Home using AWS CLI
+    - name: 6.2. Copy Gitea binary to itzuser Home using AWS CLI
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
@@ -99,12 +90,12 @@
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
       
-    - name: 6.4. Make Gitea binary executable
+    - name: 6.3. Make Gitea binary executable
       file:
         path: "/home/itzuser/{{ gitea_bin }}"
         mode: '0755'
 
-    - name: 6.5. Set itzuser Ownership on Copied RPMs
+    - name: 6.4. Set itzuser Ownership on Copied RPMs
       file:
         path: "/home/itzuser"
         owner: itzuser
