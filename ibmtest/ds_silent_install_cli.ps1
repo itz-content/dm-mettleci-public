@@ -14,6 +14,8 @@ $WinScpObjKey       = "binaries/WinSCP-6.5.6-Setup.exe"
 $WinScpDownloadPath = "C:\is_temp\WinSCP-6.5.6-Setup.exe"
 $PgAdminObjKey       = "binaries/pgadmin4-9.17-x64.exe" # Update filename if different in S3
 $PgAdminDownloadPath = "C:\is_temp\pgadmin4-installer.exe"
+$MettleCiLicObjKey  = "dm_software/mettleci.lic"
+$MettleCiLicPath    = "C:\is_temp\mettleci.lic"
 
 # --- Exact Path Rules matching your is-client layout ---
 $TargetClientDir    = "$ExtractDir\is-client"
@@ -113,6 +115,16 @@ if (-not (Test-Path -Path $PgAdminInstallDir)) {
     Write-Host "[SUCCESS] pgAdmin 4 installed successfully." -ForegroundColor Green
 } else {
     Write-Host "[INFO] pgAdmin 4 is already installed. Skipping." -ForegroundColor Gray
+}
+
+# 2d. Download MettleCI License
+Write-Host "Downloading MettleCI license from S3..." -ForegroundColor Cyan
+aws s3 cp "s3://$env:AWS_BUCKET_NAME/$MettleCiLicObjKey" "$MettleCiLicPath" --endpoint-url $env:AWS_ENDPOINT_URL
+
+if (Test-Path $MettleCiLicPath) {
+    Write-Host "[SUCCESS] Successfully downloaded mettleci.lic" -ForegroundColor Green
+} else {
+    Write-Error "Error: Failed to download mettleci.lic from S3."
 }
 
 # --- 3. Download from IBM COS (S3) via AWS CLI ---
