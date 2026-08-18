@@ -10,6 +10,7 @@
     gitea_password: "giteapwd"  # Your standard lab password
     gitea_email: "itzuser@example.com"
     gitea_db_pass: "postgres" # Internal database password
+    gitea_domain: "10.10.10.201"
 
   tasks:
     - name: 0.1 Create Gitea PostgreSQL user
@@ -79,8 +80,8 @@
 
           [server]
           HTTP_PORT = {{ gitea_port }}
-          DOMAIN = localhost
-          ROOT_URL = http://localhost:{{ gitea_port }}/
+          DOMAIN = {{ gitea_domain }}
+          ROOT_URL = http://{{ gitea_domain }}:{{ gitea_port }}/
 
           [security]
           INSTALL_LOCK = true
