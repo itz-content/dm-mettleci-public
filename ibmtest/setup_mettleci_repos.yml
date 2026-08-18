@@ -9,7 +9,7 @@
     base_dir: "/home/itzuser/LocalRepos"
     git_email: "itzuser@example.com"
     git_user: "itzuser"
-    gitea_password: "G1t3a00"
+    gitea_password: "giteapwd"
     gitea_host: "10.10.10.201" # RHEL 9 IP
     gitea_port: "53000"
     gitea_url: "http://{{ gitea_host }}:{{ gitea_port }}"
