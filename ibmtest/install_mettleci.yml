@@ -118,6 +118,23 @@
         group: dstage
         mode: '0644' # Owner read/write, everyone else read-only
     
+    - name: 5.6 Find the MettleCI UI jar file dynamically
+      ansible.builtin.find:
+        paths: "{{ mci_install_dir }}"
+        patterns: "mettle-ui-*.jar"
+      register: found_mettle_jar
+
+    - name: 5.7 Safety Check - Ensure exactly one MettleCI UI jar was found
+      ansible.builtin.fail:
+        msg: "Expected exactly 1 mettle-ui jar in {{ mci_install_dir }}, but found {{ found_mettle_jar.matched }}."
+      when: found_mettle_jar.matched != 1
+
+    - name: 5.8 Trust DataStage Services Tier certificate
+      ansible.builtin.command:
+        cmd: "java -jar {{ found_mettle_jar.files[0].path }} trust-datastage config.yml"
+        chdir: "{{ mci_install_dir }}"
+      notify: restart mettleci
+
     - name: 6. Ensure MettleCI Service is Started (Legacy Init)
       ansible.builtin.shell: service dm-mettleci-workbench start
       register: service_status
