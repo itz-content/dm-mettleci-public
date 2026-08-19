@@ -97,6 +97,27 @@
         mode: '0600'  # Owner-only read/write
       notify: restart mettleci
 
+    - name: 5.3 Generate 2048-bit RSA key pair (workbench.key)
+      ansible.builtin.command:
+        # -t rsa (RSA key), -b 2048 (2048-bit), -q (quiet), -N "" (no passphrase)
+        cmd: ssh-keygen -t rsa -b 2048 -f {{ mci_install_dir }}/workbench.key -q -N ""
+        # The 'creates' flag makes this idempotent: it will NOT overwrite the key if it already exists
+        creates: "{{ mci_install_dir }}/workbench.key"
+
+    - name: 5.4 Ensure proper ownership and permissions for the private key
+      ansible.builtin.file:
+        path: "{{ mci_install_dir }}/workbench.key"
+        owner: mciworkb
+        group: dstage
+        mode: '0600' # Owner-only read/write
+
+    - name: 5.5 Ensure proper ownership and permissions for the public key
+      ansible.builtin.file:
+        path: "{{ mci_install_dir }}/workbench.key.pub"
+        owner: mciworkb
+        group: dstage
+        mode: '0644' # Owner read/write, everyone else read-only
+    
     - name: 6. Ensure MettleCI Service is Started (Legacy Init)
       ansible.builtin.shell: service dm-mettleci-workbench start
       register: service_status
