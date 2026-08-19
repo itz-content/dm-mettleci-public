@@ -1,5 +1,9 @@
 open workbench at 10.10.10.201:58081
 
+isadmin
+9BaAMKZjzmTiDcJtRb
+
+
 git_user: "itzuser"
 gitea_password: "giteapwd"
 gitea_host: "10.10.10.201" # RHEL 9 IP

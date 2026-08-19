@@ -90,7 +90,7 @@
     - name: 5.2 Deploy config.yml from itzuser home directory
       ansible.builtin.copy:
         src: "{{ source_dir }}/config.yml.cpy"
-        dest: "{{ mci_install_dir }}/config.yml.cpy"
+        dest: "{{ mci_install_dir }}/config.yml"
         remote_src: yes
         owner: mciworkb
         group: dstage
