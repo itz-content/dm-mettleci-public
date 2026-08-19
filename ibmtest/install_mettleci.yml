@@ -99,8 +99,7 @@
 
     - name: 5.3 Generate 2048-bit RSA key pair (workbench.key)
       ansible.builtin.command:
-        # -t rsa (RSA key), -b 2048 (2048-bit), -q (quiet), -N "" (no passphrase)
-        cmd: ssh-keygen -t rsa -b 2048 -f {{ mci_install_dir }}/workbench.key -q -N ""
+        cmd: ssh-keygen -t rsa -b 4096 -f {{ mci_install_dir }}/workbench.key -q -N ""
         # The 'creates' flag makes this idempotent: it will NOT overwrite the key if it already exists
         creates: "{{ mci_install_dir }}/workbench.key"
 
