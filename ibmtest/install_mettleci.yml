@@ -13,6 +13,11 @@
     # Default installation directory for MettleCI Workbench
     mci_install_dir: "/opt/dm/mci"
 
+    # --- Gitea API Configuration ---
+    gitea_api_url: "http://10.10.10.201:53000/api/v1/user/keys"
+    gitea_user: "itzuser"
+    gitea_password: "giteapwd"
+
   tasks:
     - name: 1. Find the MettleCI Workbench RPM dynamically
       ansible.builtin.find:
@@ -135,6 +140,24 @@
         cmd: "java -jar {{ found_mettle_jar.files[0].path }} trust-datastage config.yml"
         chdir: "{{ mci_install_dir }}"
       notify: restart mettleci
+ 
+    - name: 5.9 Read the generated public key from disk
+      ansible.builtin.slurp:
+        src: "{{ mci_install_dir }}/workbench.key.pub"
+      register: public_key_content
+
+    - name: 5.10 Add the SSH public key to Gitea user profile via REST API
+      ansible.builtin.uri:
+        url: "{{ gitea_api_url }}"
+        method: POST
+        url_username: "{{ gitea_user }}"
+        url_password: "{{ gitea_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body:
+          title: "MettleCI Workbench Key"
+          key: "{{ public_key_content['content'] | b64decode | trim }}"
+        status_code: [201, 422]
 
     - name: 6. Ensure MettleCI Service is Started (Legacy Init)
       ansible.builtin.shell: service dm-mettleci-workbench start
