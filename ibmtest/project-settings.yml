@@ -1,0 +1,19 @@
+---
+- id: 1
+  name: "mci_testing_develop"
+  repository:
+    url: "ssh://git@testing.mettleci.io:7999/mi/migration.git"
+    branch: "develop"
+    assetPath: "datastage"
+    testPath: "unittest"
+    name: "migration"
+  compliance:
+    url: "git@bitbucket.org:datamigrators/compliance-rules.git"
+    branch: "master"
+    includeRuleTags: []
+    excludeRuleTags: []
+    path: ""
+    name: "compliance-rules"
+  issueManagementId: 0
+
+
