@@ -87,17 +87,19 @@
         mode: '0644'
       notify: restart mettleci
 
-    - name: 5.2 Deploy config.yml from itzuser home directory
-      ansible.builtin.copy:
-        src: "{{ source_dir }}/config.yml.cpy"
-        dest: "{{ mci_install_dir }}/config.yml"
-        remote_src: yes
+    - name: 5.2 Copy and rename config.yml natively (Force Overwrite)
+      ansible.builtin.command:
+        cmd: "cp -f {{ source_dir }}/config.yml.cpy {{ mci_install_dir }}/config.yml"
+
+    - name: 5.2.1 Set ownership and permissions on config.yml
+      ansible.builtin.file:
+        path: "{{ mci_install_dir }}/config.yml"
         owner: mciworkb
         group: dstage
-        mode: '0600'  # Owner-only read/write
+        mode: '0600'
       notify: restart mettleci
 
-    - name: 5.3 Generate 2048-bit RSA key pair (workbench.key)
+    - name: 5.3 Generate 4096-bit RSA key pair (workbench.key)
       ansible.builtin.command:
         cmd: ssh-keygen -t rsa -b 4096 -f {{ mci_install_dir }}/workbench.key -q -N ""
         # The 'creates' flag makes this idempotent: it will NOT overwrite the key if it already exists
