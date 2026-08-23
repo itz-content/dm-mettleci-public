@@ -214,6 +214,12 @@
       register: rpc_process_check
       failed_when: rpc_process_check.stdout == ""
 
+    - name: 6c. Create system-wide symlink for istool.sh (Ansible & Automation friendly)
+      ansible.builtin.file:
+        src: /opt/IBM/InformationServer/Clients/istools/cli/istool.sh
+        dest: /usr/bin/istool.sh
+        state: link
+      become: yes
 
     # ==========================================
     # POST-INSTALLATION: SECURITY RESTORATION
