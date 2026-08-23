@@ -201,6 +201,15 @@
         state: present
         disable_gpg_check: yes
 
+    - name: 10.1 Deploy License File from itzuser home to cli directory
+      ansible.builtin.copy:
+        src: "{{ source_dir }}/{{ license_file }}"
+        dest: "{{ mci_install_dir }}/cli/mettleci.lic"
+        remote_src: yes # Tells Ansible the file is already on the RHEL9 target
+        owner: mciworkb
+        group: dstage
+        mode: '0644'
+
   handlers:
     - name: restart mettleci
       ansible.builtin.shell: |
