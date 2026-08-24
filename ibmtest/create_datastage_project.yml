@@ -1,0 +1,45 @@
+---
+- name: Create jenkins_devops project and import project assets
+  hosts: localhost 
+  become: yes
+
+  vars:
+    # --- DataStage Environment Variables ---
+    mci_install_dir: "/opt/dm/mci"
+    ds_engine_dir: "/opt/IBM/InformationServer/Server/DSEngine"
+    is_domain: "10.10.10.201:59445"
+    is_server: "server-1"
+    is_user: "isadmin"
+    is_password: "9BaAMKZjzmTiDcJtRb" 
+
+  tasks:
+    - name: Create DataStage Project (Jenkins_Devops)
+      ansible.builtin.shell: |
+        . ./dsenv
+        bin/dsadmin -domain {{ is_domain }} -server {{ is_server }} -user {{ is_user }} -password {{ is_password }} -createproject Jenkins_Devops
+      args:
+        chdir: "{{ ds_engine_dir }}"
+      register: create_proj_result
+      # Idempotency check: Don't fail if the project already exists
+      failed_when: 
+        - create_proj_result.rc != 0
+        - "'already exists' not in create_proj_result.stdout and 'already exists' not in create_proj_result.stderr"
+      changed_when: create_proj_result.rc == 0
+      no_log: true  # Added to prevent logging the cleartext password
+
+    - name: Signal Windows Beacon that DataStage Project is Ready
+      ansible.builtin.shell: |
+        # 1. Create the directory and the flag file
+        mkdir -p /tmp/datastage_ready
+        echo "ready" > /tmp/datastage_ready/project_ready.txt
+        
+        # 2. Spin up a temporary Python web server and log all HTTP requests to the standard temp location
+        nohup python3 -m http.server 58080 --directory /tmp/datastage_ready > /tmp/web_server.log 2>&1 &
+        
+        # 3. Record the successful startup and the Process ID to the system journal
+        logger "DataStage Deployment: Web Flag server successfully started on port 58080 with PID $!"
+      async: 10
+      poll: 0
+      become: yes
+    
+    

@@ -198,6 +198,33 @@ if ($fileContent -match "dsrpc") {
     Add-Content -Path $servicesFile -Value "`ndsrpc`t`t80/tcp"
 }
 
+# ==========================================
+# BEACON METHOD: DATASTAGE ISX IMPORT TASK
+# ==========================================
+Write-Host "Setting up DataStage ISX Import Beacon Task..." -ForegroundColor Cyan
+
+$RepoBeaconScript  = "C:\Temp\post_deploy_repo\ibmtest\templates\beacon_import.ps1"
+$BeaconScriptPath  = "C:\Users\itzuser\beacon_import.ps1"
+
+if (Test-Path $RepoBeaconScript) {
+    Copy-Item -Path $RepoBeaconScript -Destination $BeaconScriptPath -Force
+    Write-Host "SUCCESS: Beacon script placed at: $BeaconScriptPath" -ForegroundColor Green
+} else {
+    Write-Error "CRITICAL ERROR: Missing source beacon_import.ps1 at $RepoBeaconScript"
+    exit 1
+}
+
+Write-Host "Registering Windows Scheduled Task to poll every 15 minutes..." -ForegroundColor Yellow
+
+$action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -File $BeaconScriptPath"
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(5) -RepetitionInterval (New-TimeSpan -Minutes 15)
+$principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+
+Register-ScheduledTask -TaskName "DataStageISXImport" -Action $action -Trigger $trigger -Principal $principal | Out-Null
+Write-Host "[SUCCESS] Beacon Task registered successfully!" -ForegroundColor Green
+
+#End of Beacon Method
+
 Write-Host "All installation processing threads have finished cleanly!" -ForegroundColor Green
 Write-Host "Automation phase concluded! Target ZIP payload preserved at $ZipFile" -ForegroundColor Green
 
