@@ -3,7 +3,7 @@ $DsUser     = "isadmin"
 $DsPassword = "9BaAMKZjzmTiDcJtRb"
 $Server     = "10.10.10.201"
 $FlagUrl    = "http://$Server:58080/project_ready.txt"
-$IsxPath    = "C:\Users\itzuser\jenkins_devops.isx"
+$IsxPath    = "C:\Users\itzuser\Downloads\jenkins_devops.isx"
 $IstoolDir  = "C:\IBM\InformationServer\Clients\istools\cli"
 # --------------------------------
 
