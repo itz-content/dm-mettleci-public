@@ -17,7 +17,7 @@ $PgAdminDownloadPath = "C:\is_temp\pgadmin4-installer.exe"
 $MettleCiLicObjKey  = "binaries/dm_software/mettleci.lic"
 $MettleCiLicPath    = "C:\is_temp\mettleci.lic"
 $IsxObjKey          = "binaries/dm_software/jenkins_devops.isx" 
-$TargetIsxFile      = "C:\Users\itzuser\jenkins_devops.isx"
+$TargetIsxFile      = "C:\Users\itzuser\Downloads\jenkins_devops.isx"
 
 # --- Exact Path Rules matching your is-client layout ---
 $TargetClientDir    = "$ExtractDir\is-client"
