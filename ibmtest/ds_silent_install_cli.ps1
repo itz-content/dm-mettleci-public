@@ -14,8 +14,10 @@ $WinScpObjKey       = "binaries/WinSCP-6.5.6-Setup.exe"
 $WinScpDownloadPath = "C:\is_temp\WinSCP-6.5.6-Setup.exe"
 $PgAdminObjKey       = "binaries/pgadmin4-9.17-x64.exe" # Update filename if different in S3
 $PgAdminDownloadPath = "C:\is_temp\pgadmin4-installer.exe"
-$MettleCiLicObjKey  = "dm_software/mettleci.lic"
+$MettleCiLicObjKey  = "binaries/dm_software/mettleci.lic"
 $MettleCiLicPath    = "C:\is_temp\mettleci.lic"
+$IsxObjKey          = "binaries/dm_software/jenkins_devops.isx" 
+$TargetIsxFile      = "C:\Users\itzuser\jenkins_devops.isx"
 
 # --- Exact Path Rules matching your is-client layout ---
 $TargetClientDir    = "$ExtractDir\is-client"
@@ -125,6 +127,16 @@ if (Test-Path $MettleCiLicPath) {
     Write-Host "[SUCCESS] Successfully downloaded mettleci.lic" -ForegroundColor Green
 } else {
     Write-Error "Error: Failed to download mettleci.lic from S3."
+}
+
+# 2e. Download DataStage ISX Payload
+Write-Host "Downloading ISX payload from S3..." -ForegroundColor Cyan
+aws s3 cp "s3://$env:AWS_BUCKET_NAME/$IsxObjKey" "$TargetIsxFile" --endpoint-url $env:AWS_ENDPOINT_URL
+
+if (Test-Path $TargetIsxFile) {
+    Write-Host "[SUCCESS] Successfully downloaded jenkins_devops.isx" -ForegroundColor Green
+} else {
+    Write-Error "CRITICAL ERROR: Failed to download jenkins_devops.isx from S3."
 }
 
 # --- 3. Download from IBM COS (S3) via AWS CLI ---

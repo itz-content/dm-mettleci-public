@@ -15,7 +15,7 @@ try {
         # The file exists! Ansible is completely done. Run the import.
         Set-Location $IstoolDir
         
-        .\istool.bat import -domain "$Server:59445" -username $DsUser -password $DsPassword -archive $IsxPath -datastage "-to server-1/Jenkins_Devops" -replace -silent
+        "1" | .\istool.bat import -domain "$Server:59445" -username $DsUser -password $DsPassword -archive $IsxPath -datastage "server-1/Jenkins_Devops" -replace -silent
         
         # If the import succeeds, delete this scheduled task so it stops running
         if ($LASTEXITCODE -eq 0) {
