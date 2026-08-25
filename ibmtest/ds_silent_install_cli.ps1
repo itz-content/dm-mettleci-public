@@ -204,7 +204,7 @@ if ($fileContent -match "dsrpc") {
 Write-Host "Setting up DataStage ISX Import Beacon Task..." -ForegroundColor Cyan
 
 $RepoBeaconScript  = "C:\Temp\post_deploy_repo\ibmtest\beacon_import.ps1"
-$BeaconScriptPath  = "C:\Users\itzuser\beacon_import.ps1"
+$BeaconScriptPath  = "C:\Users\itzuser\Downloads\beacon_import.ps1"
 
 if (Test-Path $RepoBeaconScript) {
     Copy-Item -Path $RepoBeaconScript -Destination $BeaconScriptPath -Force
