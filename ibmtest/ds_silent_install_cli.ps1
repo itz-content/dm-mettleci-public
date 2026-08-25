@@ -18,6 +18,8 @@ $MettleCiLicObjKey  = "binaries/dm_software/mettleci.lic"
 $MettleCiLicPath    = "C:\is_temp\mettleci.lic"
 $IsxObjKey          = "binaries/dm_software/jenkins_devops.isx" 
 $TargetIsxFile      = "C:\Users\itzuser\Downloads\jenkins_devops.isx"
+$RepoBeaconScript   = "C:\Temp\post_deploy_repo\ibmtest\beacon_import.ps1"
+$BeaconScriptPath   = "C:\Users\itzuser\Downloads\beacon_import.ps1"
 
 # --- Exact Path Rules matching your is-client layout ---
 $TargetClientDir    = "$ExtractDir\is-client"
@@ -214,9 +216,6 @@ if ($fileContent -match "dsrpc") {
 # BEACON METHOD: DATASTAGE ISX IMPORT TASK
 # ==========================================
 Write-Host "Setting up DataStage ISX Import Beacon Task..." -ForegroundColor Cyan
-
-$RepoBeaconScript  = "C:\Temp\post_deploy_repo\ibmtest\beacon_import.ps1"
-$BeaconScriptPath  = "C:\Users\itzuser\Downloads\beacon_import.ps1"
 
 if (Test-Path $RepoBeaconScript) {
     Copy-Item -Path $RepoBeaconScript -Destination $BeaconScriptPath -Force
