@@ -1,8 +1,10 @@
+Start-Transcript -Path "C:\is_temp\beacon_transcript.log" -Append
+
 # --- Configuration Parameters ---
 $DsUser     = "isadmin"
 $DsPassword = "9BaAMKZjzmTiDcJtRb"
 $Server     = "10.10.10.201"
-$FlagUrl    = "http://$Server:58080/project_ready.txt"
+$FlagUrl    = "http://${Server}:58080/project_ready.txt"
 $IsxPath    = "C:\is_temp\jenkins_devops.isx"
 $IstoolDir  = "C:\IBM\InformationServer\Clients\istools\cli"
 # --------------------------------
@@ -15,9 +17,9 @@ try {
         # The file exists! Ansible is completely done. Run the import.
         Set-Location $IstoolDir
         
-        "1" | .\istool.bat import -domain "$Server:59445" -username $DsUser -password $DsPassword -archive $IsxPath -datastage "server-1/Jenkins_Devops" -replace -silent
-        
-        # If the import succeeds, delete this scheduled task so it stops running
+       "1" | .\istool.bat import -domain "${Server}:59445" -username $DsUser -password $DsPassword -archive $IsxPath -datastage "server-1/Jenkins_Devops" -replace -silent > C:\is_temp\istool_background.log 2>&1 
+         
+    # If the import succeeds, delete this scheduled task so it stops running
         if ($LASTEXITCODE -eq 0) {
             Unregister-ScheduledTask -TaskName "DataStageISXImport" -Confirm:$false
         }
@@ -25,3 +27,5 @@ try {
 } catch {
     # Flag file not found. Script exits silently and tries again at the next 15-minute interval.
 }
+
+Stop-Transcript
