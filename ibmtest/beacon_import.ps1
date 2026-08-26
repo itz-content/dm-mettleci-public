@@ -10,22 +10,27 @@ $IstoolDir  = "C:\IBM\InformationServer\Clients\istools\cli"
 # --------------------------------
 
 try {
-    # If RHEL hasn't created the file yet, this will fail and jump straight to the 'catch' block
+    # 1. Check if the RHEL server has stood up the flag
     $response = Invoke-WebRequest -Uri $FlagUrl -UseBasicParsing -TimeoutSec 5
     
     if ($response.StatusCode -eq 200) {
-        # The file exists! Ansible is completely done. Run the import.
-        Set-Location $IstoolDir
         
-       "1" | .\istool.bat import -domain "${Server}:59445" -username $DsUser -password $DsPassword -archive $IsxPath -datastage "server-1/Jenkins_Devops" -replace -silent > C:\is_temp\istool_background.log 2>&1 
-         
-    # If the import succeeds, delete this scheduled task so it stops running
+        # 2. Silently accept the new WebSphere SSL Certificate into the trust store (IBM Native Method)
+        $AsbNodeDir = "C:\IBM\InformationServer\ASBNode\bin"
+        Set-Location $AsbNodeDir
+        .\UpdateSignerCerts.bat -url "https://${Server}:59445" -user $DsUser -password $DsPassword -silent
+        
+        # 3. Cert trusted! Navigate to the istool directory and run the import cleanly
+        Set-Location $IstoolDir
+        .\istool.bat import -domain "${Server}:59445" -username $DsUser -password $DsPassword -archive $IsxPath -datastage "server-1/Jenkins_Devops" -replace -silent > C:\is_temp\istool_background.log 2>&1
+        
+        # 4. If the import succeeds, kill the scheduled task so it never runs again
         if ($LASTEXITCODE -eq 0) {
             Unregister-ScheduledTask -TaskName "DataStageISXImport" -Confirm:$false
         }
     }
 } catch {
-    # Flag file not found. Script exits silently and tries again at the next 15-minute interval.
+    # Flag file not found or network down. Exit silently and wait for the next interval.
 }
 
 Stop-Transcript
