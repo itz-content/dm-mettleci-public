@@ -33,12 +33,15 @@
         mkdir -p /tmp/datastage_ready
         echo "ready" > /tmp/datastage_ready/project_ready.txt
         
-        # 2. Spin up a temporary Python web server and log all HTTP requests to the standard temp location
-        nohup python3 -m http.server 58080 --directory /tmp/datastage_ready > /tmp/web_server.log 2>&1 &
+        # 2. Kill any zombie python servers from a previous task run (Idempotency fix)
+        pkill -f "python3 -m http.server 58080" || true
         
-        # 3. Record the successful startup and the Process ID to the system journal
-        logger "DataStage Deployment: Web Flag server successfully started on port 58080 with PID $!"
-      async: 10
+        # 3. Record the startup to the system journal BEFORE blocking
+        logger "DataStage Deployment: Web Flag server starting on port 58080"
+        
+        # 4. Spin up Python web server in foreground (Ansible async will safely detach it)
+        python3 -m http.server 58080 --directory /tmp/datastage_ready > /tmp/web_server.log 2>&1
+      async: 14400
       poll: 0
       become: yes
     
