@@ -33,16 +33,12 @@
         mkdir -p /tmp/datastage_ready
         echo "ready" > /tmp/datastage_ready/project_ready.txt
         
-        # 2. Kill any zombie python servers from a previous task run (Idempotency fix)
-        pkill -f "python3 -m http.server 58080" || true
+        # 2. Clean up any previous runs (Idempotency fix)
+        systemctl stop datastage-beacon || true
         
-        # 3. Record the startup to the system journal BEFORE blocking
-        logger "DataStage Deployment: Web Flag server starting on port 58080"
-        
-        # 4. Spin up Python web server in foreground (Ansible async will safely detach it)
-        python3 -m http.server 58080 --directory /tmp/datastage_ready > /tmp/web_server.log 2>&1
-      async: 14400
-      poll: 0
+        # 3. Tell RHEL 9 to run this as a detached background service.
+        # MUST use absolute path (/usr/bin/python3) for Ansible's non-interactive shell.
+        systemd-run --unit=datastage-beacon /usr/bin/python3 -m http.server 58080 --directory /tmp/datastage_ready
       become: yes
     
     
