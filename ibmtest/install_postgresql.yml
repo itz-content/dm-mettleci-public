@@ -39,12 +39,15 @@
         state: present
       notify: restart postgresql
 
-    - name: 4. Allow Windows host to connect via pg_hba.conf
+    - name: 4. Allow DataStage and Windows hosts to connect via pg_hba.conf
       ansible.builtin.lineinfile:
         path: /var/lib/pgsql/data/pg_hba.conf
-        line: "host    all             all             10.10.10.202/32         md5"
+        line: "host    all             all             {{ item }}/32         md5"
         insertafter: EOF
         state: present
+      loop:
+        - 10.10.10.201  # RHEL 9 DataStage Engine
+        - 10.10.10.202  # Windows Client
       notify: restart postgresql
 
     - name: 4.1. Change default local authentication from ident to md5

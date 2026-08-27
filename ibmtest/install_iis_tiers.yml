@@ -221,6 +221,15 @@
         state: link
       become: yes
 
+    - name: 6d. Deploy hidden odbc.ini for DataStage PostgreSQL connection
+      ansible.builtin.copy:
+        src: odbc.ini
+        dest: /opt/IBM/InformationServer/Server/DSEngine/.odbc.ini
+        owner: dsadm
+        group: dstage
+        mode: '0664'
+      become: yes
+
     # ==========================================
     # POST-INSTALLATION: SECURITY RESTORATION
     # ==========================================
