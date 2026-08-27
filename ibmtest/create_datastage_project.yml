@@ -37,7 +37,6 @@
         systemctl stop datastage-beacon || true
         
         # 3. Tell RHEL 9 to run this as a detached background service.
-        # MUST use absolute path (/usr/bin/python3) for Ansible's non-interactive shell.
         systemd-run --unit=datastage-beacon /usr/bin/python3 -m http.server 58080 --directory /tmp/datastage_ready
       become: yes
     
