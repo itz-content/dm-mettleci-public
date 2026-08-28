@@ -139,7 +139,7 @@
       ansible.builtin.command:
         cmd: "java -jar {{ found_mettle_jar.files[0].path }} trust-datastage config.yml"
         chdir: "{{ mci_install_dir }}"
-      become_user: mciworkb  # This overrides the default 'root' user just for this task
+      #become_user: mciworkb  This overrides the default 'root' user just for this task
       notify: restart mettleci
  
     - name: 5.9 Read the generated public key from disk
