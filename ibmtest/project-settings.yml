@@ -1,17 +1,18 @@
 ---
+---
 - id: 1
-  name: "mci_testing_develop"
+  name: "Jenkins_Devops"
   repository:
-    url: "ssh://git@testing.mettleci.io:7999/mi/migration.git"
-    branch: "develop"
+    url: "git@10.10.10.201:itzuser/electromart.git"
+    branch: "main"
     assetPath: "datastage"
     testPath: "unittest"
-    name: "migration"
+    name: "electromart"
   compliance:
-    url: "git@bitbucket.org:datamigrators/compliance-rules.git"
-    branch: "master"
+    url: "git@10.10.10.201:itzuser/compliance.git"
+    branch: "main"
     includeRuleTags: []
     excludeRuleTags: []
     path: ""
-    name: "compliance-rules"
+    name: "compliance"
   issueManagementId: 0
