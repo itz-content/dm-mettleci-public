@@ -141,14 +141,7 @@
         chdir: "{{ mci_install_dir }}"
       notify: restart mettleci
 
-    - name: 5.9 Fix ownership of generated MettleCI files
-      ansible.builtin.file:
-        path: "{{ mci_install_dir }}/{{ item }}"
-        owner: mciworkb
-        group: dstage
-      loop:
-        - mci.log
-        - mettleci-trust.p12
+    #- name: 5.9 Fix ownership of generated MettleCI files
  
     - name: 5.10 Read the generated public key from disk
       ansible.builtin.slurp:
