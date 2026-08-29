@@ -141,13 +141,22 @@
         chdir: "{{ mci_install_dir }}"
       #become_user: mciworkb  This overrides the default 'root' user just for this task
       notify: restart mettleci
+
+    - name: 5.9 Fix ownership of generated MettleCI files
+      ansible.builtin.file:
+        path: "{{ mci_install_dir }}/{{ item }}"
+        owner: mciworkb
+        group: dstage
+      loop:
+        - mci.log
+        - mettleci-trust.p12
  
-    - name: 5.9 Read the generated public key from disk
+    - name: 5.10 Read the generated public key from disk
       ansible.builtin.slurp:
         src: "{{ mci_install_dir }}/workbench.key.pub"
       register: public_key_content
 
-    - name: 5.10 Add the SSH public key to Gitea user profile via REST API
+    - name: 5.11 Add the SSH public key to Gitea user profile via REST API
       ansible.builtin.uri:
         url: "{{ gitea_api_url }}"
         method: POST
