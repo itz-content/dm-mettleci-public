@@ -1,0 +1,9 @@
+---
+- id: 1
+  username: "isadmin"
+  name: "Administrator IIS"
+  email: "isadmin@example.com"
+  gitUsername: null
+  roles:
+  - "ADMINISTRATOR"
+  - "DEVELOPER"

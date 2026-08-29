@@ -139,7 +139,6 @@
       ansible.builtin.command:
         cmd: "java -jar {{ found_mettle_jar.files[0].path }} trust-datastage config.yml"
         chdir: "{{ mci_install_dir }}"
-      #become_user: mciworkb  This overrides the default 'root' user just for this task
       notify: restart mettleci
 
     - name: 5.9 Fix ownership of generated MettleCI files
@@ -223,7 +222,7 @@
     - name: 11. Deploy MettleCI project configuration
       ansible.builtin.copy:
         src: project_settings.yaml
-        dest: /opt/dm/mci/project_settings.yaml
+        dest: /opt/dm/mci/project-settings.yaml
         owner: mciworkb
         group: dstage
         mode: '0660'
