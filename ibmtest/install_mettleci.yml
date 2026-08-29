@@ -1,15 +1,15 @@
 ---
 - name: Install and Configure MettleCI Workbench on RHEL9
   hosts: localhost
-  become: yes # Requires root privileges
+  become: true # Requires root privileges
 
   vars:
     # Source directory populated by transfer_binaries.yml
     source_dir: "/home/itzuser"
-  
+
     # We only hardcode the license since its name doesn't change with versions
     license_file: "mettleci.lic"
-  
+
     # Default installation directory for MettleCI Workbench
     mci_install_dir: "/opt/dm/mci"
 
@@ -64,7 +64,7 @@
       ansible.builtin.dnf:
         name: "{{ found_rpm.files[0].path }}"
         state: present
-        disable_gpg_check: yes # Standard for custom third-party RPMs
+        disable_gpg_check: true # Standard for custom third-party RPMs
 
     - name: 4. Ensure Installation Directory Exists
       ansible.builtin.file:
@@ -80,13 +80,13 @@
         dest: "{{ mci_install_dir }}/setupEnv.sh"
         owner: mciworkb
         group: dstage
-        mode: '0755'  
+        mode: '0755'
 
     - name: 5.1 Deploy License File from itzuser home directory
       ansible.builtin.copy:
         src: "{{ source_dir }}/{{ license_file }}"
         dest: "{{ mci_install_dir }}/mettleci.lic"
-        remote_src: yes # Tells Ansible the file is already on the RHEL9 target
+        remote_src: true # Tells Ansible the file is already on the RHEL9 target
         owner: mciworkb
         group: dstage
         mode: '0644'
