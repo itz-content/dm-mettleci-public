@@ -219,14 +219,17 @@
         group: dstage
         mode: '0644'
 
-    - name: 11. Deploy MettleCI project configuration
+    - name: 11. Deploy MettleCI configuration files
       ansible.builtin.copy:
-        src: project_settings.yaml
-        dest: /opt/dm/mci/project-settings.yaml
+        src: "{{ playbook_dir }}/{{ item }}"
+        dest: "/opt/dm/mci/{{ item }}"
         owner: mciworkb
         group: dstage
         mode: '0660'
-      become: yes
+      loop:
+        - project-settings.yaml
+        - datastage-users.yaml
+
 
   handlers:
     - name: restart mettleci
