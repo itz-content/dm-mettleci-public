@@ -6,10 +6,10 @@
   vars:
     # Source directory populated by transfer_binaries.yml
     source_dir: "/home/itzuser"
-    
+  
     # We only hardcode the license since its name doesn't change with versions
     license_file: "mettleci.lic"
-    
+  
     # Default installation directory for MettleCI Workbench
     mci_install_dir: "/opt/dm/mci"
 
@@ -123,7 +123,7 @@
         owner: mciworkb
         group: dstage
         mode: '0644' # Owner read/write, everyone else read-only
-    
+  
     - name: 5.6 Find the MettleCI UI jar file dynamically
       ansible.builtin.find:
         paths: "{{ mci_install_dir }}"
@@ -135,14 +135,17 @@
         msg: "Expected exactly 1 mettle-ui jar in {{ mci_install_dir }}, but found {{ found_mettle_jar.matched }}."
       when: found_mettle_jar.matched != 1
 
-    - name: 5.8 Trust DataStage Services Tier certificate
+    - name: 5.8 Trust DataStage Services Tier certificate 
       ansible.builtin.command:
         cmd: "java -jar {{ found_mettle_jar.files[0].path }} trust-datastage config.yml"
         chdir: "{{ mci_install_dir }}"
+
+    - name: 5.9 Fix ownership of generated MettleCI files
+      ansible.builtin.command:
+        cmd: "chown mciworkb:dstage mci.log mettleci-trust.p12"
+        chdir: "{{ mci_install_dir }}"
       notify: restart mettleci
 
-    #- name: 5.9 Fix ownership of generated MettleCI files
- 
     - name: 5.10 Read the generated public key from disk
       ansible.builtin.slurp:
         src: "{{ mci_install_dir }}/workbench.key.pub"
@@ -185,7 +188,7 @@
         name: "{{ found_unittest_rpm.files[0].path }}"
         state: present
         disable_gpg_check: yes
-  
+
     - name: 9. Find the MettleCI Command Shell RPM dynamically
       ansible.builtin.find:
         paths: "{{ source_dir }}"
@@ -230,3 +233,4 @@
         service dm-mettleci-workbench stop
         sleep 2
         service dm-mettleci-workbench start
+ 
