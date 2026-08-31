@@ -29,12 +29,11 @@
 - name: Execute Gitea Installation
   import_playbook: install_gitea.yml
 
-- name: Execute Jenkins Installation
-  import_playbook: install_jenkins.yml
-
 - name: Setup MettleCI Repositories
   import_playbook: setup_mettleci_repos.yml
 
-# Install MettleCI to bind with PostgreSQL and Gitea
 - name: Execute Mettleci Installation
   import_playbook: install_mettleci.yml
+
+- name: Execute Jenkins Installation
+  import_playbook: install_jenkins.yml

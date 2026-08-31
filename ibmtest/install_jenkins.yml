@@ -31,17 +31,11 @@
         owner: root
         group: root
         mode: '0644'
-      notify: reload systemd and restart jenkins
+      register: jenkins_override
 
-    - name: 4. Ensure Jenkins service is enabled on boot and started
+    - name: 4. Ensure Jenkins service is enabled and dynamically handle state
       ansible.builtin.systemd:
         name: jenkins
         enabled: true
-        state: started
-
-  handlers:
-    - name: reload systemd and restart jenkins
-      ansible.builtin.systemd:
-        daemon_reload: true
-        name: jenkins
-        state: restarted
+        daemon_reload: "{{ jenkins_override.changed }}"
+        state: "{{ 'restarted' if jenkins_override.changed else 'started' }}"
