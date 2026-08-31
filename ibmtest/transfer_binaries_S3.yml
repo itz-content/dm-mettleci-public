@@ -1,8 +1,8 @@
 ---
 - name: Transfer and Extract IBM 11.7.1.6 and Db2 Binaries from S3
   hosts: localhost
-  become: yes
-  gather_facts: yes
+  become: true
+  gather_facts: true
 
   vars:
     s3_bucket_name: "dm-mettleci-public"
@@ -15,12 +15,13 @@
     spec_zip: "IS_V11716.bundle_spec_file_mult.zip"
     db2_tar: "v11.5.8_linuxx64_server_dec.tar.gz"
     gitea_bin: "gitea-1.27.0-linux-amd64"
+    jenkins_rpm: "jenkins-2.426.3-1.1.noarch.rpm" # Update version if needed
 
   tasks:
     - name: 1. Check if AWS CLI is installed
       shell: command -v aws
       register: aws_cli_check
-      ignore_errors: yes
+      ignore_errors: true
       changed_when: false
 
     - name: 2. Install AWS CLI on RHEL9 if missing
@@ -89,18 +90,26 @@
         /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ gitea_bin }} /home/itzuser/{{ gitea_bin }}
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
+
+    - name: 6.3. Copy Jenkins RPM to itzuser Home using AWS CLI
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ jenkins_rpm }} /home/itzuser/{{ jenkins_rpm }}
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true
       
-    - name: 6.3. Make Gitea binary executable
+    - name: 6.4. Make Gitea binary executable
       file:
         path: "/home/itzuser/{{ gitea_bin }}"
         mode: '0755'
 
-    - name: 6.4. Set itzuser Ownership on Copied RPMs
+    - name: 6.5. Set itzuser Ownership on Copied RPMs and Binaries
       file:
         path: "/home/itzuser"
         owner: itzuser
         group: itzuser
-        recurse: yes
+        recurse: true
 
     - name: 7. Extract Main Tarball via Native Shell
       ansible.builtin.shell: "tar -xzf {{ main_tar }}"
@@ -133,7 +142,7 @@
         owner: root
         group: dstage
         mode: '0777'
-        recurse: yes  
+        recurse: true
 
     - name: 11. Verify Critical Extraction Files are Present
       stat:

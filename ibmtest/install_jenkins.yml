@@ -1,0 +1,30 @@
+---
+- name: Install and Configure Jenkins on RHEL9
+  hosts: localhost
+  become: true # Requires root privileges
+
+  tasks:
+    - name: 1. Install Jenkins from local RPM
+      ansible.builtin.dnf:
+        name: /home/itzuser/jenkins-local.rpm
+        state: present
+        disable_gpg_check: true
+
+    - name: 2. Create systemd override directory for Jenkins
+      ansible.builtin.file:
+        path: /etc/systemd/system/jenkins.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: 3. Inject Java property to skip the initial setup wizard
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/jenkins.service.d/override.conf
+        content: |
+          [Service]
+          Environment="JAVA_OPTS=-Djenkins.install.runSetupWizard=false"
+        owner: root
+        group: root
+        mode: '0644'
+      notify: reload systemd and restart jenkins
