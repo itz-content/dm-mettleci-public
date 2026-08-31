@@ -15,7 +15,7 @@
     spec_zip: "IS_V11716.bundle_spec_file_mult.zip"
     db2_tar: "v11.5.8_linuxx64_server_dec.tar.gz"
     gitea_bin: "gitea-1.27.0-linux-amd64"
-    jenkins_rpm: "jenkins-2.426.3-1.1.noarch.rpm" # Update version if needed
+    jenkins_rpm: "jenkins-2.462.3-1.1.noarch.rpm" # Update version if needed
 
   tasks:
     - name: 1. Check if AWS CLI is installed
