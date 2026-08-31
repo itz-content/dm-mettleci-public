@@ -1,46 +1,40 @@
 - name: IBM 11.7 Infrastructure
   hosts: localhost
-  become: yes
-  gather_facts: yes
+  become: true
+  gather_facts: true
   tasks: []
-  
+
 - name: Master Deployment for IBM Information Server
-  import_playbook: check_prereqs.yml 
-  
+  import_playbook: check_prereqs.yml
+
 - name: Optimize OS
   import_playbook: tune_os.yml
-  
+
 - name: Transfer Binaries from S3
   import_playbook: transfer_binaries_S3.yml
-  
+
 - name: Execute Standalone Db2 Installation
   import_playbook: install_db2.yml
-  
+
 - name: Execute IIS Installation
   import_playbook: install_iis_tiers.yml
 
 - name: Create Datastage Project
   import_playbook: create_datastage_project.yml
 
-#Build Infrastructure
+# Build Infrastructure
 - name: Execute PostgreSQL Installation
-  import_playbook: install_postgresql.yml 
+  import_playbook: install_postgresql.yml
 
 - name: Execute Gitea Installation
-  import_playbook: install_gitea.yml  
+  import_playbook: install_gitea.yml
+
+- name: Execute Jenkins Installation
+  import_playbook: install_jenkins.yml
 
 - name: Setup MettleCI Repositories
   import_playbook: setup_mettleci_repos.yml
 
-#Install MettleCI to bind with PostgreSQL and Gitea
+# Install MettleCI to bind with PostgreSQL and Gitea
 - name: Execute Mettleci Installation
   import_playbook: install_mettleci.yml
-
- 
-
-
-
-
-
-
-    

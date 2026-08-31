@@ -3,6 +3,9 @@
   hosts: localhost
   become: true # Requires root privileges
 
+  vars:
+    jenkins_port: "58082"
+
   tasks:
     - name: 1. Install Jenkins from local RPM
       ansible.builtin.dnf:
@@ -18,13 +21,27 @@
         group: root
         mode: '0755'
 
-    - name: 3. Inject Java property to skip the initial setup wizard
+    - name: 3. Inject Java property for silent install and custom port
       ansible.builtin.copy:
         dest: /etc/systemd/system/jenkins.service.d/override.conf
         content: |
           [Service]
           Environment="JAVA_OPTS=-Djenkins.install.runSetupWizard=false"
+          Environment="JENKINS_PORT={{ jenkins_port }}"
         owner: root
         group: root
         mode: '0644'
       notify: reload systemd and restart jenkins
+
+    - name: 4. Ensure Jenkins service is enabled on boot and started
+      ansible.builtin.systemd:
+        name: jenkins
+        enabled: true
+        state: started
+
+  handlers:
+    - name: reload systemd and restart jenkins
+      ansible.builtin.systemd:
+        daemon_reload: true
+        name: jenkins
+        state: restarted
