@@ -29,6 +29,9 @@
 - name: Execute Gitea Installation
   import_playbook: install_gitea.yml
 
+- name: Execute Gitea Action Runner Installation
+  import_playbook: install_act_runner.yml
+
 - name: Setup MettleCI Repositories
   import_playbook: setup_mettleci_repos.yml
 

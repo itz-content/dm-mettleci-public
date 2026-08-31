@@ -7,14 +7,15 @@
   vars:
     s3_bucket_name: "dm-mettleci-public"
     aws_endpoint_url: "https://s3.us.cloud-object-storage.appdomain.cloud"
-    
+
     remote_staging_path: "/opt/IBM/InformationServer"
     dm_software: "binaries/dm_software"
-    
+
     main_tar: "IS_V11716_Linux_x86_multi.tar.gz"
     spec_zip: "IS_V11716.bundle_spec_file_mult.zip"
     db2_tar: "v11.5.8_linuxx64_server_dec.tar.gz"
     gitea_bin: "gitea-1.27.0-linux-amd64"
+    gitea_act: "gitea-runner-3.3.2-linux-amd64"
     jenkins_rpm: "jenkins-2.462.3-1.1.noarch.rpm" # Update version if needed
 
   tasks:
@@ -48,7 +49,7 @@
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
         /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ main_tar }} {{ remote_staging_path }}/{{ main_tar }}
         --endpoint-url {{ aws_endpoint_url }}
-      no_log: true  
+      no_log: true
 
     - name: 4.1. Copy Db2 Tarball using AWS CLI
       shell: >
@@ -56,7 +57,7 @@
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
         /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ db2_tar }} {{ remote_staging_path }}/{{ db2_tar }}
         --endpoint-url {{ aws_endpoint_url }}
-      no_log: true 
+      no_log: true
 
     - name: 5. Copy Bundle Spec Zip using AWS CLI
       shell: >
@@ -74,16 +75,16 @@
         group: itzuser
         mode: '0755'
 
-    - name: 6.1. Copy Software RPMs to itzuser Home using AWS CLI
+    - name: 7. Copy Software RPMs to itzuser Home using AWS CLI
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
         /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/{{ dm_software }}/ /home/itzuser/
-        --recursive 
+        --recursive
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
 
-    - name: 6.2. Copy Gitea binary to itzuser Home using AWS CLI
+    - name: 8. Copy Gitea binary to itzuser Home using AWS CLI
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
@@ -91,39 +92,52 @@
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
 
-    - name: 6.3. Copy Jenkins RPM to itzuser Home using AWS CLI
+    - name: 8.1. Copy Gitea Runner binary to itzuser Home using AWS CLI
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ gitea_act }} /home/itzuser/{{ gitea_act }}
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true
+
+    - name: 8.2. Make Gitea and act_runner binaries executable
+      file:
+        path: "/home/itzuser/{{ item }}"
+        mode: '0755'
+        owner: itzuser
+        group: itzuser
+      loop:
+        - "{{ gitea_bin }}"
+        - "{{ gitea_act }}"
+
+    - name: 9. Copy Jenkins RPM to itzuser Home using AWS CLI
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
         /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ jenkins_rpm }} /home/itzuser/jenkins-local.rpm
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
-      
-    - name: 6.4. Make Gitea binary executable
-      file:
-        path: "/home/itzuser/{{ gitea_bin }}"
-        mode: '0755'
 
-    - name: 6.5. Set itzuser Ownership on Copied RPMs and Binaries
+    - name: 10. Set itzuser Ownership on Copied RPMs and Binaries
       file:
         path: "/home/itzuser"
         owner: itzuser
         group: itzuser
         recurse: true
 
-    - name: 7. Extract Main Tarball via Native Shell
+    - name: 11. Extract Main Tarball via Native Shell
       ansible.builtin.shell: "tar -xzf {{ main_tar }}"
       args:
         chdir: "{{ remote_staging_path }}"
 
-    - name: 7.1. Extract Db2 Tarball into Isolated Folder
+    - name: 12. Extract Db2 Tarball into Isolated Folder
       ansible.builtin.shell: |
         mkdir -p db2_extracted
         tar -xzf {{ db2_tar }} -C db2_extracted
       args:
         chdir: "{{ remote_staging_path }}"
 
-    - name: 8. Ensure Target Directory for Bundle Spec Exists
+    - name: 13. Ensure Target Directory for Bundle Spec Exists
       file:
         path: "{{ remote_staging_path }}/is-suite"
         state: directory
@@ -131,12 +145,12 @@
         group: dstage
         mode: '0777'
 
-    - name: 9. Extract Bundle Spec Zip via Native Shell
+    - name: 14. Extract Bundle Spec Zip via Native Shell
       ansible.builtin.shell: "unzip -q {{ spec_zip }} -d is-suite"
       args:
         chdir: "{{ remote_staging_path }}"
 
-    - name: 10. Force Clean Recursive Ownership & Permissions for Installer
+    - name: 15. Force Clean Recursive Ownership & Permissions for Installer
       file:
         path: "{{ remote_staging_path }}/is-suite"
         owner: root
@@ -144,7 +158,7 @@
         mode: '0777'
         recurse: true
 
-    - name: 11. Verify Critical Extraction Files are Present
+    - name: 16. Verify Critical Extraction Files are Present
       stat:
         path: "{{ remote_staging_path }}/is-suite/{{ item }}"
       loop:
@@ -152,7 +166,7 @@
         - image.properties
       register: file_check
 
-    - name: 12. Cleanup Downloaded Archives to Conserve Space
+    - name: 17. Cleanup Downloaded Archives to Conserve Space
       file:
         path: "{{ item }}"
         state: absent

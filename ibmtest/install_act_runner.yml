@@ -1,0 +1,87 @@
+---
+- name: Install and Configure Gitea Runner (act_runner) on RHEL 9
+  hosts: localhost 
+  become: true
+
+  vars:
+    # Ensure this matches the binary you transferred to itzuser's home directory
+    gitea_act_src: "/home/itzuser/gitea-runner-3.3.2-linux-amd64" 
+    gitea_port: "53000" 
+
+  tasks:
+    - name: 1. Install Podman for runner container execution
+      ansible.builtin.dnf:
+        name: podman
+        state: present
+
+    - name: 2. Enable and start podman.socket (Docker API emulation)
+      ansible.builtin.systemd:
+        name: podman.socket
+        enabled: true
+        state: started
+
+    - name: 3. Create Docker socket symlink for act_runner
+      ansible.builtin.file:
+        src: /run/podman/podman.sock
+        dest: /var/run/docker.sock
+        state: link
+
+    - name: 4. Copy local act_runner binary to executable path
+      ansible.builtin.copy:
+        src: "{{ gitea_act_src }}"
+        dest: /usr/local/bin/act_runner
+        owner: root
+        group: root
+        mode: '0755'
+        remote_src: true
+
+    - name: 5. Create act_runner configuration directory
+      ansible.builtin.file:
+        path: /etc/act_runner
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: 6. Generate Gitea Runner Registration Token via CLI
+      ansible.builtin.shell: |
+        sudo -u git GITEA_WORK_DIR=/var/lib/gitea /usr/local/bin/gitea actions generate-runner-token --config /etc/gitea/app.ini
+      register: runner_token_output
+      changed_when: false
+
+    - name: 7. Register the runner with Gitea locally
+      ansible.builtin.command:
+        cmd: "/usr/local/bin/act_runner register --no-interactive --instance http://localhost:{{ gitea_port }} --token {{ runner_token_output.stdout }}"
+      args:
+        chdir: /etc/act_runner
+        creates: /etc/act_runner/.runner
+
+    - name: 8. Create systemd service file for act_runner
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/act_runner.service
+        content: |
+          [Unit]
+          Description=Gitea Actions Runner
+          After=network.target podman.socket gitea.service
+          Requires=podman.socket
+
+          [Service]
+          ExecStart=/usr/local/bin/act_runner daemon
+          WorkingDirectory=/etc/act_runner
+          Environment="DOCKER_HOST=unix:///run/podman/podman.sock" "HOME=/root"
+          Restart=always
+          RestartSec=5s
+
+          [Install]
+          WantedBy=multi-user.target
+        owner: root
+        group: root
+        mode: '0644'
+      register: act_runner_service
+
+    - name: 9. Enable and start act_runner service
+      ansible.builtin.systemd:
+        name: act_runner
+        enabled: true
+        daemon_reload: "{{ act_runner_service.changed }}"
+        state: "{{ 'restarted' if act_runner_service.changed else 'started' }}"
