@@ -29,8 +29,14 @@ $InstallerExe       = "$TargetClientDir\setup.exe"
 $InstallLog         = "C:\is_temp\client_install_execution.log"
 
 # --- SSH Key Generation Configuration ---
+
 $SshDir             = "C:\Users\itzuser\.ssh"
 $TargetSshFile      = "$SshDir\vm_ssh_key"
+$UserName           = "itzuser"
+$UserSshDir         = "C:\Users\$UserName\.ssh"
+$AuthorizedKeysPath = "$UserSshDir\authorized_keys"
+$RSAPubKey          = "ssh/CommKey.pub"
+$RSAPubKeyPath      = "$UserSshDir\CommKey.pub"
 
 # Disable progress bar to increase download performance and prevent automation hangs
 $ProgressPreference = 'SilentlyContinue'
@@ -82,6 +88,27 @@ $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
 $Shortcut.TargetPath = $TargetSshFile
 $Shortcut.Description = "Edit the VM SSH Key"
 $Shortcut.Save()
+
+# 1d. Download Public RSA Key
+Write-Host "Downloading Public RSA Key from S3..." -ForegroundColor Cyan
+aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url $env:AWS_ENDPOINT_URL
+
+if (Test-Path $RSAPubKeyPath) {
+    Write-Host "[SUCCESS] Successfully downloaded rsa public key" -ForegroundColor Green
+
+    # Map the downloaded key to authorized_keys for itzuser
+    Set-Content -Path $AuthorizedKeysPath -Value (Get-Content $RSAPubKeyPath -Raw) -Force
+
+    # Apply strict Windows OpenSSH file and folder permissions required for itzuser
+    icacls.exe $UserSshDir /inheritance:r | Out-Null
+    icacls.exe $UserSshDir /grant "$UserName`:(OI)(CI)F" /grant "SYSTEM:(OI)(CI)F" | Out-Null
+    icacls.exe $AuthorizedKeysPath /inheritance:r | Out-Null
+    icacls.exe $AuthorizedKeysPath /grant "$UserName`:F" /grant "SYSTEM:F" | Out-Null
+
+    Write-Host "[SUCCESS] OpenSSH authorized_keys configured and permissions locked down for $UserName" -ForegroundColor Green
+} else {
+    Write-Error "Error: Failed to download rsa public key from S3."
+}
 
 # --- 2. Install AWS CLI v2 Silently ---
 $AwsCliPath = "C:\Program Files\Amazon\AWSCLIV2\aws.exe"
