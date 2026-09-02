@@ -167,7 +167,15 @@
         - image.properties
       register: file_check
 
-    - name: 17. Copy SSH Key
+    - name: 17. Ensure .ssh directory exists for itzuser
+      file:
+        path: /home/itzuser/.ssh
+        state: directory
+        owner: itzuser
+        group: itzuser
+        mode: '0700'
+    
+    - name: 17.1. Copy SSH Key
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
