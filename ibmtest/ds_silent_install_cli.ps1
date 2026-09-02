@@ -35,8 +35,8 @@ $TargetSshFile      = "$SshDir\vm_ssh_key"
 $UserName           = "itzuser"
 $UserSshDir         = "C:\Users\$UserName\.ssh"
 $AuthorizedKeysPath = "$UserSshDir\authorized_keys"
-$RSAPubKey          = "ssh/test.pub"
-$RSAPubKeyPath      = "$UserSshDir\test.pub"
+$RSAPubKey          = "ssh/CommKey.pub"
+$RSAPubKeyPath      = "$UserSshDir\CommKey.pub"
 
 # Disable progress bar to increase download performance and prevent automation hangs
 $ProgressPreference = 'SilentlyContinue'

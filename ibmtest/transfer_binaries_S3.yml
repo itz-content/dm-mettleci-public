@@ -17,7 +17,7 @@
     gitea_bin: "gitea-1.27.0-linux-amd64"
     gitea_act: "gitea-runner-3.3.2-linux-amd64"
     jenkins_rpm: "jenkins-2.462.3-1.1.noarch.rpm"
-    rsa_key: "test" # Update version if needed
+    rsa_key: "CommKey" # Update version if needed
 
   tasks:
     - name: 1. Check if AWS CLI is installed
