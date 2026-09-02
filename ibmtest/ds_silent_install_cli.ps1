@@ -89,26 +89,6 @@ $Shortcut.TargetPath = $TargetSshFile
 $Shortcut.Description = "Edit the VM SSH Key"
 $Shortcut.Save()
 
-# 1d. Download Public RSA Key
-Write-Host "Downloading Public RSA Key from S3..." -ForegroundColor Cyan
-aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url $env:AWS_ENDPOINT_URL
-
-if (Test-Path $RSAPubKeyPath) {
-    Write-Host "[SUCCESS] Successfully downloaded rsa public key" -ForegroundColor Green
-
-    # Map the downloaded key to authorized_keys for itzuser
-    Set-Content -Path $AuthorizedKeysPath -Value (Get-Content $RSAPubKeyPath -Raw) -Force
-
-    # Apply strict Windows OpenSSH file and folder permissions required for itzuser
-    icacls.exe $UserSshDir /grant "$UserName`:(OI)(CI)F" /grant "SYSTEM:(OI)(CI)F" | Out-Null
-    icacls.exe $UserSshDir /inheritance:r | Out-Null
-    icacls.exe $AuthorizedKeysPath /grant "$UserName`:F" /grant "SYSTEM:F" | Out-Null
-    icacls.exe $AuthorizedKeysPath /inheritance:r | Out-Null
-
-    Write-Host "[SUCCESS] OpenSSH authorized_keys configured and permissions locked down for $UserName" -ForegroundColor Green
-} else {
-    Write-Error "Error: Failed to download rsa public key from S3."
-}
 
 # --- 2. Install AWS CLI v2 Silently ---
 $AwsCliPath = "C:\Program Files\Amazon\AWSCLIV2\aws.exe"
@@ -166,6 +146,27 @@ if (Test-Path $TargetIsxFile) {
     Write-Host "[SUCCESS] Successfully downloaded jenkins_devops.isx" -ForegroundColor Green
 } else {
     Write-Error "CRITICAL ERROR: Failed to download jenkins_devops.isx from S3."
+}
+
+# 2f. Download Public RSA Key
+Write-Host "Downloading Public RSA Key from S3..." -ForegroundColor Cyan
+aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url $env:AWS_ENDPOINT_URL
+
+if (Test-Path $RSAPubKeyPath) {
+    Write-Host "[SUCCESS] Successfully downloaded rsa public key" -ForegroundColor Green
+
+    # Map the downloaded key to authorized_keys for itzuser
+    Set-Content -Path $AuthorizedKeysPath -Value (Get-Content $RSAPubKeyPath -Raw) -Force
+
+    # Apply strict Windows OpenSSH file and folder permissions required for itzuser
+    icacls.exe $UserSshDir /grant "$UserName`:(OI)(CI)F" /grant "SYSTEM:(OI)(CI)F" | Out-Null
+    icacls.exe $UserSshDir /inheritance:r | Out-Null
+    icacls.exe $AuthorizedKeysPath /grant "$UserName`:F" /grant "SYSTEM:F" | Out-Null
+    icacls.exe $AuthorizedKeysPath /inheritance:r | Out-Null
+
+    Write-Host "[SUCCESS] OpenSSH authorized_keys configured and permissions locked down for $UserName" -ForegroundColor Green
+} else {
+    Write-Error "Error: Failed to download rsa public key from S3."
 }
 
 # --- 3. Download from IBM COS (S3) via AWS CLI ---
