@@ -32,7 +32,11 @@ $InstallLog         = "C:\is_temp\client_install_execution.log"
 
 $SshDir             = "C:\Users\itzuser\.ssh"
 $TargetSshFile      = "$SshDir\vm_ssh_key"
-
+$UserName           = "itzuser"
+$UserSshDir         = "C:\Users\$UserName\.ssh"
+$AuthorizedKeysPath = "$UserSshDir\authorized_keys"
+$RSAPubKey          = "ssh/CommKey.pub"
+$RSAPubKeyPath      = "$UserSshDir\CommKey.pub"
 
 # Disable progress bar to increase download performance and prevent automation hangs
 $ProgressPreference = 'SilentlyContinue'
@@ -84,6 +88,16 @@ $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
 $Shortcut.TargetPath = $TargetSshFile
 $Shortcut.Description = "Edit the VM SSH Key"
 $Shortcut.Save()
+
+# 1d. Download Public RSA Key
+Write-Host "Downloading Public RSA Key from S3..." -ForegroundColor Cyan
+aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url $env:AWS_ENDPOINT_URL
+
+if (Test-Path $RSAPubKeyPath) {
+    Write-Host "[SUCCESS] Successfully downloaded rsa public key" -ForegroundColor Green
+} else {
+    Write-Error "Error: Failed to download rsa public key from S3."
+}
 
 # --- 2. Install AWS CLI v2 Silently ---
 $AwsCliPath = "C:\Program Files\Amazon\AWSCLIV2\aws.exe"

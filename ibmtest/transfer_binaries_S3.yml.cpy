@@ -17,6 +17,7 @@
     gitea_bin: "gitea-1.27.0-linux-amd64"
     gitea_act: "gitea-runner-3.3.2-linux-amd64"
     jenkins_rpm: "jenkins-2.462.3-1.1.noarch.rpm"
+    rsa_key: "CommKey" # Update version if needed
 
   tasks:
     - name: 1. Check if AWS CLI is installed
@@ -165,6 +166,30 @@
         - setup
         - image.properties
       register: file_check
+
+    - name: 17. Ensure .ssh directory exists for itzuser
+      file:
+        path: /home/itzuser/.ssh
+        state: directory
+        owner: itzuser
+        group: itzuser
+        mode: '0700'
+
+    - name: 17.1. Copy SSH Key
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/ssh/{{ rsa_key }} /home/itzuser/.ssh/{{ rsa_key }}
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true
+
+    - name: 18. Ensure correct permissions and ownership for SSH private key
+      file:
+        path: /home/itzuser/.ssh/{{ rsa_key }}
+        owner: itzuser
+        group: itzuser
+        mode: '0600'
+        state: file
 
     - name: 19. Cleanup Downloaded Archives to Conserve Space
       file:
