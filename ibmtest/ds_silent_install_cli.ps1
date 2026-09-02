@@ -100,10 +100,10 @@ if (Test-Path $RSAPubKeyPath) {
     Set-Content -Path $AuthorizedKeysPath -Value (Get-Content $RSAPubKeyPath -Raw) -Force
 
     # Apply strict Windows OpenSSH file and folder permissions required for itzuser
-    icacls.exe $UserSshDir /inheritance:r | Out-Null
     icacls.exe $UserSshDir /grant "$UserName`:(OI)(CI)F" /grant "SYSTEM:(OI)(CI)F" | Out-Null
-    icacls.exe $AuthorizedKeysPath /inheritance:r | Out-Null
+    icacls.exe $UserSshDir /inheritance:r | Out-Null
     icacls.exe $AuthorizedKeysPath /grant "$UserName`:F" /grant "SYSTEM:F" | Out-Null
+    icacls.exe $AuthorizedKeysPath /inheritance:r | Out-Null
 
     Write-Host "[SUCCESS] OpenSSH authorized_keys configured and permissions locked down for $UserName" -ForegroundColor Green
 } else {
