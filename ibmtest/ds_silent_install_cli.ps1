@@ -155,8 +155,8 @@ aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url
 if (Test-Path $RSAPubKeyPath) {
     Write-Host "[SUCCESS] Successfully downloaded rsa public key" -ForegroundColor Green
 
-    # Map the downloaded key to authorized_keys for itzuser
-    Set-Content -Path $AuthorizedKeysPath -Value (Get-Content $RSAPubKeyPath -Raw) -Force
+    # Safely append the downloaded key to authorized_keys (creates the file if missing)
+    Get-Content $RSAPubKeyPath | Add-Content -Path $AuthorizedKeysPath -Force
 
     # Apply strict Windows OpenSSH file and folder permissions required for itzuser
     icacls.exe $UserSshDir /grant "$UserName`:(OI)(CI)F" /grant "SYSTEM:(OI)(CI)F" | Out-Null
