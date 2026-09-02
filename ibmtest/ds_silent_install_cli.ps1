@@ -95,17 +95,6 @@ aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url
 
 if (Test-Path $RSAPubKeyPath) {
     Write-Host "[SUCCESS] Successfully downloaded rsa public key" -ForegroundColor Green
-
-    # Map the downloaded key to authorized_keys for itzuser
-    Set-Content -Path $AuthorizedKeysPath -Value (Get-Content $RSAPubKeyPath -Raw) -Force
-
-    # Apply strict Windows OpenSSH file and folder permissions using explicit string concatenation
-    icacls.exe $UserSshDir /inheritance:r | Out-Null
-    icacls.exe $UserSshDir /grant ($UserName + ':(OI)(CI)F') /grant 'SYSTEM:(OI)(CI)F' | Out-Null
-    icacls.exe $AuthorizedKeysPath /inheritance:r | Out-Null
-    icacls.exe $AuthorizedKeysPath /grant ($UserName + ':F') /grant 'SYSTEM:F' | Out-Null
-
-    Write-Host "[SUCCESS] OpenSSH authorized_keys configured and permissions locked down for $UserName" -ForegroundColor Green
 } else {
     Write-Error "Error: Failed to download rsa public key from S3."
 }
@@ -121,7 +110,7 @@ if (-not (Test-Path -Path $AwsCliPath)) {
 }
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-# 2b. WinSCP Installation
+# --- 2b. WinSCP Installation
 $WinScpPath = "C:\Program Files (x86)\WinSCP\WinSCP.exe"
 if (-not (Test-Path -Path $WinScpPath)) { 
     aws s3 cp "s3://$env:AWS_BUCKET_NAME/$WinScpObjKey" "$WinScpDownloadPath" --endpoint-url $env:AWS_ENDPOINT_URL
@@ -130,7 +119,7 @@ if (-not (Test-Path -Path $WinScpPath)) {
     if (Test-Path $WinScpDownloadPath) { Remove-Item $WinScpDownloadPath -Force }
 }
 
-# 2c. pgAdmin 4 Installation
+# --- 2c. pgAdmin 4 Installation
 $PgAdminInstallDir = "C:\Program Files\pgAdmin 4"
 if (-not (Test-Path -Path $PgAdminInstallDir)) { 
     Write-Host "pgAdmin 4 not found. Downloading from S3..." -ForegroundColor Cyan
@@ -148,7 +137,7 @@ if (-not (Test-Path -Path $PgAdminInstallDir)) {
     Write-Host "[INFO] pgAdmin 4 is already installed. Skipping." -ForegroundColor Gray
 }
 
-# 2d. Download MettleCI License
+# --- 2d. Download MettleCI License
 Write-Host "Downloading MettleCI license from S3..." -ForegroundColor Cyan
 aws s3 cp "s3://$env:AWS_BUCKET_NAME/$MettleCiLicObjKey" "$MettleCiLicPath" --endpoint-url $env:AWS_ENDPOINT_URL
 
@@ -158,7 +147,7 @@ if (Test-Path $MettleCiLicPath) {
     Write-Error "Error: Failed to download mettleci.lic from S3."
 }
 
-# 2e. Download DataStage ISX Payload
+# --- 2e. Download DataStage ISX Payload
 Write-Host "Downloading ISX payload from S3..." -ForegroundColor Cyan
 aws s3 cp "s3://$env:AWS_BUCKET_NAME/$IsxObjKey" "$TargetIsxFile" --endpoint-url $env:AWS_ENDPOINT_URL
 

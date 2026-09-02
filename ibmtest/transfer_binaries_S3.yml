@@ -174,7 +174,7 @@
         owner: itzuser
         group: itzuser
         mode: '0700'
-    
+  
     - name: 17.1. Copy SSH Key
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
