@@ -17,15 +17,23 @@
     is_password: "9BaAMKZjzmTiDcJtRb"
     isx_file_path: 'C:\is_temp\jenkins_devops.isx'
     istools_cli_dir: 'C:\IBM\InformationServer\Clients\istools\cli'
+    is_asbnode_bin: 'C:\IBM\InformationServer\ASBNode\bin'
     is_datastage_path: "server-1/Jenkins_Devops"
 
   tasks:
+
+    - name: Trust the Information Server SSL Certificate
+      win_shell: |
+        .\UpdateSignerCerts.bat -url "https://{{ is_domain }}" -user "{{ is_user }}" -password "{{ is_password }}" -silent
+      args:
+        chdir: "{{ is_asbnode_bin }}"    
+
     - name: Run istool import and redirect output to log
       win_shell: |
         .\istool.bat import -domain "{{ is_domain }}" -username "{{ is_user }}" -password "{{ is_password }}" -archive "{{ isx_file_path }}" -datastage "{{ is_datastage_path }}" -replace > C:\is_temp\istool_background.log 2>&1
       args:
         chdir: "{{ istools_cli_dir }}"
-      no_log: true
+      no_log: false
 
     - name: Read the log file to capture the results
       win_shell: Get-Content C:\is_temp\istool_background.log
