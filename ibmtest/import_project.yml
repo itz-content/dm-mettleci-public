@@ -3,15 +3,15 @@
   hosts: all
   gather_facts: false
   
-  # Connection variables for Windows OpenSSH
   vars:
+    # Connection variables
     ansible_connection: ssh
-    ansible_shell_type: powershell
+    ansible_shell_type: cmd
     ansible_user: itzuser
-    ansible_ssh_private_key_file: ~/.ssh/CommKey
-    ansible_ssh_common_args: '-o StrictHostKeyChecking=no' # <--- Bypasses the yes/no prompt
+    ansible_ssh_private_key_file: /home/itzuser/.ssh/CommKey 
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
-    # istools import variables (Update these for your environment)
+    # istools import variables
     is_domain: "10.10.10.201:59445"
     is_user: "isadmin"
     is_password: "9BaAMKZjzmTiDcJtRb"
@@ -22,13 +22,13 @@
   tasks:
     - name: Run istool import and redirect output to log
       win_shell: |
-        .\istool.bat import -domain "{{ is_domain }}" -username "{{ is_user }}" -password "{{ is_password }}" -archive "{{ isx_file_path }}" -datastage "{{ is_datastage_path }}" -replace > C:\is_temp\istool_background.log 2>&1
+        istool.bat import -domain "{{ is_domain }}" -username "{{ is_user }}" -password "{{ is_password }}" -archive "{{ isx_file_path }}" -datastage "{{ is_datastage_path }}" -replace > C:\is_temp\istool_background.log 2>&1
       args:
-        chdir: "{{ istools_cli_dir }}" # This replaces the need to 'cd' first
-      no_log: true # Keeps the password out of the Ansible console logs
+        chdir: "{{ istools_cli_dir }}"
+      no_log: true
 
     - name: Read the log file to capture the results
-      win_shell: Get-Content C:\is_temp\istool_background.log
+      win_shell: type C:\is_temp\istool_background.log
       register: log_output
 
     - name: Display the import results
