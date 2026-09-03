@@ -30,13 +30,13 @@ $InstallLog         = "C:\is_temp\client_install_execution.log"
 
 # --- SSH Key Generation Configuration ---
 
-$SshDir             = "C:\Users\itzuser\.ssh"
-$TargetSshFile      = "$SshDir\vm_ssh_key"
 $UserName           = "itzuser"
-$UserSshDir         = "C:\Users\$UserName\.ssh"
-$AuthorizedKeysPath = "$UserSshDir\authorized_keys"
+$SshDir             = "C:\Users\$UserName\.ssh"
+$TargetSshFile      = "$SshDir\vm_ssh_key"
 $RSAPubKey          = "ssh/CommKey.pub"
 $RSAPubKeyPath      = "$UserSshDir\CommKey.pub"
+$AdminSshDir        = "C:\ProgramData\ssh"
+$AuthorizedKeysPath = "$AdminSshDir\administrators_authorized_keys"
 
 # Disable progress bar to increase download performance and prevent automation hangs
 $ProgressPreference = 'SilentlyContinue'
@@ -155,23 +155,23 @@ aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url
 if (Test-Path $RSAPubKeyPath) {
     Write-Host "[SUCCESS] Successfully downloaded rsa public key" -ForegroundColor Green
 
-    # --- NEW: Override Base Image Locks ---
-    # Force the local Administrators group to take ownership of the pre-baked folder
-    takeown.exe /F $UserSshDir /R /A /D Y | Out-Null
-    # Grant the script full access so Add-Content doesn't crash
-    icacls.exe $UserSshDir /grant "Administrators:(OI)(CI)F" /T /Q | Out-Null
-    # --------------------------------------
+    # Ensure the ssh directory exists in ProgramData
+    if (!(Test-Path $AdminSshDir)) { 
+        New-Item -ItemType Directory -Path $AdminSshDir -Force | Out-Null 
+    }
 
-    # Safely append the downloaded key to authorized_keys (creates the file if missing)
+    # Safely append the downloaded key to authorized_keys
     Get-Content $RSAPubKeyPath | Add-Content -Path $AuthorizedKeysPath -Force
 
-    # Apply strict Windows OpenSSH file and folder permissions required for itzuser
-    icacls.exe $UserSshDir /grant "$UserName`:(OI)(CI)F" /grant "SYSTEM:(OI)(CI)F" /grant "Administrators:(OI)(CI)F" | Out-Null
-    icacls.exe $UserSshDir /inheritance:r | Out-Null
-    icacls.exe $AuthorizedKeysPath /grant "$UserName`:F" /grant "SYSTEM:F" /grant "Administrators:F" | Out-Null
+    # Apply strict Windows OpenSSH file permissions for the Administrators file
+    # Note: We strip inheritance and ONLY grant SYSTEM and Administrators Full Control
     icacls.exe $AuthorizedKeysPath /inheritance:r | Out-Null
+    icacls.exe $AuthorizedKeysPath /grant "Administrators:F" /grant "SYSTEM:F" | Out-Null
 
-    Write-Host "[SUCCESS] OpenSSH authorized_keys configured and permissions locked down for $UserName" -ForegroundColor Green
+    Write-Host "[SUCCESS] OpenSSH administrators_authorized_keys configured and permissions locked down" -ForegroundColor Green
+    
+    # Restart the SSH service to ensure the new key is loaded immediately
+    Restart-Service sshd
 } else {
     Write-Error "Error: Failed to download rsa public key from S3."
 }

@@ -1,0 +1,35 @@
+---
+- name: Execute istools ISX import on Windows Techzone target
+  hosts: all
+  gather_facts: false
+  
+  # Connection variables for Windows OpenSSH
+  vars:
+    ansible_connection: ssh
+    ansible_shell_type: powershell
+    ansible_user: itzuser
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa 
+
+    # istools import variables (Update these for your environment)
+    is_domain: "10.10.10.201:59445"
+    is_user: "isadmin"
+    is_password: "9BaAMKZjzmTiDcJtRb"
+    isx_file_path: 'C:\is_temp\jenkins_devops.isx'
+    istools_cli_dir: 'C:\IBM\InformationServer\Clients\istools\cli'
+    is_datastage_path: "server-1/Jenkins_Devops"
+
+  tasks:
+    - name: Run istool import and redirect output to log
+      win_shell: |
+        .\istool.bat import -domain "{{ is_domain }}" -username "{{ is_user }}" -password "{{ is_password }}" -archive "{{ isx_file_path }}" -datastage "{{ is_datastage_path }}" -replace > C:\is_temp\istool_background.log 2>&1
+      args:
+        chdir: "{{ istools_cli_dir }}" # This replaces the need to 'cd' first
+      no_log: true # Keeps the password out of the Ansible console logs
+
+    - name: Read the log file to capture the results
+      win_shell: Get-Content C:\is_temp\istool_background.log
+      register: log_output
+
+    - name: Display the import results
+      debug:
+        var: log_output.stdout_lines
