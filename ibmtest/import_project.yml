@@ -22,13 +22,13 @@
   tasks:
     - name: Run istool import and redirect output to log
       win_shell: |
-        istool.bat import -domain "{{ is_domain }}" -username "{{ is_user }}" -password "{{ is_password }}" -archive "{{ isx_file_path }}" -datastage "{{ is_datastage_path }}" -replace > C:\is_temp\istool_background.log 2>&1
+        .\istool.bat import -domain "{{ is_domain }}" -username "{{ is_user }}" -password "{{ is_password }}" -archive "{{ isx_file_path }}" -datastage "{{ is_datastage_path }}" -replace > C:\is_temp\istool_background.log 2>&1
       args:
         chdir: "{{ istools_cli_dir }}"
       no_log: true
 
     - name: Read the log file to capture the results
-      win_shell: type C:\is_temp\istool_background.log
+      win_shell: Get-Content C:\is_temp\istool_background.log
       register: log_output
 
     - name: Display the import results
