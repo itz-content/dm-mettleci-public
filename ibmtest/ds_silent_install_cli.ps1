@@ -155,13 +155,20 @@ aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url
 if (Test-Path $RSAPubKeyPath) {
     Write-Host "[SUCCESS] Successfully downloaded rsa public key" -ForegroundColor Green
 
+    # --- NEW: Override Base Image Locks ---
+    # Force the local Administrators group to take ownership of the pre-baked folder
+    takeown.exe /F $UserSshDir /R /A /D Y | Out-Null
+    # Grant the script full access so Add-Content doesn't crash
+    icacls.exe $UserSshDir /grant "Administrators:(OI)(CI)F" /T /Q | Out-Null
+    # --------------------------------------
+
     # Safely append the downloaded key to authorized_keys (creates the file if missing)
     Get-Content $RSAPubKeyPath | Add-Content -Path $AuthorizedKeysPath -Force
 
     # Apply strict Windows OpenSSH file and folder permissions required for itzuser
-    icacls.exe $UserSshDir /grant "$UserName`:(OI)(CI)F" /grant "SYSTEM:(OI)(CI)F" | Out-Null
+    icacls.exe $UserSshDir /grant "$UserName`:(OI)(CI)F" /grant "SYSTEM:(OI)(CI)F" /grant "Administrators:(OI)(CI)F" | Out-Null
     icacls.exe $UserSshDir /inheritance:r | Out-Null
-    icacls.exe $AuthorizedKeysPath /grant "$UserName`:F" /grant "SYSTEM:F" | Out-Null
+    icacls.exe $AuthorizedKeysPath /grant "$UserName`:F" /grant "SYSTEM:F" /grant "Administrators:F" | Out-Null
     icacls.exe $AuthorizedKeysPath /inheritance:r | Out-Null
 
     Write-Host "[SUCCESS] OpenSSH authorized_keys configured and permissions locked down for $UserName" -ForegroundColor Green
