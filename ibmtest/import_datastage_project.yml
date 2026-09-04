@@ -1,6 +1,6 @@
 ---
 - name: Execute istools ISX import on Windows Techzone target
-  hosts: all
+  hosts: windows_target
   gather_facts: false
   
   vars:
