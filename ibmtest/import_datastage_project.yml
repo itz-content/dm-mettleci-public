@@ -2,6 +2,9 @@
 - name: Execute istools ISX import on Windows Techzone target
   hosts: windows_target
   gather_facts: false
+
+  collections:
+    - ansible.windows
   
   vars:
     # Connection variables
