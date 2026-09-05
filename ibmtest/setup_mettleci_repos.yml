@@ -42,10 +42,13 @@
         repos:
           - name: compliance
             zip: "{{ found_compliance.files[0].path }}"
-            copy_path: "*/."  # Copies everything inside the first intermediate folder
+            copy_path: "*/."  
           - name: electromart
             zip: "{{ found_template.files[0].path }}"
-            copy_path: "mettleci-repo-template/." # Drills down to skip the shared-libraries folder
+            copy_path: "mettleci-repo-template/."
+          - name: jenkins-mci-shared-libraries
+            zip: "{{ found_template.files[0].path }}"
+            copy_path: "jenkins-mci-shared-libraries/."
 
     - name: 4. Ensure target repository directories exist
       ansible.builtin.file:
