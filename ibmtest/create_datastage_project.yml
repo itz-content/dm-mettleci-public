@@ -31,6 +31,8 @@
       file:
         path: "{{ item }}"
         state: directory
+        owner: dsadm
+        group: dstage
         mode: '0755'
       loop:
         - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data
@@ -51,3 +53,13 @@
         "SourceData/*"
         -x "SourceData/TestData/*" "*__MACOSX*" "*.DS_Store"
         -d /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data
+
+    - name: Ensure correct ownership on all extracted DataStage data files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: dsadm
+        group: dstage
+        recurse: true
+      loop:
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/testdata
