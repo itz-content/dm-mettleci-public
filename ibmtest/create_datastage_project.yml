@@ -71,10 +71,11 @@
         remote_src: true
         owner: dsadm
         group: dstage
+        mode: '0664'
       loop:
         - { src: 'StgCustomer_20K.csv', dest: 'StgCustomer.csv' }
         - { src: 'StgProduct_50.csv', dest: 'StgProduct.csv' }
         - { src: 'StgSupplier_5.csv', dest: 'StgSupplier.csv' }
         - { src: 'StgFinance_20240901-20240930_2K.csv', dest: 'StgFinance.csv' }
         - { src: 'StgSales_20240901-20240930_2K.csv', dest: 'StgSales.csv' }
-        
+
