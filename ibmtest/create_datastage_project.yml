@@ -35,7 +35,9 @@
         group: dstage
         mode: '0755'
       loop:
-        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/dataset
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/file
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/report
         - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/testdata
 
     - name: Extract TestData files to testdata folder (flattened)
@@ -44,7 +46,7 @@
         unzip -o -j /home/itzuser/SourceData.zip
         "SourceData/TestData/*"
         -x "*__MACOSX*" "*.DS_Store"
-        -d /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/testdata
+        -d /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/file
 
     - name: Extract main SourceData files to data folder (excluding TestData)
       # Extracts the main directory but excludes TestData and Mac hidden files
@@ -61,13 +63,15 @@
         group: dstage
         recurse: true
       loop:
-        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/dataset
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/file
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/report
         - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/testdata
 
     - name: Copy specific staging files to standardized target names
       ansible.builtin.copy:
-        src: "/opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/{{ item.src }}"
-        dest: "/opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/{{ item.dest }}"
+        src: "/opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/file/{{ item.src }}"
+        dest: "/opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/electromart/file/{{ item.dest }}"
         remote_src: true
         owner: dsadm
         group: dstage
