@@ -3,15 +3,12 @@
   hosts: windows_target
   gather_facts: false
 
-  collections:
-    - ansible.windows
-  
   vars:
     # Connection variables
     ansible_connection: ssh
     ansible_shell_type: cmd
     ansible_user: itzuser
-    ansible_ssh_private_key_file: /home/itzuser/.ssh/CommKey 
+    ansible_ssh_private_key_file: /home/itzuser/.ssh/CommKey
     ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
     # istools import variables
@@ -26,20 +23,26 @@
   tasks:
 
     - name: Trust the Information Server SSL Certificate
-      win_shell: |
+      ansible.windows.win_shell: |
         .\UpdateSignerCerts.bat -url "https://{{ is_domain }}" -user "{{ is_user }}" -password "{{ is_password }}" -silent
       args:
-        chdir: "{{ is_asbnode_bin }}"    
+        chdir: "{{ is_asbnode_bin }}"
 
     - name: Run istool import and redirect output to log
-      win_shell: |
-        .\istool.bat import -domain "{{ is_domain }}" -username "{{ is_user }}" -password "{{ is_password }}" -archive "{{ isx_file_path }}" -datastage "{{ is_datastage_path }}" -replace > C:\is_temp\istool_background.log 2>&1
+      ansible.windows.win_shell: >
+        .\istool.bat import 
+        -domain "{{ is_domain }}" 
+        -username "{{ is_user }}" 
+        -password "{{ is_password }}" 
+        -archive "{{ isx_file_path }}" 
+        -datastage "{{ is_datastage_path }}" 
+        -replace > C:\is_temp\istool_background.log 2>&1
       args:
         chdir: "{{ istools_cli_dir }}"
       no_log: false
 
     - name: Read the log file to capture the results
-      win_shell: Get-Content C:\is_temp\istool_background.log
+      ansible.windows.win_shell: Get-Content C:\is_temp\istool_background.log
       register: log_output
 
     - name: Display the import results
