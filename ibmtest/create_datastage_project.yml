@@ -37,16 +37,17 @@
         - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/testdata
 
     - name: Extract TestData files to testdata folder (flattened)
-      # Extracts ONLY the contents of the TestData directory
+      # Extracts ONLY the contents of the TestData directory, dropping Mac hidden files
       command: >
         unzip -o -j /home/itzuser/SourceData.zip
-        "SourceData/SourceData/TestData/*"
+        "SourceData/TestData/*"
+        -x "*__MACOSX*" "*.DS_Store"
         -d /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/testdata
 
     - name: Extract main SourceData files to data folder (excluding TestData)
-      # Extracts the main directory but uses -x to EXCLUDE the TestData folder
+      # Extracts the main directory but excludes TestData and Mac hidden files
       command: >
         unzip -o -j /home/itzuser/SourceData.zip
-        "SourceData/SourceData/*"
-        -x "SourceData/SourceData/TestData/*"
+        "SourceData/*"
+        -x "SourceData/TestData/*" "*__MACOSX*" "*.DS_Store"
         -d /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data
