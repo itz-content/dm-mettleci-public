@@ -63,3 +63,18 @@
       loop:
         - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data
         - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/testdata
+
+    - name: Copy specific staging files to standardized target names
+      ansible.builtin.copy:
+        src: "/opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/{{ item.src }}"
+        dest: "/opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/data/{{ item.dest }}"
+        remote_src: true
+        owner: dsadm
+        group: dstage
+      loop:
+        - { src: 'StgCustomer_20K.csv', dest: 'StgCustomer.csv' }
+        - { src: 'StgProduct_50.csv', dest: 'StgProduct.csv' }
+        - { src: 'StgSupplier_5.csv', dest: 'StgSupplier.csv' }
+        - { src: 'StgFinance_20240901-20240930_2K.csv', dest: 'StgFinance.csv' }
+        - { src: 'StgSales_20240901-20240930_2K.csv', dest: 'StgSales.csv' }
+        
