@@ -22,10 +22,16 @@
 - name: Create Datastage Project
   import_playbook: create_datastage_project.yml
 
+# =====================================================================
+# INJECT WINDOWS INVENTORY & PREREQS HERE
+# =====================================================================
 - name: Setup Dynamic Inventory for Windows Target
   hosts: localhost
   gather_facts: false
   tasks:
+    - name: Ensure Windows collection is installed for itzuser
+      command: ansible-galaxy collection install ansible.windows
+
     - name: Add Windows target to memory
       add_host:
         name: "10.10.10.202"
@@ -33,6 +39,7 @@
 
 - name: Import Datastage Project
   import_playbook: import_datastage_project.yml
+# =====================================================================
 
 # Build Infrastructure
 - name: Execute PostgreSQL Installation
