@@ -18,7 +18,7 @@
     is_domain: "10.10.10.201:59445"
     is_user: "isadmin"
     is_password: "9BaAMKZjzmTiDcJtRb"
-    isx_file_path: 'C:\is_temp\jenkins_devops.isx'
+    isx_file_path: 'C:\is_temp\jenkins_devops_techzone.isx'
     istools_cli_dir: 'C:\IBM\InformationServer\Clients\istools\cli'
     is_asbnode_bin: 'C:\IBM\InformationServer\ASBNode\bin'
     is_datastage_path: "server-1/Jenkins_Devops"
