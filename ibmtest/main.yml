@@ -29,9 +29,6 @@
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Ensure Windows collection is installed for itzuser
-      command: ansible-galaxy collection install ansible.windows
-
     - name: Add Windows target to memory
       add_host:
         name: "10.10.10.202"
