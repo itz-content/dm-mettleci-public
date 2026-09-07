@@ -18,8 +18,8 @@ $MettleCiLicObjKey  = "binaries/dm_software/mettleci.lic"
 $MettleCiLicPath    = "C:\is_temp\mettleci.lic"
 $IsxObjKey          = "binaries/dm_software/jenkins_devops_techzone.isx" 
 $TargetIsxFile      = "C:\is_temp\jenkins_devops_techzone.isx"
-$MCISetupObjKey  = "binaries/dm_software/MCI_Setup.exe"
-$MCISetupPath    = "C:\is_temp\MCI_Setup.exe"
+$MCISetupObjKey     = "binaries/dm_software/MCI_Setup.exe"
+$MCISetupPath       = "C:\is_temp\MCI_Setup.exe"
 
 
 
