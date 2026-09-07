@@ -11,9 +11,7 @@
     is_server: "server-1"
     is_user: "isadmin"
     is_password: "9BaAMKZjzmTiDcJtRb"
-    mettleci_menus:
-      
-      
+
   tasks:
     - name: Create DataStage Project (Jenkins_Devops)
       ansible.builtin.shell: |
