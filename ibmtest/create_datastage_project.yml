@@ -86,7 +86,7 @@
     - name: Install MettleCI custom menu items silently
       ansible.windows.win_package:
         path: C:\is_temp\MCI_Setup.exe
-        arguments: 
+        arguments:
           - /S
         state: present
 
@@ -106,4 +106,3 @@
         - { key: 'Menu#0', path: '/projects/%ProjectName/test-cases/%JobName' }
         - { key: 'Menu#1', path: '/projects/%ProjectName/commits/create?assets=%JobName' }
         - { key: 'Menu#2', path: '/projects/%ProjectName/compliance/create?asset=%JobName' }
-        
