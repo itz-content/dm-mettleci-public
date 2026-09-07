@@ -11,7 +11,9 @@
     is_server: "server-1"
     is_user: "isadmin"
     is_password: "9BaAMKZjzmTiDcJtRb"
-
+    mettleci_menus:
+      
+      
   tasks:
     - name: Create DataStage Project (Jenkins_Devops)
       ansible.builtin.shell: |
@@ -83,3 +85,26 @@
         - { src: 'StgFinance_20240901-20240930_2K.csv', dest: 'StgFinance.csv' }
         - { src: 'StgSales_20240901-20240930_2K.csv', dest: 'StgSales.csv' }
 
+    - name: Install MettleCI custom menu items silently
+      ansible.windows.win_package:
+        path: C:\is_temp\MCI_Setup.exe
+        arguments: 
+          - /S
+        state: present
+
+    - name: Discover the single DataStage Client UUID
+      ansible.windows.win_shell: |
+        (Get-ChildItem -Path "HKCU:\Software\IBM\InformationServer\DataStage Client" | Where-Object { $_.PSChildName -match "^[0-9a-fA-F]{8}-" }).PSChildName
+      register: ds_uuids
+      changed_when: false
+
+    - name: Patch MettleCI custom menu URLs in the Registry
+      ansible.windows.win_regedit:
+        path: 'HKCU:\Software\IBM\InformationServer\DataStage Client\{{ ds_uuids.stdout_lines[0] }}\DataStage Client\Tools\{{ item.key }}'
+        name: Arguments
+        data: 'http://10.10.10.201:58081{{ item.path }}'
+        type: string
+      loop:
+        - { key: 'Menu#0', path: '/projects/%ProjectName/test-cases/%JobName' }
+        - { key: 'Menu#1', path: '/projects/%ProjectName/commits/create?assets=%JobName' }
+        - { key: 'Menu#2', path: '/projects/%ProjectName/compliance/create?asset=%JobName' }

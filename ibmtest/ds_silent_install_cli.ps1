@@ -18,8 +18,10 @@ $MettleCiLicObjKey  = "binaries/dm_software/mettleci.lic"
 $MettleCiLicPath    = "C:\is_temp\mettleci.lic"
 $IsxObjKey          = "binaries/dm_software/jenkins_devops_techzone.isx" 
 $TargetIsxFile      = "C:\is_temp\jenkins_devops_techzone.isx"
-$RepoBeaconScript   = "C:\Temp\post_deploy_repo\ibmtest\beacon_import.ps1"
-$BeaconScriptPath   = "C:\is_temp\beacon_import.ps1"
+$MCISetupObjKey  = "binaries/dm_software/MCI_Setup.exe"
+$MCISetupPath    = "C:\is_temp\MCI_Setup.exe"
+
+
 
 # --- Exact Path Rules matching your is-client layout ---
 $TargetClientDir    = "$ExtractDir\is-client"
@@ -138,7 +140,17 @@ if (Test-Path $MettleCiLicPath) {
     Write-Error "Error: Failed to download mettleci.lic from S3."
 }
 
-# 2e. Download DataStage ISX Payload
+# 2e. Download MCI_Setup 
+Write-Host "Downloading MCI_Setup file from S3..." -ForegroundColor Cyan
+aws s3 cp "s3://$env:AWS_BUCKET_NAME/$MCISetupObjKey" "$MCISetupPath" --endpoint-url $env:AWS_ENDPOINT_URL
+
+if (Test-Path $MCISetupPath) {
+    Write-Host "[SUCCESS] Successfully downloaded MCI_Setup.exe" -ForegroundColor Green
+} else {
+    Write-Error "Error: Failed to download MCI_Setup.exe from S3."
+}
+
+# 2f. Download DataStage ISX Payload
 Write-Host "Downloading ISX payload from S3..." -ForegroundColor Cyan
 aws s3 cp "s3://$env:AWS_BUCKET_NAME/$IsxObjKey" "$TargetIsxFile" --endpoint-url $env:AWS_ENDPOINT_URL
 
@@ -148,7 +160,7 @@ if (Test-Path $TargetIsxFile) {
     Write-Error "CRITICAL ERROR: Failed to download jenkins_devops.isx from S3."
 }
 
-# 2f. Download Public RSA Key
+# 2g. Download Public RSA Key
 Write-Host "Downloading Public RSA Key from S3..." -ForegroundColor Cyan
 aws s3 cp "s3://$env:AWS_BUCKET_NAME/$RSAPubKey" "$RSAPubKeyPath" --endpoint-url $env:AWS_ENDPOINT_URL
 
