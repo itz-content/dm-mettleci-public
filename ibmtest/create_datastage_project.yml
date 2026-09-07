@@ -106,3 +106,4 @@
         - { key: 'Menu#0', path: '/projects/%ProjectName/test-cases/%JobName' }
         - { key: 'Menu#1', path: '/projects/%ProjectName/commits/create?assets=%JobName' }
         - { key: 'Menu#2', path: '/projects/%ProjectName/compliance/create?asset=%JobName' }
+        
