@@ -82,3 +82,16 @@
         - { src: 'StgSupplier_5.csv', dest: 'StgSupplier.csv' }
         - { src: 'StgFinance_20240901-20240930_2K.csv', dest: 'StgFinance.csv' }
         - { src: 'StgSales_20240901-20240930_2K.csv', dest: 'StgSales.csv' }
+
+    - name: Add MettleCI Unit Testing parameter to DSParams files
+      ansible.builtin.lineinfile:
+        path: "{{ item }}"
+        insertafter: 'EnvVarDefns'
+        line: 'DM_ENABLE_UNIT_TESTING\MettleCI\-1\List/Disabled//Test//Intercept/\Disabled\3\Project\Unit Testing Configuration\'
+        owner: dsadm
+        group: dstage
+        state: present
+      loop:
+        - /opt/IBM/InformationServer/Server/Projects/Jenkins_Devops/DSParams
+        - /opt/IBM/InformationServer/Server/Template/DSParams
+        
