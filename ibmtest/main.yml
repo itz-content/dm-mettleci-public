@@ -1,3 +1,20 @@
+---
+# =====================================================================
+# INITIALIZE PLAYBOOK TIMER
+# =====================================================================
+- name: Initialize Playbook Timer
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Capture start time
+      ansible.builtin.set_fact:
+        play_start: "{{ now(fmt='%s') }}"
+        play_start_display: "{{ now(fmt='%Y-%m-%d %H:%M:%S') }}"
+
+# =====================================================================
+# MAIN DEPLOYMENT PIPELINE
+# =====================================================================
+
 - name: IBM 11.7 Infrastructure
   hosts: localhost
   become: true
@@ -56,3 +73,18 @@
 
 - name: Execute Jenkins Installation
   import_playbook: install_jenkins.yml
+
+# =====================================================================
+# FINALIZE PLAYBOOK TIMER & LOG
+# =====================================================================
+- name: Finalize Playbook Timer
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display execution time
+      ansible.builtin.debug:
+        msg: >
+          Started: {{ hostvars['localhost']['play_start_display'] }} |
+          Ended: {{ now(fmt='%Y-%m-%d %H:%M:%S') }} |
+          Elapsed: {{ (now(fmt='%s') | int) - (hostvars['localhost']['play_start'] | int) }} seconds
+          
