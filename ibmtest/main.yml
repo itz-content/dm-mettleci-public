@@ -81,10 +81,8 @@
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Display execution time
-      ansible.builtin.debug:
-        msg: >
-          Started: {{ hostvars['localhost']['play_start_display'] }} |
-          Ended: {{ now(fmt='%Y-%m-%d %H:%M:%S') }} |
-          Elapsed: {{ (now(fmt='%s') | int) - (hostvars['localhost']['play_start'] | int) }} seconds
-          
+    - name: Log execution time to post_deploy_repo.log
+      ansible.builtin.lineinfile:
+        path: /tmp/post_deploy_repo/post_deploy_play.log
+        line: "{{ now(fmt='%Y-%m-%d %H:%M:%S') }} | Playbook Execution | Started: {{ hostvars['localhost']['play_start_display'] }} | Elapsed: {{ (now(fmt='%s') | int) - (hostvars['localhost']['play_start'] | int) }} seconds"
+        insertafter: EOF
