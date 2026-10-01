@@ -74,15 +74,17 @@
 - name: Execute Jenkins Installation
   import_playbook: install_jenkins.yml
 
-# =====================================================================
+ =====================================================================
 # FINALIZE PLAYBOOK TIMER & LOG
 # =====================================================================
 - name: Finalize Playbook Timer
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Log execution time to post_deploy_repo.log
-      ansible.builtin.lineinfile:
-        path: /tmp/post_deploy_repo/post_deploy_play.log
-        line: "S: {{ hostvars['localhost']['play_start_display'] }} | E: {{ (now(fmt='%s') | int) - (hostvars['localhost']['play_start'] | int) }} seconds"
-        insertafter: EOF
+    - name: Display execution time
+      ansible.builtin.debug:
+        msg: >
+          Started: {{ hostvars['localhost']['play_start_display'] }} |
+          Ended: {{ now(fmt='%Y-%m-%d %H:%M:%S') }} |
+          Elapsed: {{ (now(fmt='%s') | int) - (hostvars['localhost']['play_start'] | int) }} seconds
+          
