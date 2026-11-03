@@ -1,0 +1,4 @@
+site_name: MettleCI Education Environment
+docs_dir: markdown
+theme:
+  name: material

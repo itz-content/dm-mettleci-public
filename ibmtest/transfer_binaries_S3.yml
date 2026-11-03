@@ -18,6 +18,7 @@
     gitea_act: "gitea-runner-3.3.2-linux-amd64"
     jenkins_rpm: "jenkins-2.462.3-1.1.noarch.rpm"
     rsa3072: "CommKey" # Update version if needed
+    hashmap: "patch_DT470285_server_all_11714-11716.ispkg"
 
   tasks:
     - name: 1. Check if AWS CLI is installed
@@ -68,6 +69,14 @@
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
 
+    - name: 5.1 Copy Hashmap patch using AWS CLI
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ hashmap }} {{ remote_staging_path }}/{{ hashmap }}
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true
+
     - name: 6. Ensure Home Directory Exists for itzuser
       file:
         path: "/home/itzuser"
@@ -76,7 +85,7 @@
         group: itzuser
         mode: '0755'
 
-    - name: 7. Copy Software RPMs to itzuser Home using AWS CLI
+    - name: 7. Copy Software RPMs and jars to itzuser Home using AWS CLI
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
@@ -199,3 +208,4 @@
         - "{{ remote_staging_path }}/{{ main_tar }}"
         - "{{ remote_staging_path }}/{{ spec_zip }}"
         - "{{ remote_staging_path }}/{{ db2_tar }}"
+        - "{{ remote_staging_path }}/{{ hashmap }}"

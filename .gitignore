@@ -21,3 +21,11 @@ custom_values*
 # tar files
 *.tar
 *.tgz
+
+#image and video files
+*.jpeg
+*.mp4
+*.mov
+
+#website files
+site/
