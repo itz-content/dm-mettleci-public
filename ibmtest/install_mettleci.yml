@@ -215,6 +215,24 @@
         group: dstage
         mode: '0644'
 
+    - name: 10.2 Copy S2PX Conversion Plugin to CLI plugin directory
+      ansible.builtin.copy:
+        src: "{{ source_dir }}/dm-s2px-conversion-plugin-1.0-836.jar"
+        dest: "{{ mci_install_dir }}/cli/plugin/dm-s2px-conversion-plugin-1.0-836.jar"
+        remote_src: yes
+        owner: mciworkb
+        group: dstage
+        mode: '0644'
+
+    - name: 10.3 Copy S2PX Analysis Plugin to CLI plugin directory
+      ansible.builtin.copy:
+        src: "{{ source_dir }}/dm-s2px-analysis-plugin-1.0-195.jar"
+        dest: "{{ mci_install_dir }}/cli/plugin/dm-s2px-analysis-plugin-1.0-195.jar"
+        remote_src: yes
+        owner: mciworkb
+        group: dstage
+        mode: '0644'
+
     - name: 11. Deploy MettleCI configuration files
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/{{ item }}"

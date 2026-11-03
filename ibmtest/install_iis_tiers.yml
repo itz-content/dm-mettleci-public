@@ -231,6 +231,36 @@
       become: yes
 
     # ==========================================
+    # TIER 4: PATCH DEPLOYMENT (HASHMAP)
+    # ==========================================
+    - name: 6e. Install Hashmap Patch (DT470285) for DataStage
+      shell: |
+        export LC_ALL=en_US.UTF-8
+        unset -f which
+        unset BASH_FUNC_which%%
+        
+        /opt/IBM/InformationServer/Updates/bin/installUpdates \
+          -i /opt/IBM/InformationServer/patch_DT470285_server_all_11714-11716.ispkg \
+          -user isadmin \
+          -password {{ ibm_password }} \
+          -verbose > /tmp/patch_DT470285_debug.log 2>&1
+      args:
+        executable: /bin/bash
+      become: yes
+      become_user: root
+      register: patch_install
+      async: 3600
+      poll: 30
+      failed_when: patch_install.rc not in [0, 2, 3]
+
+    - name: 6f. Validate Patch Installation
+      shell: "/opt/IBM/InformationServer/Updates/bin/installUpdates -s | grep DT470285"
+      become: yes
+      become_user: root
+      register: patch_validation
+      failed_when: patch_validation.stdout == ""
+
+    # ==========================================
     # POST-INSTALLATION: SECURITY RESTORATION
     # ==========================================
     - name: 7a. Restore active fapolicyd service post-installation
