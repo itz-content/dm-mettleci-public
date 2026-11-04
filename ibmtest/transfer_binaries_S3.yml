@@ -13,6 +13,7 @@
 
     main_tar: "IS_V11716_Linux_x86_multi.tar.gz"
     spec_zip: "IS_V11716.bundle_spec_file_mult.zip"
+    upd_tar: "is-update.linux64.11.7.1.144.tar"
     db2_tar: "v11.5.8_linuxx64_server_dec.tar.gz"
     gitea_bin: "gitea-1.27.0-linux-amd64"
     gitea_act: "gitea-runner-3.3.2-linux-amd64"
@@ -69,11 +70,19 @@
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
 
-    - name: 5.1 Copy Hashmap patch using AWS CLI
+    - name: 5.2 Copy IS Update Installer using AWS CLI
       shell: >
         AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
-        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ hashmap }} {{ remote_staging_path }}/{{ hashmap }}
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ upd_tar }} {{ remote_staging_path }}/{{ upd_tar }}
+        --endpoint-url {{ aws_endpoint_url }}
+      no_log: true
+
+    - name: 5.2 Copy Hashmap patch using AWS CLI
+      shell: >
+        AWS_ACCESS_KEY_ID="{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY="{{ aws_secret_access_key }}"
+        /usr/local/bin/aws s3 cp s3://{{ s3_bucket_name }}/binaries/{{ hashmap }} {{ remote_staging_path }}/hashmap_patch.ispkg
         --endpoint-url {{ aws_endpoint_url }}
       no_log: true
 
@@ -207,5 +216,6 @@
       loop:
         - "{{ remote_staging_path }}/{{ main_tar }}"
         - "{{ remote_staging_path }}/{{ spec_zip }}"
+        - "{{ remote_staging_path }}/{{ upd_tar }}"
         - "{{ remote_staging_path }}/{{ db2_tar }}"
         - "{{ remote_staging_path }}/{{ hashmap }}"

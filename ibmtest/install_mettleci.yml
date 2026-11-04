@@ -217,8 +217,8 @@
 
     - name: 10.2 Copy S2PX Conversion Plugin to CLI plugin directory
       ansible.builtin.copy:
-        src: "{{ source_dir }}/dm-s2px-conversion-plugin-1.0-836.jar"
-        dest: "{{ mci_install_dir }}/cli/plugin/dm-s2px-conversion-plugin-1.0-836.jar"
+        src: "{{ source_dir }}/dm-s2px-conversion-plugin.jar"
+        dest: "{{ mci_install_dir }}/cli/plugin/dm-s2px-conversion-plugin.jar"
         remote_src: yes
         owner: mciworkb
         group: dstage
@@ -226,8 +226,8 @@
 
     - name: 10.3 Copy S2PX Analysis Plugin to CLI plugin directory
       ansible.builtin.copy:
-        src: "{{ source_dir }}/dm-s2px-analysis-plugin-1.0-195.jar"
-        dest: "{{ mci_install_dir }}/cli/plugin/dm-s2px-analysis-plugin-1.0-195.jar"
+        src: "{{ source_dir }}/dm-s2px-analysis-plugin.jar"
+        dest: "{{ mci_install_dir }}/cli/plugin/dm-s2px-analysis-plugin.jar"
         remote_src: yes
         owner: mciworkb
         group: dstage
