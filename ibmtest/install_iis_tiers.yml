@@ -236,10 +236,8 @@
     - name: 6e. Install Hashmap Patch (DT470285) for DataStage
       shell: |
         export LC_ALL=en_US.UTF-8
-        unset -f which
-        unset BASH_FUNC_which%%
         
-        umask 022 && /opt/IBM/InformationServer/Updates/bin/installUpdates -i /opt/IBM/InformationServer/ -p /opt/IBM/InformationServer/hashmap_patch.ispkg -user isadmin -password {{ ibm_password }} -verbose > /tmp/hashmap_patch_debug.log 2>&1 </dev/null
+        umask 022 && env -u 'BASH_FUNC_which%%' /opt/IBM/InformationServer/Updates/bin/installUpdates -i /opt/IBM/InformationServer/ -p /opt/IBM/InformationServer/hashmap_patch.ispkg -user isadmin -password {{ ibm_password }} -verbose > /tmp/hashmap_patch_debug.log 2>&1 </dev/null
       args:
         executable: /bin/bash
       become: yes
