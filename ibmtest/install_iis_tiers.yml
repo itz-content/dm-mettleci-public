@@ -248,11 +248,12 @@
       failed_when: patch_install.rc not in [0, 2, 3]
 
     - name: 6f. Validate Patch Installation
-      shell: "/opt/IBM/InformationServer/Updates/bin/installUpdates -s | grep DT470285"
+      ansible.builtin.shell: grep "DT470285" /opt/IBM/InformationServer/Version.xml
       become: yes
       become_user: root
       register: patch_validation
-      failed_when: patch_validation.stdout == ""
+      changed_when: false
+      failed_when: patch_validation.rc != 0
 
     # ==========================================
     # POST-INSTALLATION: SECURITY RESTORATION
